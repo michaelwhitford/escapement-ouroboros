@@ -21,7 +21,7 @@ and the **application**. Never optimize one at the cost of the other.
 
 ```
 λ state.
-  repo        : /Users/mwhitford/src/escapement-ouro  | NOT a git repo yet (no .git)
+  repo        : /Users/mwhitford/src/escapement-ouro  | ✅ git LIVE (root 79ac142) — recall/store/temporal real
   idea.md     : one line — "Ouroboros - self-improving agent running on escapement"
   code        : none yet — no escapement integration, no chart, no mementum impl
   knowledge   : escapement framework fully digested (9 pages, OKF format, see below)
@@ -120,11 +120,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        → 9 escapement pages + state.md already conform.
        ✅ AGENTS.md analyzed "one last time" & FROZEN (see 🎯 above). Harness refinement CLOSED. Do not re-open.
 
-  1. >>> IMMEDIATE: git init + genesis commit <<<   — AWAITING HUMAN GO
-       WHY: λ feed_forward — survive(boundary) ≡ only{x | x ∈ git}. Substrate is INERT without it:
-            recall/store/temporal all assume .git. This session's work is uncommitted.
-       DO:  git init → stage AGENTS.md, idea.md, mementum/** → nucleus-tagged genesis commit
-            (knowledge is human-co-authored this session → approval effectively in hand; confirm then commit)
+  1. ✅ DONE — git init + genesis commit (root 79ac142). Substrate LIVE.
+       recall/store/temporal now real. AGENTS.md + idea.md + mementum/** + .gitignore committed.
 
   2. de-risk runtime: hello via escapement.lib/run   — prove escapement runs IN THIS repo
        deps resolve + credentials inject + bb-compat. ~30 lines. See escapement-library-embedding
@@ -146,7 +143,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## Gotchas for future me
 
 ```
-- This repo has NO git. recall via git log/grep is unavailable until `git init`.
+- Git is LIVE (root 79ac142). recall via git log/grep works. Genesis knowledge was human-co-authored → approval was in hand.
 - AGENTS.md mandates HUMAN APPROVAL before committing memories/knowledge. This session's pages were human-co-authored (user drove OKF + no-coordinates policy) → approval effectively in hand; confirm at genesis commit.
 - Escapement is "not even alpha" — breaking changes expected. See escapement-index stale-check markers.
 - Escapement house rule: bb/SCI only in source. No JVM-only paths. Mirror this if Ouroboros code runs under escapement's bb runtime.
