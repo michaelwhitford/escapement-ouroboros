@@ -1,0 +1,9 @@
+# escapement config
+.escapement.edn
+# Escapement per-session work-dir (transcripts, checkpoints, artifacts)
+.escapement/
+
+# Local editor / OS noise
+.clj-kondo/
+.lsp/
+.DS_Store
