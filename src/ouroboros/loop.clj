@@ -1,0 +1,113 @@
+(ns ouroboros.loop
+  "Loop B, first breath — the smallest closed self-improvement loop.
+
+  An escapement chart observes Ouroboros's own mementum (via the
+  `:mementum/context` tool, which calls the pathom-free core directly) and
+  PROPOSES exactly one memory candidate (via `:mementum/propose-memory`).
+
+  This is PROPOSAL ONLY: the candidate lands in `mementum/memories/`,
+  UNCOMMITTED. Commit is human-gated (AGENTS.md invariant — synthesis is AI,
+  approval is human) — this namespace never touches git.
+
+  Run: bb loop"
+  (:require
+    [babashka.process :as proc]
+    [clojure.string :as str]
+    [com.fulcrologic.statecharts.chart :as chart]
+    [com.fulcrologic.statecharts.elements :refer [state transition final]]
+    [escapement.chart.helpers :as h]
+    [escapement.lib :as lib]
+    [escapement.lib.event-sink :as sink]
+    [ouroboros.tools :as tools]))
+
+;; Reuse the proven local llama.cpp wiring from ouroboros.smoke.
+(def ^:private local-base-url "http://localhost:5100/v1")
+(def ^:private local-model    "qwen35-35b-a3b")
+
+(def system-prompt
+  "You are Ouroboros, observing your own project state. Follow these steps IN ORDER:
+
+1. Call mementum_context (no input) to read the current knowledge index, memory
+   index, and recent commits.
+2. From what you just read, pick ONE genuine, SPECIFIC insight, decision, or
+   pattern worth remembering — not a fabrication, not generic advice about
+   software in general. It must be grounded in something you actually saw.
+3. Call mementum_propose_memory with:
+   - slug: a short kebab-case identifier, no \".md\", no path
+   - content: a COMPLETE OKF document, exactly this shape:
+       ---
+       type: mementum/memory
+       description: <one crisp line>
+       ---
+       <symbol> <body, under 200 words, ONE insight>
+     where <symbol> is exactly one of 💡 🔄 🎯 🌀 ❌ ✅ 🔁 matching what happened
+     (💡 insight, 🔄 shift, 🎯 decision, 🌀 meta, ❌ mistake, ✅ win, 🔁 pattern).
+4. If the tool reports an error, fix the content per its feedback and call it again.
+5. Once it succeeds, reply with ONE sentence confirming what you proposed, then stop.")
+
+(def propose-chart
+  (chart/statechart
+    {:initial :observe}
+    (state {:id :observe}
+      (h/llm-conversation
+        {:id         "propose"
+         :system     system-prompt
+         :model      :local
+         :stream?    true
+         :budget-ms  240000
+         :real-tools [:mementum/context :mementum/propose-memory]
+         :message    "Begin: call mementum_context, then propose exactly one memory."})
+      (transition {:event :llm.idle :target :done}
+        (h/capture-llm-output {:as "reflection.md"})))
+    (final {:id :done})))
+
+(defn untracked-memories
+  "Repo-relative paths under mementum/memories/ that git sees as untracked or
+  modified — i.e. freshly proposed candidates awaiting human approval.
+  `--untracked-files=all` forces PER-FILE listing — otherwise git collapses a
+  wholly-new (never-before-tracked) directory to a single `?? dir/` line."
+  [root]
+  (let [{:keys [exit out]} (apply proc/shell
+                             {:dir (str root) :out :string :err :string :continue true}
+                             ["git" "status" "--porcelain" "--untracked-files=all"
+                              "--" "mementum/memories/"])]
+    (if (zero? exit)
+      (->> (str/split-lines out)
+        (remove str/blank?)
+        (map #(str/trim (subs % 3)))
+        (remove #(str/ends-with? % "/"))
+        vec)
+      [])))
+
+(defn run!
+  "Run the loop against `root` (default \".\"). Streams the assistant's tokens
+  live to stdout. Returns `{:result <lib/run summary> :proposed <paths>}` — the
+  proposed memory(ies), if any, are UNCOMMITTED working-tree files."
+  ([] (run! "."))
+  ([root]
+   (let [adapter (sink/make-adapter)
+         result  (lib/run
+                   {:chart          propose-chart
+                    :session-id     "ouroboros-loop"
+                    :tool-registry  (tools/new-registry root)
+                    :credentials    [{:provider :openai :api-key "sk-local" :base-url local-base-url}]
+                    :config         {:llm/aliases             {:local [{:provider :openai :model local-model}]}
+                                     :llm/preferences         [:local]
+                                     :llm/eligibility-strict? false}
+                    :transcript-tap (fn [row]
+                                      (doseq [e (sink/feed! adapter row)]
+                                        (when (= :text-delta (:type e))
+                                          (print (get-in e [:delta :text]))
+                                          (flush))))})]
+     {:result result :proposed (untracked-memories root)})))
+
+(defn -main [& _]
+  (let [{:keys [result proposed]} (run!)]
+    (println)
+    (println "status      :" (:status result))
+    (println "proposed    :" (if (seq proposed) proposed "(none — the model proposed nothing)"))
+    (when (seq proposed)
+      (println "\n--- review before approving/committing ---")
+      (doseq [p proposed] (println "\n#" p "\n" (slurp p))))
+    (shutdown-agents)
+    (System/exit (if (= :done (:status result)) 0 1))))

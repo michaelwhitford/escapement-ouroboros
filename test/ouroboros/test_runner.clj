@@ -7,7 +7,8 @@
     [ouroboros.smoke-test]
     [ouroboros.mementum.okf-test]
     [ouroboros.mementum.store-test]
-    [ouroboros.mementum.eql-test]))
+    [ouroboros.mementum.eql-test]
+    [ouroboros.tools-test]))
 
 (defn run! [& _]
   (let [{:keys [fail error]}
@@ -15,5 +16,6 @@
           'ouroboros.smoke-test
           'ouroboros.mementum.okf-test
           'ouroboros.mementum.store-test
-          'ouroboros.mementum.eql-test)]
+          'ouroboros.mementum.eql-test
+          'ouroboros.tools-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))

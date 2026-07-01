@@ -185,11 +185,30 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
          pathom2 error-handler-plugin renders throws as strings → catch-in-veneer for structured errors.
        test runner: test/ouroboros/test_runner.clj (add new test nss here + in run-tests).
 
-  4. >>> NEXT: compose first self-improvement loop <<<
-       smallest closed loop: an escapement chart reads state/knowledge (via mementum EQL or core directly) →
-       proposes a memory (structured EQL mutation, human-gated commit). Wire mementum into escapement:
-       tools call the pathom-FREE core directly (avoids pathom2+? classpath issues; core is bb-native).
-       Uses the proven Phase-B LLM path (localhost:5100) + the mementum substrate. This is Loop B's first breath.
+  4. ✅ DONE: Loop B — FIRST BREATH. `bb loop` runs a real closed self-observation → proposal cycle.
+       ouroboros.tools: ContextTool (:mementum/context, digest of knowledge+memory index+recent commits, no input)
+                        + ProposeMemoryTool (:mementum/propose-memory {slug content} → store/store! :memory; OKF
+                        rejection caught → corrective {:is-error true} tool_result, LLM can retry). BOTH call the
+                        pathom-FREE core directly (store.clj) — no pathom in the escapement/bb runtime, per the
+                        composition decision. new-registry = fresh isolated registry (wiring strategy C).
+       ouroboros.loop: propose-chart (h/llm-conversation, model :local @ localhost:5100, :real-tools
+                        [:mementum/context :mementum/propose-memory], system prompt: observe→pick ONE grounded
+                        insight→propose OKF memory→stop). run! → lib/run + untracked-memories (git status
+                        --porcelain --untracked-files=all, NOTE: plain --porcelain collapses a wholly-new
+                        directory to one `?? dir/` line — needed --untracked-files=all for per-file listing).
+       PROVEN LIVE (this session): chart called context tool, read the real digest, proposed ONE genuine
+         memory grounded in escapement's actual tool-duality architecture (not fabricated) — written
+         UNCOMMITTED to mementum/memories/, human reviewed, approved WITH a symbol correction (🎯→💡, decision→
+         insight — model slightly over-claimed "decision" for an observation), then committed.
+       INVARIANT HELD: synthesis=AI (chart proposed) → approval=human (explicit ask_user gate, no auto-commit)
+         → AI commits after approval. mementum/propose-memory NEVER touches git — proposal ≠ persistence-to-history.
+       bb test: 21 tests, 65 assertions, GREEN (tools_test.clj added, deterministic, no LLM).
+
+  5. >>> NEXT: grow the loop <<<
+       candidates: (a) synthesize! path (knowledge pages, not just memories) with the ≥3-memories→page threshold
+       from λ metabolize; (b) let the loop propose STATE.md updates too; (c) wire the loop into a repeatable
+       cadence (not just ad-hoc `bb loop`); (d) teach the loop to read FULL knowledge bodies (not just the
+       one-line digest) for deeper synthesis, not just index descriptions.
 
   4. compose first self-improvement loop   — smallest closed loop: chart reads state/knowledge → proposes a memory
 
