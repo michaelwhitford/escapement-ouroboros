@@ -176,10 +176,27 @@ streaming via `event-sink`. **Read this first when wiring Ouroboros onto escapem
 ## Minimal no-secret smoke (no LLM)
 
 ```clojure
-(require '[escapement.lib :as lib])
-(import '[com.fulcrologic.statecharts.elements])
-(refer 'com.fulcrologic.statecharts.elements :only '[state transition final script on-entry])
-;; assign into data model, transition to final — runs with zero secrets
-(lib/run {:chart greet-chart :session-id "demo"})
-;; → {:status :done :final-config [:run :done] :run-id … :transcript /tmp/…}
+(require '[escapement.lib :as lib]
+         '[com.fulcrologic.statecharts.chart :as chart])
+(require '[com.fulcrologic.statecharts.elements :refer [state transition final]])
+
+(def greet-chart
+  (chart/statechart {:initial :hello}
+    (state {:id :hello} (transition {:target :done}))   ; eventless → auto-fires
+    (final {:id :done})))
+
+;; :credentials is REQUIRED by the closed options schema UNCONDITIONALLY — even a
+;; chart with NO :llm-conversation. Pass a dummy descriptor; it is never consulted.
+(lib/run {:chart greet-chart :session-id "demo"
+          :credentials [{:provider :openai :api-key "sk-unused"}]})
+;; → {:status :done :final-config [] :run-id "<36-char uuid>" :transcript /tmp/…}
 ```
+
+> **Two verified contract gotchas** (proven by `ouroboros.smoke`, a live in-repo run):
+> 1. **`:credentials` is schema-required unconditionally.** Omitting it → the closed
+>    schema rejects the map: `{:errors {:credentials ["missing required key"]}}`. A
+>    no-LLM chart still needs a (dummy, unconsulted) descriptor.
+> 2. **A TOP-LEVEL `final` empties the configuration** → `:final-config` is `[]`. The
+>    success signal is **`:status :done`**, not `:final-config` membership. Only a
+>    `final` nested under a parent state appears in the config (e.g. `[:run :done]`
+>    when `:done` is a child of `:run`).
