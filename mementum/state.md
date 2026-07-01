@@ -150,10 +150,16 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
          · stream live via escapement.lib.event-sink: (sink/feed! adapter row) → :text-delta {:delta {:text}}
        REF: demos/lib/embed_example.clj (READ FIRST) · test/escapement/lib/hosted_smoke_test.clj (stub-backend pattern)
 
-  3. build substrate: mementum EQL interface (pathom3)   — the load-bearing subsystem
+  2b. ✅ DONE — follow-ups: knowledge page fixed + `bb test` harness live
+        · escapement-library-embedding "no-secret smoke" corrected (creds-required + final-config semantics)
+        · bb.edn :test task + test/ouroboros/smoke_test.clj (2 tests, 5 assertions, GREEN, no network)
+        · `bb test` ≡ the deterministic gate | `bb smoke` ≡ live-LLM integration (needs localhost:5100)
+
+  3. >>> NEXT: build substrate — mementum EQL interface (pathom3) <<<   — the load-bearing subsystem
        resolvers: recall/read/list · mutations: store!/synthesize!/update!/delete!
        Malli OKF gate enforcing type ~ ^mementum/ (the policy we just encoded) · git-backed files
-       NO secrets needed → fully unit-testable under `bb test`. Makes S1 λ interface real.
+       NO secrets needed → fully unit-testable under `bb test` (harness ready). Makes S1 λ interface real.
+       PATTERN NOW PROVEN: bb.edn + src/ouroboros/** + test/ouroboros/** + escapement :local/root all work.
 
   4. compose first self-improvement loop   — smallest closed loop: chart reads state/knowledge → proposes a memory
 
