@@ -1,0 +1,8 @@
+{:paths ["src"]
+ :deps  {;; Escapement is the runtime Ouroboros runs on. Local/root so bb reads
+         ;; escapement's deps.edn transitively (statecharts/guardrails/malli/
+         ;; cheshire/http-client) — the lib path needs no pathom.
+         com.fulcrologic/escapement {:local/root "/Users/mwhitford/src/escapement"}}
+ :tasks {smoke {:doc      "First light: escapement.lib/run smoke — no-LLM Phase A + local llama.cpp Phase B."
+                :requires ([ouroboros.smoke :as smoke])
+                :task     (smoke/-main)}}}

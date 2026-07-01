@@ -123,9 +123,32 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   1. ✅ DONE — git init + genesis commit (root 79ac142). Substrate LIVE.
        recall/store/temporal now real. AGENTS.md + idea.md + mementum/** + .gitignore committed.
 
-  2. de-risk runtime: hello via escapement.lib/run   — prove escapement runs IN THIS repo
-       deps resolve + credentials inject + bb-compat. ~30 lines. See escapement-library-embedding
-       + the lib demo (`bb -m lib.embed-example` in ~/src/escapement). Minimal no-secret smoke first.
+  2. ✅ DONE — de-risk runtime: escapement.lib/run smoke IN THIS repo. SMOKE GREEN.
+       bb.edn (escapement :local/root) + src/ouroboros/smoke.clj. `bb smoke` → both phases PASS, exit 0.
+       Phase A (no-LLM) :status :done. Phase B: local qwen35-35b-a3b streamed live, answer.md captured, :status :done.
+       CONTRACT LEARNINGS (source-truth beat the knowledge page):
+         · :credentials is schema-required UNCONDITIONALLY (closed schema) — even a no-LLM chart. Pass a dummy descriptor.
+           ⚠ STALE: escapement-library-embedding "Minimal no-secret smoke" snippet omits :credentials → will reject. FLAG to update.
+         · TOP-LEVEL final EMPTIES the configuration → :final-config is []. Success signal = :status :done, NOT final-config membership.
+           (nest final under a parent state if you want it to appear in final-config, cf. embed_example [:run :done].)
+       ↓ (original wiring notes retained below)
+     de-risk runtime: escapement.lib/run smoke IN THIS repo
+       WIRING (grounded in live source, this session):
+         · deps: bb.edn → escapement {:local/root ~/src/escapement} (bb reads its deps.edn: statecharts/guardrails/malli/cheshire/http-client — NO pathom needed on lib path)
+         · Phase A (no-LLM): (lib/run {:chart greet :session-id …}) → {:status :done}. greet = initial state → eventless transition → final. proves runtime+deps+bb-compat.
+         · Phase B (LLM): local llama.cpp @ localhost:5100 (OpenAI-compat /v1), model "qwen35-35b-a3b" (Qwen3 35B-A3B, 262k ctx). server up (/health ok).
+       LOCAL-MODEL RECIPE (data-driven hermetic injection — how Ouroboros configures providers):
+         :credentials [{:provider :openai :api-key "sk-local" :base-url "http://localhost:5100/v1"}]
+         :config {:llm/aliases {:local [{:provider :openai :model "qwen35-35b-a3b"}]}
+                  :llm/preferences [:local] :llm/eligibility-strict? false}
+       KEY FACTS (source-verified, providers.clj/openai.clj/lib demo):
+         · descriptor->credential MERGES caller :base-url over provider-templates → localhost override works
+         · :provider in alias → provider-keyed dispatch (3-tuple routes); single descriptor is also :default-backend
+         · lib facade wires LLM processor ONLY when BOTH backend(:credentials) AND :tool-registry present → pass (tools/new-registry) [empty]
+         · eligibility-strict? MUST be false — local model absent from bundled catalog → strict gate would reject
+         · chart authored with escapement.chart.helpers: h/llm-conversation (flat keys; :message literal|(fn [env data])), h/capture-llm-output {:as "f.md"} on :llm.idle transition
+         · stream live via escapement.lib.event-sink: (sink/feed! adapter row) → :text-delta {:delta {:text}}
+       REF: demos/lib/embed_example.clj (READ FIRST) · test/escapement/lib/hosted_smoke_test.clj (stub-backend pattern)
 
   3. build substrate: mementum EQL interface (pathom3)   — the load-bearing subsystem
        resolvers: recall/read/list · mutations: store!/synthesize!/update!/delete!
