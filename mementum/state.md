@@ -155,11 +155,41 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
         · bb.edn :test task + test/ouroboros/smoke_test.clj (2 tests, 5 assertions, GREEN, no network)
         · `bb test` ≡ the deterministic gate | `bb smoke` ≡ live-LLM integration (needs localhost:5100)
 
-  3. >>> NEXT: build substrate — mementum EQL interface (pathom3) <<<   — the load-bearing subsystem
-       resolvers: recall/read/list · mutations: store!/synthesize!/update!/delete!
-       Malli OKF gate enforcing type ~ ^mementum/ (the policy we just encoded) · git-backed files
-       NO secrets needed → fully unit-testable under `bb test` (harness ready). Makes S1 λ interface real.
-       PATTERN NOW PROVEN: bb.edn + src/ouroboros/** + test/ouroboros/** + escapement :local/root all work.
+🎯 mementum EQL veneer → PATHOM2 (decided this session; human chose reuse-escapement's over pathom3)
+                         WHY: dependency alignment (escapement runs pathom 2.4.0 for its /api → one pathom on bb classpath),
+                              guaranteed no pathom2/pathom3 coexistence conflict, no new alpha surface.
+                         CORE/VENEER SPLIT (load-bearing insight): mementum CORE needs NO pathom —
+                           OKF(clj-yaml, bb builtin) + Malli gate + git-backed ops. Pathom is only the EQL veneer.
+                           → pathom choice is low-stakes, affects veneer only; core is runtime-agnostic + bb-native.
+                         PROVEN UNDER BB (this session): pathom2 parser (guardrails 1.2.16 PIN required, eql auto-resolved),
+                           mutations dispatch ([(store! {:v 7})]→ok), ident reads ([{[:slug "x"][:desc]}]→ok).
+                           MIRROR escapement's parser: {::p/mutate pc/mutate ::p/env {::p/reader [p/map-reader pc/reader2 pc/ident-reader pc/index-reader]}
+                                                        ::p/plugins [(pc/connect-plugin {::pc/register …}) (p/post-process-parser-plugin p/elide-not-found) p/error-handler-plugin]}
+                           read pattern = IDENT JOIN [{[:mementum/slug "page"] [:mementum/description …]}] (NOT ::p/entity map — didn't fire).
+                         ⚠ AGENTS.md S1 λ interface still says "pathom3 … smart_map" — FROZEN, do NOT reopen now.
+                           FLAG: correct pathom3→pathom2 in the deferred post-chart harness rewrite. state.md (read-first) carries truth meanwhile.
+
+  3. ✅ DONE: mementum substrate — S1 λ interface is REAL. `bb test` GREEN (17 tests, 53 assertions).
+       core (pathom-agnostic, bb-native):
+         · ouroboros.mementum.okf   — OKF parse/emit (clj-yaml) + Malli gate (type ~ ^mementum/, description required)
+         · ouroboros.mementum.store — git-backed read/list/list-summaries/store!/delete! + recall-grep/recall-log
+       veneer (pathom2, mirrors escapement parser):
+         · ouroboros.mementum.eql   — resolvers: page(ident [:mementum/ref {:kind :slug}]), knowledge/memories index,
+                                       recall(param [(:mementum/recall {:query :n})]) · mutations: store!/synthesize!/update!/delete!
+                                       env carries :mementum/root → serves any working tree
+       KEY DESIGN: core store! THROWS on invalid OKF (hard gate, nothing persists); veneer CATCHES → structured
+         rejection {:mementum/written false :mementum/error :okf/invalid :mementum/errors {…}} (NOT pathom's opaque
+         error string). callers get first-class data. VERIFIED: invalid write refused + not persisted.
+       GOTCHAS BANKED: pc/defmutation takes NO docstring (arglist [sym [env params] config & body]) — descriptions→comments;
+         pc/defresolver DOES take docstring; ident read = [{[:k v] [attrs]}] join (::p/entity map didn't fire);
+         pathom2 error-handler-plugin renders throws as strings → catch-in-veneer for structured errors.
+       test runner: test/ouroboros/test_runner.clj (add new test nss here + in run-tests).
+
+  4. >>> NEXT: compose first self-improvement loop <<<
+       smallest closed loop: an escapement chart reads state/knowledge (via mementum EQL or core directly) →
+       proposes a memory (structured EQL mutation, human-gated commit). Wire mementum into escapement:
+       tools call the pathom-FREE core directly (avoids pathom2+? classpath issues; core is bb-native).
+       Uses the proven Phase-B LLM path (localhost:5100) + the mementum substrate. This is Loop B's first breath.
 
   4. compose first self-improvement loop   — smallest closed loop: chart reads state/knowledge → proposes a memory
 
