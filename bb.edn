@@ -5,4 +5,9 @@
          com.fulcrologic/escapement {:local/root "/Users/mwhitford/src/escapement"}}
  :tasks {smoke {:doc      "First light: escapement.lib/run smoke — no-LLM Phase A + local llama.cpp Phase B."
                 :requires ([ouroboros.smoke :as smoke])
-                :task     (smoke/-main)}}}
+                :task     (smoke/-main)}
+         test  {:doc         "Run unit tests under test/ (deterministic, no network)."
+                :extra-paths ["test"]
+                :requires    ([clojure.test :as t] [ouroboros.smoke-test])
+                :task        (let [{:keys [fail error]} (t/run-tests 'ouroboros.smoke-test)]
+                               (System/exit (if (pos? (+ fail error)) 1 0)))}}}
