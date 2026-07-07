@@ -24,7 +24,7 @@ and the **application**. Never optimize one at the cost of the other.
   repo        : /Users/mwhitford/src/escapement-ouro  | ✅ git LIVE (root 79ac142) — recall/store/temporal real
   idea.md     : one line — "Ouroboros - self-improving agent running on escapement"
   code        : none yet — no escapement integration, no chart, no mementum impl
-  knowledge   : escapement framework fully digested (9 pages, OKF format, see below)
+  knowledge   : escapement framework fully digested (10 pages, OKF format, see below)
   memories    : none yet
 ```
 
@@ -34,7 +34,7 @@ and the **application**. Never optimize one at the cost of the other.
 AGENTS.md                                     S5→S1 identity/policy/intelligence/control (lambda directives)
 idea.md                                       the seed (one line)
 mementum/state.md                             this file
-mementum/knowledge/upstream/escapement-*.md   9 source-grounded knowledge pages (OKF frontmatter)
+mementum/knowledge/upstream/escapement-*.md   10 source-grounded knowledge pages (OKF frontmatter)
 ```
 
 ## Knowledge: escapement runtime (mementum/knowledge/upstream/)
@@ -54,6 +54,7 @@ escapement-multi-agent-and-services       → :target routing, verdicts, artifac
 escapement-backends                       → LLMBackend, api/openai/codex, multi, cache, providers
 escapement-library-embedding              → escapement.lib/run (hermetic) — HOW OURO EMBEDS escapement
 escapement-transcript-runner-cli-testing  → transcript, runner, CLI, .escapement.edn, test harness
+escapement-web-ui                         → inspector-not-chat; bb-safe server+ws-hub embeddable; ingress seams (∄ arbitrary-event route)
 ```
 
 The big one for building Ouroboros: **escapement-library-embedding**. Ouroboros will almost
