@@ -16,6 +16,7 @@ related:
   - upstream/escapement-library-embedding
   - upstream/escapement-transcript-runner-cli-testing
   - upstream/escapement-web-ui
+  - upstream/escapement-examples-patterns
 depends-on: []
 ---
 
@@ -40,8 +41,10 @@ escapement-statechart-model
     declared event-tools, never real tools; :type :internal keeps the worker alive across hops.
 
 escapement-llm-conversation
-  → The :llm-conversation invocation and its flat authoring keys; model selection =
-    :needs eligibility gate × :llm/preferences ranking × keyword aliases.
+  → The :llm-conversation worker IS a resident chat session — it parks in :awaiting-user
+    between turns (a live invocation that holds the runner open) and is fed user messages
+    via tell-llm; flat authoring keys; model selection = :needs gate × :llm/preferences
+    ranking × keyword aliases.
 
 escapement-tools
   → Real tools (Tool protocol) are dispatched in the worker and invisible to the chart;
@@ -65,23 +68,31 @@ escapement-transcript-runner-cli-testing
 
 escapement-web-ui
   → The bundled web UI is a read-only inspector (Fulcro SPA, JVM-built) — but ui.server +
-    ws-push are bb-safe and embeddable; human-input is THE web-chat ingress (a parked prompt
-    is a live invocation that keeps the run resident); the only gap is lib/run's missing
-    :human-renderer passthrough, which runner/run! already accepts.
+    ws-push are bb-safe and embeddable; web-chat ingress = external event → tell-llm into a
+    RESIDENT llm-conversation (the parked worker holds the run open, no patches needed);
+    human-input serves modal prompts only, and only IT is blocked by lib/run's missing
+    :human-renderer passthrough.
+
+escapement-examples-patterns
+  → Every example/demo chart mapped to the use-case it demonstrates, its topology, and its
+    load-bearing techniques — the examples directory is upstream's INTENT documentation;
+    consult this catalog before concluding what escapement is "for".
 ```
 
 ## Reading paths
 
 ```
 λ path(goal).
+  match_a_use_case      → examples-patterns(λ map) FIRST → the named example's live source
   understand_whole      → overview → statechart-model → llm-conversation → (siblings as needed)
-  author_a_chart        → statechart-model → llm-conversation → tools → examples hello/scan/iterate
+  author_a_chart        → statechart-model → llm-conversation → examples-patterns(λ techniques) → tools
   embed_in_ouroboros    → library-embedding → backends → overview(arch boundary) → the lib demo
   multi_agent_team      → multi-agent-and-services → llm-conversation(tell-llm, verdicts)
   debug_a_run           → transcript-runner-cli-testing (jq recipes, event vocab) → statechart-model
   pick_a_model          → llm-conversation(model selection) → backends(providers, catalog)
-  web_chat_channel      → web-ui(human-input ingress, seam gap) → transcript-runner(liveness contract)
-                          → library-embedding(:transcript-tap, Options schema)
+  web_chat_channel      → llm-conversation(λ worker: resident session, tell-llm) →
+                          web-ui(host ingress wiring) → transcript-runner(liveness contract)
+                          → library-embedding(:transcript-tap, :on-env-ready)
 ```
 
 ## The five load-bearing invariants (memorize)

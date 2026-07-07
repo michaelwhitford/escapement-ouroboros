@@ -1,7 +1,7 @@
 ---
 type: mementum/knowledge
 title: Escapement — Web UI, WS Push, and the Event-Ingress Seams
-description: The bundled web UI is a read-only inspector (Fulcro SPA, JVM-built) — but ui.server + ws-push are bb-safe and embeddable; human-input is THE web-chat ingress (a parked prompt is a live invocation that keeps the run resident); the only gap is lib/run's missing :human-renderer passthrough, which runner/run! already accepts.
+description: The bundled web UI is a read-only inspector (Fulcro SPA, JVM-built) — but ui.server + ws-push are bb-safe and embeddable; web-chat ingress = external event → tell-llm into a RESIDENT llm-conversation (the parked worker holds the run open, no patches needed); human-input serves modal prompts only, and only IT is blocked by lib/run's missing :human-renderer passthrough.
 resource: https://github.com/fulcrologic/escapement
 tags: [escapement, web, ui, websocket, http-kit, ingress, human-input, ouroboros]
 status: active
@@ -54,17 +54,21 @@ a WebSocket fan-out hub with catch-up + backpressure, and two narrow inbound sea
   backpressure: per-client queue (cap 4096) | overflow coalesces llm/delta per
                 [invokeid session-id type], else drops oldest | ordered single-in-flight CAS
 
-λ ingress. ∄ route(HTTP ∨ WS) → sp/send!(arbitrary-event) | AND a naked wait-state cannot
-  hold a run open anyway (runner liveness contract — see transcript-runner page):
-  bare wait(:event) + empty queue ≡ quiescent → :done → run! returns.
-  ⟹ ingress ≡ human-input, BY DESIGN not by gap:
-    h/human-input invocation → renderer parks worker on promise(prompt-id)
-    → PARKED PROMPT ≡ LIVE INVOCATION → runner waits unboundedly (resident chart)
-    → deliver(promise, value) → worker itself does sp/send!(:human.answer) → transition
-  deliver triggers shipped today: WS {:kind "answer"} frame ∨ POST /api
-    [(escapement.human/answer {:prompt-id :value})] — both → remote-renderer/deliver-answer!
-  raw queue-injection (:on-env-ready → capture ::sc/event-queue → sp/send!) EXISTS but only
-  reaches a run that something ELSE keeps alive; it is a supplement, not an ingress.
+λ ingress. ∄ route(HTTP ∨ WS) → sp/send!(arbitrary-event) — the host builds its own (thin).
+  liveness precondition (runner contract — see transcript-runner page): external events are
+  deliverable only into a run that live work holds open; a naked wait-state exits (:done).
+  CHAT ingress (the primary use-case; zero escapement changes):
+    resident h/llm-conversation (no :message → worker born PARKED :awaiting-user ≡ live
+    invocation → runner resident) + sibling region:
+      transition(:user/msg, :type :internal) → h/tell-llm(text) → worker's user-msg-queue
+      → next turn. See llm-conversation page λ worker; reference: examples/steered_convo.
+    host delivery: :on-env-ready captures ::sc/event-queue → web handler (EQL mutation ∨
+    WS frame) calls sp/send!{:event :user/msg :target session-id :data {:text}}.
+  MODAL ingress (approval gates, select/confirm — NOT chat):
+    h/human-input → renderer parks promise(prompt-id) → deliver(promise,value) → worker does
+    sp/send!(:human.answer). shipped delivery: WS {:kind "answer"} ∨ POST /api
+    [(escapement.human/answer {:prompt-id :value})] → remote-renderer/deliver-answer!.
+    THIS path (only) is blocked at the lib facade by the missing :human-renderer key.
   queue: escapement.engine.queue/InProcessQueue — IN-PROCESS ONLY, no network endpoint
 
 λ human_in_loop. first-class inventory (all source-verified):
@@ -81,16 +85,15 @@ a WebSocket fan-out hub with catch-up + backpressure, and two narrow inbound sea
   tell-llm               feed a message into a RUNNING conversation worker (resident convo possible)
 ```
 
-## The missing seam (verified; ONE passthrough key)
+## The missing seam (verified; ONE passthrough key — affects MODAL prompts only)
 
 `runner/run!` accepts `:human-renderer` and forwards it to the human-input processor (the
 CLI passes it). `escapement.lib/Options` (closed schema) never got the key — it belongs in
-the schema's own "passthrough knobs (forwarded verbatim to runner/run!)" section. The patch
-is two lines: the Options entry + the run-opts assembly entry. Until patched, a lib-facade
-host cannot run interactive charts; workarounds: patch locally (`:local/root` dep) + PR
-upstream, ∨ call runner/run! directly (losing hermetic backend assembly), ∨ turn-scoped
-runs with :resume? (run-to-completion per user message — works today, no renderer needed;
-right shape for bounded episodes like improver loops even after the seam opens).
+the schema's own "passthrough knobs (forwarded verbatim to runner/run!)" section; the patch
+is two lines (Options entry + run-opts assembly entry). SCOPE: this blocks `h/human-input`
+charts via the lib facade — i.e. modal prompts / approval gates. It does NOT block chat:
+resident-conversation + tell-llm ingress needs no renderer and no patch. Defer the patch
+until modal approval dialogs are actually wanted.
 
 ## Outbound composition (host → browser)
 

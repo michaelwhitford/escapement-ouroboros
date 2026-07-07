@@ -1,7 +1,7 @@
 ---
 type: mementum/knowledge
 title: Escapement — The :llm-conversation Invocation
-description: The :llm-conversation invocation and its flat authoring keys; model selection = :needs eligibility gate × :llm/preferences ranking × keyword aliases.
+description: The :llm-conversation worker IS a resident chat session — it parks in :awaiting-user between turns (a live invocation that holds the runner open) and is fed user messages via tell-llm; flat authoring keys; model selection = :needs gate × :llm/preferences ranking × keyword aliases.
 resource: https://github.com/fulcrologic/escapement
 tags: [escapement, llm, invocation, model-selection, prompt-caching, helpers]
 status: active
@@ -29,6 +29,29 @@ depends-on:
              :params (fn [env data] resolved-params)})
   | :autoforward? defaults TRUE — this is what makes tell-llm work
   | each opts value: literal OR (fn [env data]) resolved at invoke time
+```
+
+## Worker lifecycle — a conversation IS a resident chat session
+
+```
+λ worker(conversation). state ∈ {:running :awaiting-user :dying}
+  start: (seq initial-msgs) → :running | ∅ initial message → :awaiting-user (born parked)
+  after EVERY turn: post :on-end-turn-event(:llm.idle {:text|:output-ref :from}) to parent
+                    → park :awaiting-user → poll user-msg-queue (ArrayBlockingQueue)
+  tell-llm → :llm.user-message → autoforward → user-msg-queue → drained at :awaiting-user
+             → applied to the VERY NEXT turn (between-turn; steer latency ≡ 1 turn, always —
+             mid-turn injection paths buffer to the same queue, identical latency)
+  PARKED WORKER ≡ LIVE INVOCATION → runner waits UNBOUNDEDLY (resident chart, no timer tricks)
+  budgets are OPT-IN caps, not defaults: no :max-turns/:budget-ms → parks forever (chat-shaped)
+  死: owning state exits externally → :dying (respawn on re-entry ⟺ re-invoked)
+
+⟹ USE-CASE (the load-bearing one for Ouroboros): multi-turn human↔LLM chat is the PRIMITIVE.
+  chart: resident conversation region + sibling region transitioning on external :user/msg
+  (:type :internal) → tell-llm. External events are deliverable because the parked worker
+  holds the run open. NO human-input, NO renderer, NO lib patch required for chat.
+  Reference charts: examples/steered_convo (between-turn injection), supervisor
+  (monitor+steer+capture), scan (tell-llm re-drive loop). human-input ≡ MODAL prompts
+  (select/confirm/approval gates) — a different primitive for a different job.
 ```
 
 ## The full authoring-key catalog
