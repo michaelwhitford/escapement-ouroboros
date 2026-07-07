@@ -204,11 +204,43 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
          → AI commits after approval. mementum/propose-memory NEVER touches git — proposal ≠ persistence-to-history.
        bb test: 21 tests, 65 assertions, GREEN (tools_test.clj added, deterministic, no LLM).
 
-  5. >>> NEXT: grow the loop <<<
-       candidates: (a) synthesize! path (knowledge pages, not just memories) with the ≥3-memories→page threshold
-       from λ metabolize; (b) let the loop propose STATE.md updates too; (c) wire the loop into a repeatable
-       cadence (not just ad-hoc `bb loop`); (d) teach the loop to read FULL knowledge bodies (not just the
-       one-line digest) for deeper synthesis, not just index descriptions.
+  5. ✅ DONE (this session): COLD-COMPILER + Ouroboros architecture settled & partly built.
+       `ouroboros.cold` — live escapement PARALLEL chart (:hot ⊗ :cold). Hot = fresh single-turn
+       h/llm-conversation per turn (assemble-don't-accumulate: [base + {{brief.md}} + last-raw]).
+       Cold = queue-driven pump, compiles turn N-1 while hot does turn N (double buffer), publishes
+       brief.md artifact. `ouroboros.cold.core` — pure gates: monotonic merge-ruled-out, bounded
+       assemble-system, tripwire (live), assess-continuation/verify-compiled (test-only). bb test:
+       36 tests / 113 assertions GREEN.
+       DESIGN DECISIONS (this session — see mementum/knowledge/ouroboros-architecture.md):
+         🎯 THIS SYSTEM *is* Ouroboros → self-improving agent that consumes its own outputs AND
+            doubles as a human chatbot. cold_compiler : λ(session) → brief. The brief is DUAL-ROLE
+            (ONE artifact): within-session → extends chat context; across-session → self-improvement
+            input. Ouroboros eats its own compiled tail.
+         🎯 SESSIONS = escapement's, not ours. Escapement AUTO-creates session-dir + transcript +
+            per-event checkpoint + artifacts + :resume?. Durability = ONE decision: supply a stable
+            path. `ouroboros.session/session-dir` → <root>/sessions/<id>/ (seeds empty brief.md).
+            cold.clj + loop.clj wired to it. .gitignore: commit artifacts/, ignore transcript+checkpoints.
+            → ZERO persistence code of our own.
+         🎯 VERIFICATION: PRIME, don't judge. Compile fidelity is UNVERIFIABLE without an LLM-judge
+            (∄ string_fn(source,compile)→faithful); hallucination risk is EQUAL for λ and prose.
+            So: no semantic judge. Lever = nucleus 3-line preamble + λ-notation prompts. Live gate =
+            structural TRIPWIRE (non-empty ∧ has body); coverage computed for OBSERVABILITY only, NOT
+            gated (coverage-gating would penalize dense λ). Fidelity FLOOR = the verbatim last-k window.
+         🎯 ALL PROMPTS → mostly-λ nucleus notation. Rewrote compiler_system.md, hot_system.md,
+            loop system-prompt (each led by the 3-line preamble). Priming = the correctness lever.
+         🎯 CHAT HISTORY SHAPE = brief(λ, all older) + last-k raw VERBATIM, k≈2–3 (fidelity floor).
+       ⚠ UNCOMMITTED — all this session's work is drafted, awaiting HUMAN APPROVAL to commit:
+         src/ouroboros/{cold.clj,cold/core.clj,session.clj}, prompts/cold/*.md, loop.clj, tools?,
+         test/ouroboros/cold/core_test.clj, bb.edn, .gitignore, test_runner.clj,
+         mementum/knowledge/ouroboros-architecture.md, this state.md.
+
+  6. >>> NEXT: build the two capabilities on the settled substrate <<<
+       (1) EVENT-DRIVEN chat hot-region: replace fixed demo-turns with `wait(:user/msg) → hot_turn →
+           stream → wait`; add the last-k verbatim window (k≈2–3), keep cold pump unchanged.
+       (2) IMPROVER reads sessions/*/brief.md (not just the index digest); ≥3-briefs(topic)→page
+           threshold (λ metabolize); proposes into mementum/ ∧ harness ∧ app; human-gated.
+       (3) next-chat BOOTSTRAP from prior briefs (Cold Compile "enhance" mode).
+       (4) synthesize! path (knowledge pages, not just memories).
 
   4. compose first self-improvement loop   — smallest closed loop: chart reads state/knowledge → proposes a memory
 
