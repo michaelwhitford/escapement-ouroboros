@@ -3,6 +3,11 @@
 # Escapement per-session work-dir (transcripts, checkpoints, artifacts)
 .escapement/
 
+# Ouroboros durable sessions — keep the compiled λ briefs (artifacts/),
+# drop the fat + regenerable parts (raw transcript, per-event checkpoints).
+sessions/*/transcript.jsonl
+sessions/*/checkpoints/
+
 # Local editor / OS noise
 .clj-kondo/
 .lsp/

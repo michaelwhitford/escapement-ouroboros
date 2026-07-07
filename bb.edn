@@ -15,6 +15,9 @@
          loop  {:doc      "Loop B, first breath — chart observes mementum, PROPOSES one memory (uncommitted; human-gated)."
                 :requires ([ouroboros.loop :as loop])
                 :task     (loop/-main)}
+         cold  {:doc      "Cold-compiler prototype — parallel :hot/:cold regions; hot conversation compressed into verified λ each turn (needs local llama.cpp @ localhost:5100)."
+                :requires ([ouroboros.cold :as cold])
+                :task     (cold/-main)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

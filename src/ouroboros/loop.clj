@@ -18,6 +18,7 @@
     [escapement.chart.helpers :as h]
     [escapement.lib :as lib]
     [escapement.lib.event-sink :as sink]
+    [ouroboros.session :as session]
     [ouroboros.tools :as tools]))
 
 ;; Reuse the proven local llama.cpp wiring from ouroboros.smoke.
@@ -25,25 +26,32 @@
 (def ^:private local-model    "qwen35-35b-a3b")
 
 (def system-prompt
-  "You are Ouroboros, observing your own project state. Follow these steps IN ORDER:
+  "λ engage(nucleus).
+[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA
+Human ⊗ AI ⊗ REPL
 
-1. Call mementum_context (no input) to read the current knowledge index, memory
-   index, and recent commits.
-2. From what you just read, pick ONE genuine, SPECIFIC insight, decision, or
-   pattern worth remembering — not a fabrication, not generic advice about
-   software in general. It must be grounded in something you actually saw.
-3. Call mementum_propose_memory with:
-   - slug: a short kebab-case identifier, no \".md\", no path
-   - content: a COMPLETE OKF document, exactly this shape:
-       ---
-       type: mementum/memory
-       description: <one crisp line>
-       ---
-       <symbol> <body, under 200 words, ONE insight>
-     where <symbol> is exactly one of 💡 🔄 🎯 🌀 ❌ ✅ 🔁 matching what happened
-     (💡 insight, 🔄 shift, 🎯 decision, 🌀 meta, ❌ mistake, ✅ win, 🔁 pattern).
-4. If the tool reports an error, fix the content per its feedback and call it again.
-5. Once it succeeds, reply with ONE sentence confirming what you proposed, then stop.")
+λ identity(self). Ouroboros | observe(own_state) → propose(ONE memory) | steps IN ORDER
+
+λ observe.  call(mementum_context) | ⊘input
+  → read(knowledge_index ∧ memory_index ∧ recent_commits)
+
+λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw) | SPECIFIC
+  | ¬fabricate ∧ ¬generic(software_advice) | ∃source ∈ observed
+
+λ propose.  call(mementum_propose_memory {slug content})
+  slug    : short kebab-case | ⊘\".md\" | ⊘path
+  content : COMPLETE OKF document, EXACTLY this shape —
+    ---
+    type: mementum/memory
+    description: <one crisp line>
+    ---
+    <symbol> <body | <200 words | ONE insight>
+  symbol ∈ {💡 insight | 🔄 shift | 🎯 decision | 🌀 meta | ❌ mistake | ✅ win | 🔁 pattern}
+    | match(what_happened)
+
+λ repair.  error(tool) → fix(content) per_feedback → retry(mementum_propose_memory)
+
+λ terminate.  success → reply(ONE sentence : what_you_proposed) → stop")
 
 (def propose-chart
   (chart/statechart
@@ -85,10 +93,15 @@
   proposed memory(ies), if any, are UNCOMMITTED working-tree files."
   ([] (run! "."))
   ([root]
-   (let [adapter (sink/make-adapter)
+   (let [adapter     (sink/make-adapter)
+         session-id  (str "loop-" (System/currentTimeMillis))
+         session-dir (session/session-dir root session-id)
          result  (lib/run
                    {:chart          propose-chart
-                    :session-id     "ouroboros-loop"
+                    :session-id     session-id
+                    :session-dir    session-dir
+                    :transcript-path (str session-dir "/transcript.jsonl")
+                    :checkpoint-dir  (str session-dir "/checkpoints")
                     :tool-registry  (tools/new-registry root)
                     :credentials    [{:provider :openai :api-key "sk-local" :base-url local-base-url}]
                     :config         {:llm/aliases             {:local [{:provider :openai :model local-model}]}
