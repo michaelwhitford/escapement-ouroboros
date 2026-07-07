@@ -73,6 +73,8 @@ jq -c 'select(.event=="llm/response") | {model:.data.model, usage:.data.usage}' 
     :llm-preferences :backend-default-models :resume?(f) :trace?(f) :max-iterations(no-op)
     :max-frozen-cycles(4000) :quiescent-sleep-ms(50) :debug-controller :human-input-active?
     :multi-session? :on-env-ready :transcript-tap :prelude-events
+    :human-renderer                                 ; HumanRenderer impl → human-input processor
+                                                    ; (CLI passes it; lib/run does NOT expose it — see web-ui page)
 ```
 
 ### Pump loop (safe-boundary cancel, frozen-config guard)
@@ -101,6 +103,21 @@ loop [no-progress]:
 
 Return map: `{:final-config :status(:done|:aborted|:frozen-config) :session-id :transcript
 :checkpoint-dir :env}`.
+
+### Resident-chart semantics (read the pump table as a LIVENESS contract)
+
+```
+λ alive(run). run stays resident ⟺ ∃ live_work:
+  live invocation      — LLM worker mid-turn ∨ PARKED human-input prompt   → wait UNBOUNDED
+  future-dated send    — delayed timer in queue ("a chart waiting on its own timer is RUNNING")
+¬alive: bare wait-state (no invocation, empty queue) → quiescent → :done → run! RETURNS.
+  ⟹ ∄ resident chart via naked wait(:event) + external sp/send! — the runner exits first.
+  ⟹ the sanctioned resident shape ≡ INTERACTIVE chart: ^{:interactive? true} +
+     h/human-input loop (examples/ask ≡ reference: ask → :human.answer → confirm → loop).
+  design intent (source comments): "the agent should STOP itself … never BE stopped mid-thought";
+  frozen-config guard targets ONLY stranded deliverables (live=0 ∧ deliverable>0 → likely
+  missing ^:multi-session?), NOT slow models, NOT parked prompts.
+```
 
 ## CLI
 

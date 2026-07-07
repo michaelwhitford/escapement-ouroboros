@@ -1,7 +1,7 @@
 ---
 type: mementum/knowledge
 title: Escapement — Web UI, WS Push, and the Event-Ingress Seams
-description: The bundled web UI is a read-only inspector (Fulcro SPA, JVM-built) — but ui.server + ws-push are bb-safe and embeddable; NO route injects arbitrary chart events, so inbound reaches a chart only via the HumanRenderer promise path or a host-captured queue (:on-env-ready → sp/send!).
+description: The bundled web UI is a read-only inspector (Fulcro SPA, JVM-built) — but ui.server + ws-push are bb-safe and embeddable; human-input is THE web-chat ingress (a parked prompt is a live invocation that keeps the run resident); the only gap is lib/run's missing :human-renderer passthrough, which runner/run! already accepts.
 resource: https://github.com/fulcrologic/escapement
 tags: [escapement, web, ui, websocket, http-kit, ingress, human-input, ouroboros]
 status: active
@@ -54,31 +54,43 @@ a WebSocket fan-out hub with catch-up + backpressure, and two narrow inbound sea
   backpressure: per-client queue (cap 4096) | overflow coalesces llm/delta per
                 [invokeid session-id type], else drops oldest | ordered single-in-flight CAS
 
-λ ingress. THE LOAD-BEARING FACT: ∄ route(HTTP ∨ WS) → sp/send!(arbitrary-event)
-  path-1: h/human-input invocation → HumanRenderer.ask! parks worker on promise(prompt-id)
-          → deliver-answer!(prompt-id, value) → promise → sp/send!(:human.answer)
-          triggers: WS {:kind "answer"} frame ∨ POST /api [(escapement.human/answer {…})]
-  path-2: lib/run :on-env-ready(fn [env]) → capture ::sc/event-queue
-          → sp/send!(queue, env, {:event e :target session-id :data d}) from any host handler
-          ; sp ≡ com.fulcrologic.statecharts.protocols — send! is the injection primitive
+λ ingress. ∄ route(HTTP ∨ WS) → sp/send!(arbitrary-event) | AND a naked wait-state cannot
+  hold a run open anyway (runner liveness contract — see transcript-runner page):
+  bare wait(:event) + empty queue ≡ quiescent → :done → run! returns.
+  ⟹ ingress ≡ human-input, BY DESIGN not by gap:
+    h/human-input invocation → renderer parks worker on promise(prompt-id)
+    → PARKED PROMPT ≡ LIVE INVOCATION → runner waits unboundedly (resident chart)
+    → deliver(promise, value) → worker itself does sp/send!(:human.answer) → transition
+  deliver triggers shipped today: WS {:kind "answer"} frame ∨ POST /api
+    [(escapement.human/answer {:prompt-id :value})] — both → remote-renderer/deliver-answer!
+  raw queue-injection (:on-env-ready → capture ::sc/event-queue → sp/send!) EXISTS but only
+  reaches a run that something ELSE keeps alive; it is a supplement, not an ingress.
   queue: escapement.engine.queue/InProcessQueue — IN-PROCESS ONLY, no network endpoint
+
+λ human_in_loop. first-class inventory (all source-verified):
+  h/human-input          kinds text|select|multi|confirm|progress|custom · Malli :answer-schema
+                         · :on-answer-event(:human.answer) · canonical :error.human.* events
+  HumanRenderer          protocol seam — promise-based; shipped impls: stdin-renderer (headless),
+                         TUI modal renderer, RemoteUiRenderer (WS prompt frames). A host web
+                         renderer ≈ 20 lines: park promise per prompt-id; HTTP handler delivers.
+  ^{:interactive? true}  chart marker; examples/ask ≡ reference resident loop
+                         (ask → :human.answer → confirm → loop|final; :ui.interrupt → cancelled)
+  h/with-llm-questions   inverse flow: LLM asks HUMAN mid-conversation — injects
+                         event__ask_choice/event__ask_text event-tools → human-input modal
+                         → tell-llm answer into the LIVE conversation (parent-owned, survives detours)
+  tell-llm               feed a message into a RUNNING conversation worker (resident convo possible)
 ```
 
-## The missing seam (verified; drives host design)
+## The missing seam (verified; ONE passthrough key)
 
-`escapement.lib/Options` (closed schema) has **no `:human-renderer` key** — the CLI wires
-renderers directly into `runner/run!`; the hermetic lib facade cannot. Consequence for an
-embedding host wanting web chat:
-
-```
-λ host_chat_ingress. choose:
-  (a) queue-injection  — :on-env-ready captures queue; host's :answer ws-handler (host-owned fn)
-                          calls sp/send! {:event :user/msg …}; chart parks in wait-state.
-                          works TODAY, zero escapement changes. honest topology: USER initiates.
-  (b) human-input      — the framework primitive for AGENT-initiated prompts (modal ask).
-                          blocked via lib facade (no :human-renderer seam) → patch escapement
-                          ∨ bypass lib/run for runner/run!. right primitive for approval gates.
-```
+`runner/run!` accepts `:human-renderer` and forwards it to the human-input processor (the
+CLI passes it). `escapement.lib/Options` (closed schema) never got the key — it belongs in
+the schema's own "passthrough knobs (forwarded verbatim to runner/run!)" section. The patch
+is two lines: the Options entry + the run-opts assembly entry. Until patched, a lib-facade
+host cannot run interactive charts; workarounds: patch locally (`:local/root` dep) + PR
+upstream, ∨ call runner/run! directly (losing hermetic backend assembly), ∨ turn-scoped
+runs with :resume? (run-to-completion per user message — works today, no renderer needed;
+right shape for bounded episodes like improver loops even after the seam opens).
 
 ## Outbound composition (host → browser)
 
@@ -135,11 +147,13 @@ classpath `public/` fallback) rather than adopting the Fulcro SPA.
 
 ```
 λ stale_check. true at synthesis; grep-miss ⟹ stale:
-  no-ingress-route     : no POST-/api resolver ∨ WS kind calls sp/send! with arbitrary events
-                         (a future "event" inbound kind ∨ :human-renderer lib option would
-                          OBSOLETE the λ host_chat_ingress fork above — check Options schema first)
+  lib seam gap         : escapement.lib/Options has NO :human-renderer key (runner/run! HAS it).
+                         WATCH: if the key appears in Options, the "missing seam" section above
+                         is OBSOLETE and web chat needs zero patches. Check FIRST.
   inbound kinds        : exactly {"control" "answer"} in ws-push dispatch-inbound!
   pathom on /api       : pathom 2.4.0, transit-clj 1.0.333
   hub defaults         : :cap 4096, catch-up ring 256
   renderer wiring      : RemoteUiRenderer only under CLI --tui=opentui
+  liveness contract    : runner exits on (zero live)∧(zero deliverable) — re-verify the pump
+                         cond table in escapement.runner before trusting resident-chart claims
 ```

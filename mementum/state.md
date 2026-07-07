@@ -54,7 +54,7 @@ escapement-multi-agent-and-services       → :target routing, verdicts, artifac
 escapement-backends                       → LLMBackend, api/openai/codex, multi, cache, providers
 escapement-library-embedding              → escapement.lib/run (hermetic) — HOW OURO EMBEDS escapement
 escapement-transcript-runner-cli-testing  → transcript, runner, CLI, .escapement.edn, test harness
-escapement-web-ui                         → inspector-not-chat; bb-safe server+ws-hub embeddable; ingress seams (∄ arbitrary-event route)
+escapement-web-ui                         → inspector-not-chat; bb-safe server+ws-hub embeddable; human-input ≡ ingress (parked prompt keeps run resident); gap = lib :human-renderer passthrough
 ```
 
 The big one for building Ouroboros: **escapement-library-embedding**. Ouroboros will almost

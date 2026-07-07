@@ -65,9 +65,9 @@ escapement-transcript-runner-cli-testing
 
 escapement-web-ui
   → The bundled web UI is a read-only inspector (Fulcro SPA, JVM-built) — but ui.server +
-    ws-push are bb-safe and embeddable; NO route injects arbitrary chart events, so inbound
-    reaches a chart only via the HumanRenderer promise path or a host-captured queue
-    (:on-env-ready → sp/send!).
+    ws-push are bb-safe and embeddable; human-input is THE web-chat ingress (a parked prompt
+    is a live invocation that keeps the run resident); the only gap is lib/run's missing
+    :human-renderer passthrough, which runner/run! already accepts.
 ```
 
 ## Reading paths
@@ -80,8 +80,8 @@ escapement-web-ui
   multi_agent_team      → multi-agent-and-services → llm-conversation(tell-llm, verdicts)
   debug_a_run           → transcript-runner-cli-testing (jq recipes, event vocab) → statechart-model
   pick_a_model          → llm-conversation(model selection) → backends(providers, catalog)
-  web_chat_channel      → web-ui(ingress seams) → library-embedding(:on-env-ready, :transcript-tap)
-                          → statechart-model(wait-state authoring)
+  web_chat_channel      → web-ui(human-input ingress, seam gap) → transcript-runner(liveness contract)
+                          → library-embedding(:transcript-tap, Options schema)
 ```
 
 ## The five load-bearing invariants (memorize)
