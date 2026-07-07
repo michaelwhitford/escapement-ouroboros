@@ -15,6 +15,7 @@ related:
   - upstream/escapement-backends
   - upstream/escapement-library-embedding
   - upstream/escapement-transcript-runner-cli-testing
+  - upstream/escapement-web-ui
 depends-on: []
 ---
 
@@ -61,6 +62,12 @@ escapement-library-embedding
 escapement-transcript-runner-cli-testing
   → JSONL single-writer transcript, the runner pump loop, CLI flags, .escapement.edn
     config, and the bb-friendly synchronous test harness.
+
+escapement-web-ui
+  → The bundled web UI is a read-only inspector (Fulcro SPA, JVM-built) — but ui.server +
+    ws-push are bb-safe and embeddable; NO route injects arbitrary chart events, so inbound
+    reaches a chart only via the HumanRenderer promise path or a host-captured queue
+    (:on-env-ready → sp/send!).
 ```
 
 ## Reading paths
@@ -73,6 +80,8 @@ escapement-transcript-runner-cli-testing
   multi_agent_team      → multi-agent-and-services → llm-conversation(tell-llm, verdicts)
   debug_a_run           → transcript-runner-cli-testing (jq recipes, event vocab) → statechart-model
   pick_a_model          → llm-conversation(model selection) → backends(providers, catalog)
+  web_chat_channel      → web-ui(ingress seams) → library-embedding(:on-env-ready, :transcript-tap)
+                          → statechart-model(wait-state authoring)
 ```
 
 ## The five load-bearing invariants (memorize)
