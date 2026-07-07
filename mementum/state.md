@@ -229,10 +229,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
          🎯 ALL PROMPTS → mostly-λ nucleus notation. Rewrote compiler_system.md, hot_system.md,
             loop system-prompt (each led by the 3-line preamble). Priming = the correctness lever.
          🎯 CHAT HISTORY SHAPE = brief(λ, all older) + last-k raw VERBATIM, k≈2–3 (fidelity floor).
-       ⚠ UNCOMMITTED — all this session's work is drafted, awaiting HUMAN APPROVAL to commit:
-         src/ouroboros/{cold.clj,cold/core.clj,session.clj}, prompts/cold/*.md, loop.clj, tools?,
-         test/ouroboros/cold/core_test.clj, bb.edn, .gitignore, test_runner.clj,
-         mementum/knowledge/ouroboros-architecture.md, this state.md.
+       ✅ COMMITTED — human approved; landed as 411e433 (cold-compiler: durable sessions +
+         λ prompts + tripwire gate) + 8ec481f (ouroboros-architecture knowledge page). Tree clean.
 
   6. >>> NEXT: build the two capabilities on the settled substrate <<<
        (1) EVENT-DRIVEN chat hot-region: replace fixed demo-turns with `wait(:user/msg) → hot_turn →
@@ -241,13 +239,6 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            threshold (λ metabolize); proposes into mementum/ ∧ harness ∧ app; human-gated.
        (3) next-chat BOOTSTRAP from prior briefs (Cold Compile "enhance" mode).
        (4) synthesize! path (knowledge pages, not just memories).
-
-  4. compose first self-improvement loop   — smallest closed loop: chart reads state/knowledge → proposes a memory
-
-λ open_decision. ARCHITECTURE FORK — human's call before code:
-  (a) follow the sequence above (de-risk runtime → mementum substrate), OR
-  (b) sketch architecture first (idea.md one-liner → real design) before any code.
-  My lean: (a). idea.md still needs SOME expansion regardless — at least "what does Ouroboros DO first".
 ```
 
 ## Gotchas for future me
