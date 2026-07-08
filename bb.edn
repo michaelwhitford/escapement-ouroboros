@@ -21,6 +21,9 @@
          chat  {:doc      "Interactive chatbot — resident conversation + stdin ingress; type to chat, /quit to end (needs local llama.cpp @ localhost:5100)."
                 :requires ([ouroboros.chat :as chat])
                 :task     (chat/-main)}
+         compact {:doc      "λ-compact chat — per-message assistant compaction (memory=λ, cache-stable); fresh worker per turn via re-entry (needs local llama.cpp @ localhost:5100)."
+                  :requires ([ouroboros.compact :as compact])
+                  :task     (compact/-main)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])
