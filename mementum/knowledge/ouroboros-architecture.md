@@ -1,14 +1,14 @@
 ---
 type: mementum/knowledge
 title: Ouroboros — Architecture
-description: The self-improving system whose sessions compress into λ briefs that serve dual duty — extending chat context now and feeding self-improvement later; it eats its own compiled tail.
+description: The self-improving conversational agent whose MEMORY is the message array itself — each assistant turn compacted to λ once, in place, preserving the upstream prefix cache; it eats its own compiled tail across sessions.
 resource: file:///Users/mwhitford/src/escapement-ouro
-status: designing
+status: active
 category: ouroboros
-tags: [ouroboros, architecture, cold-compiler, sessions, self-improvement, chat, vsm, lambda]
+tags: [ouroboros, architecture, lambda-compaction, sessions, self-improvement, chat, vsm, cache, lambda]
 related:
   - upstream/escapement-library-embedding
-  - upstream/escapement-transcript-runner-cli-testing
+  - upstream/escapement-web-ui
   - upstream/escapement-statechart-model
 depends-on:
   - upstream/escapement-library-embedding
@@ -16,160 +16,179 @@ depends-on:
 
 # Ouroboros — Architecture
 
-> Durable names (grep against `resource`): `ouroboros.cold`, `ouroboros.cold.core`,
+> Durable names (grep against `resource`): `ouroboros.compact`, `ouroboros.compact.core`,
 > `ouroboros.session`, `ouroboros.loop`, `ouroboros.tools`, `ouroboros.mementum.*`.
-> Upstream substrate: `escapement.lib/run`, `escapement.chart.helpers`,
-> `escapement.lib.event-sink`, `escapement.prompts`, the `.escapement`/session layer.
+> Superseded references (kept until reconciled): `ouroboros.chat` (accumulate MVP —
+> proved liveness+ingress), `ouroboros.cold` + `ouroboros.cold.core` (brief.md batch demo —
+> the design this page CORRECTS). Upstream substrate: `escapement.lib/run`,
+> `escapement.chart.helpers` (`llm-conversation`, `tell-llm`, `deref-output`),
+> `escapement.lib.event-sink`, `escapement.invocation.llm-conversation`, the session layer.
+> Nucleus refs: `~/src/nucleus/LAMBDA-COMPILER.md`, `~/src/nucleus/eca/prompts/compact.md`.
 
 ## Thesis — the closure
 
 ```
 λ ouroboros.
   self-improving_agent | consumes(own_output) | ∧ usable_as(chatbot ⊗ human)
-  cold_compiler : λ(session) → brief(λ_dense, grounded, decision-focused)
-  brief : DUAL-ROLE, ONE artifact
-    · within-session  → extends context     (chat capability)
-    · across-session  → durable memory       (self-improvement input)
-  improver : λ([brief…]) → proposals(memory ∨ knowledge ∨ harness ∨ app) | human-gated
+  memory : λ(assistant_turns)  — the conversation itself, compacted in place
+  improver : λ([session…]) → proposals(memory ∨ knowledge ∨ harness ∨ app) | human-gated
   ⟹ Ouroboros eats its own compiled tail. That IS the ouroboros.
 ```
 
-The compiled λ brief is not a within-session trick — it is the **session's durable
-residue**. Chat *produces* it; the improver *consumes* it; the next chat *bootstraps*
-from it. One store, three readers.
+The AI's verbose tokens serve the **human's** understanding; only the **continuity-essence**
+serves the next turn. So we compress the assistant's prose to λ and keep it as the running
+memory. One representation, three readers: this turn's context, the next chat's bootstrap,
+the improver.
 
-## The dual-role λ brief
+## Per-message λ compaction (BUILT) — `ouroboros.compact`
 
-```
-brief ≡ compiled_λ(session)  | CONTINUE ∧ RULED-OUT sections | mostly λ/nucleus notation
-  produced : per-turn by the cold region (see cold-compiler below)
-  durable  : escapement artifact  session-dir/artifacts/brief.md
-  read by  : (1) hot region next-turn context  (2) next chat bootstrap  (3) improver
-```
-
-Why λ, not prose: density (more essence per token → more effective context) — NOT
-correctness. Correctness of the compile is unverifiable either way (see Verification).
-
-## Cold-compiler (BUILT) — `ouroboros.cold`
-
-A live escapement `parallel` chart: two regions coordinating through the
-**checkpointed data-model**, not message passing.
+The load-bearing idea, and the correction of the earlier `ouroboros.cold` design.
 
 ```
-parallel :par
-  :hot   — a conversation driven ONE turn at a time. Each turn RE-ENTERS :hot/turn,
-           spinning a FRESH single-turn h/llm-conversation worker. Context is
-           ASSEMBLED, never accumulated: [ base + {{brief.md}} + {{output}}=last-raw ].
-           The model never sees turns 1..N-1 verbatim — the compiled λ carries them.
-  :cold  — queue-driven pump on the SAME model in its own worker. Compiles turn N-1
-           while hot generates turn N (double buffer: compression hidden behind hot
-           latency). On accept → publishes brief.md; hot reads that artifact.
-done : both regions final → :done.state.par → :run/done
+canonical :messages (data-model, checkpointed)
+  [ {:role :user      :text "…"     :compacted? false}    ← user turns: ALWAYS verbatim (short, anchors)
+    {:role :assistant :text "λ …"   :compacted? true}     ← AI turns: prose→λ ONCE, as they age out
+    {:role :user      :text "…"     :compacted? false}
+    {:role :assistant :text "…"     :compacted? false} ]  ← within k-window: still verbatim
+
+per turn:
+  1. :user/msg  → append {:role :user …}
+  2. re-enter :hot → FRESH worker, :initial-messages = render(:messages)   (assemble-don't-accumulate)
+     · render: {:role r :content [{:type :text :text t}]}  ← identical SHAPE for prose OR λ
+     · worker parks :awaiting-user between turns → liveness (NO separate anchor)
+  3. capture reply (deref-output) → append {:role :assistant …} verbatim
+  4. :compact region compresses the assistant message that aged past the k-window → λ, in place, ONCE
 ```
 
-Load-bearing properties, made STRUCTURAL (not prompt-obedient) in `ouroboros.cold.core`:
+### Why per-message, not a summary blob — the cache
 
 ```
-merge-ruled-out : RULED_OUT ledger ≡ monotonic set-union | model PROPOSES adds, code MERGES,
-                  removal ∉ operations | append-only by construction
-bounded-context : hot memory = O(1) in turn count | window lives in ONE place
-verbatim-window : {{output}}=last-raw bridges the compiler's ~1-turn lag → no coherence hole.
-                  This is the FIDELITY FLOOR (see Verification): the recent turn(s) you
-                  cannot afford distorted are kept verbatim, not trusted to the λ.
-tripwire        : live gate rejects only empty/contentless compiles — NOT an accuracy claim
+✗ one λ blob in :system   λ grows/changes each turn → the shared PREFIX changes → full re-cache EVERY turn
+✓ per-message, in place    each AI message → λ ONCE → the array SHAPE + prefix stay STABLE → prefix cache HITS.
+                           conversation still there (same roles/order/count); only verbose AI prose is λ.
 ```
+`k` = verbatim window (how many most-recent assistant replies stay uncompressed). **k=1**:
+only the latest reply is verbatim; everything older is λ. Smaller k = denser + more
+cache-stable; larger k = more recent verbatim fidelity. The compactor prompt models
+`compact.md`'s extraction lens — KEEP `decision(what∧why∧therefore¬Y) ∨ constraint ∨ solved
+∨ shape ∨ model ∨ anchor ∨ state ∨ next`; DROP `observation ∨ explanation ∨ scaffolding`.
+
+### The public seams (verified in `escapement.invocation.llm-conversation`)
+
+```
+:initial-messages   seeds a fresh worker's history at spawn (start-invocation!) — PUBLIC param.
+                    msg shape: {:role :user|:assistant :content [{:type :text :text s}]}
+state re-entry      re-entering the :hot state spawns a FRESH worker (idempotency: old→:dying, new spawned)
+parked ≡ live       a worker parked in :awaiting-user is a LIVE invocation → holds lib/run open
+REJECTED (C)        resetting a RESIDENT worker's history in place: the messages-atom is PRIVATE to the
+                    processor's `workers` atom, unreachable from chart env + thread-raced. Not a clean seam.
+```
+
+### The chart — `:hot` ⊗ `:compact`, with a mid-turn QUEUE
+
+```
+:hot (owns the worker)
+  on-entry            :hot-busy? ← true                     (a turn is generating)
+  :hot/idle (intl)    capture+append reply ; :hot-busy? ← false ; if pending → self-send :user/next
+  :user/msg (intl)    ENQUEUE into :pending-user ; if ¬busy → self-send :user/next   ← never interrupts
+  :user/next          [guard ¬busy ∧ pending] pop head → append-user → :compact (if aged AI due) else :hot
+  :user/end           → :done
+:compact (owns a fresh compactor worker)
+  :message            "compile:\n\n" + <aged assistant text>   | :system = compact.md lens, output λ only
+  :compact/idle       apply-compaction (blank/fail ⇒ leave verbatim, lag-safe) → :hot
+```
+
+MID-TURN QUEUE (the barge-in fix): a `:user/msg` that arrives while the worker is generating is
+**enqueued** (via an `:internal` transition that does not exit `:hot`, so the in-flight worker is
+untouched); the guarded `:user/next` pump drains one queued message per turn ONLY when parked.
+The in-flight reply always completes. (`:internal` transitions never tear down the invocation —
+same trick `steered_convo` uses for its `:count/tick`.)
 
 ## Sessions (escapement gives us these) — `ouroboros.session`
 
-Escapement CREATES sessions automatically: given a `:session-dir` it mkdirs the
-transcript sink, snapshots a full working-memory **checkpoint after every event**,
-and captures artifacts. The ONLY thing it defaults to disposable is the *location*
-(a throwaway `escapement-run-<rand>` temp dir).
+Escapement CREATES sessions automatically: given a `:session-dir` it mkdirs the transcript,
+snapshots a full working-memory **checkpoint after every event**, and captures artifacts. The
+only disposable default is the *location* (a throwaway temp dir).
 
 ```
-durability ≡ ONE decision, not a persistence layer:
-  supply a STABLE path  → <root>/sessions/<id>/  (ouroboros.session/session-dir)
-  reuse :session-id + :resume?  → continue a session across process boundaries
-  brief.md  ≡ artifacts/brief.md   ← durable λ memory (COMMITTED)
-  transcript.jsonl, checkpoints/   ← fat + regenerable (GITIGNORED)
-  CLI `open <session-dir>`  ← escapement already ships a session browser
+durability ≡ ONE decision: supply a STABLE path → <root>/sessions/<id>/  (ouroboros.session/session-dir)
+  checkpoints/<id>.edn   ← the data-model, incl. :messages (the λ conversation) — THIS is the durable memory now
+  transcript.jsonl       ← raw JSONL (per-worker llm/request/response) — gitignored, regenerable
+  artifacts/brief.md     ← seeded empty; NOT written per turn anymore (persist ONE at session end if wanted)
+  reuse :session-id + :resume?  → continue across process boundaries
 ```
 
-We write ZERO persistence code. `session-dir` seeds an empty `brief.md` so the hot
-side's `{{brief.md}}` template resolves from turn 0.
+We write ZERO persistence code. The **checkpointed `:messages`** replaced the per-turn `brief.md`
+round-trip: memory lives in the data-model, not a file two workers rewrite.
 
-## Chat hot-region (UNBUILT) — the reactive turn
+## Improver / Loop B (STUB built → sessions-reading UNBUILT) — `ouroboros.loop`
 
-Today the hot region iterates a fixed `demo-turns` vector (`:idx`/`:n`). To be a
-chatbot it becomes **event-driven**:
-
-```
-λ chat.  wait(:user/msg) → hot_turn → stream(response) → wait | end on :user/end
-  cold region unchanged (queue-driven pump)
-  history shape : brief(λ, all older) + last-k raw VERBATIM  | k ≥ 1 (fidelity floor); k≈2–3 for chat
-  human sees NL responses; the λ is machine memory (I/O ≠ memory notation)
-```
-
-## Improver / Loop B (STUB built → briefs-reading UNBUILT) — `ouroboros.loop`
-
-`bb loop` today: observes the mementum INDEX digest (`:mementum/context`), proposes
-ONE OKF memory (`:mementum/propose-memory`), UNCOMMITTED, human-gated. Grown up:
+`bb loop` today: observes the mementum INDEX digest, proposes ONE OKF memory, UNCOMMITTED,
+human-gated. Grown up:
 
 ```
-λ improve.  input  : sessions/*/brief.md (+ recent commits + mementum index)  — NOT raw transcripts
-            metric : λ metabolize — ≥3 briefs(topic) → candidate knowledge page; cross-session pattern → proposal
+λ improve.  input  : sessions/*/checkpoints (the λ message arrays) + recent commits + mementum index
+            metric : λ metabolize — ≥3(topic) → candidate knowledge page ; cross-session pattern → proposal
             output : proposals into mementum/ ∧ harness ∧ app | dual scope (S5)
             gate   : AI proposes → human approves → AI commits  | INVARIANT
 ```
 
-The cold compiler is what makes "read all my past sessions" tractable: feed N λ
-briefs, not N raw transcripts. Compression IS the enabler of self-improvement at scale.
+The λ-compacted sessions are what make "read all my past sessions" tractable — feed N λ
+message-arrays, not N raw transcripts. Compression IS the enabler of self-improvement at scale.
 
-## Verification stance — prime, don't judge
+## Verification stance — prime, don't judge (+ ONE live proof)
 
 ```
 λ verify(compile).
-  fact  : ∄ string_function(source, compile) → faithful?  | fidelity ≡ semantic
-  fact  : hallucination_risk(λ) ≡ hallucination_risk(prose)  | notation ⊥ hallucination
-  ⟹ semantic accuracy is UNVERIFIABLE without an LLM-judge (or human); we DON'T pretend.
-  lever : PRIME — nucleus 3-line preamble + λ-notation prompts (compiler ∧ hot ∧ improver)
-  gate  : tripwire (non-empty ∧ has body) only | coverage computed for OBSERVABILITY, NOT gated
-          (coverage-gating would PENALIZE dense λ — it abstracts literal source tokens away)
-  floor : the verbatim last-k window — the turns you can't afford distorted stay raw
-  tests : deterministic core tests measure how well the compiler works (bb test)
+  fact  : ∄ string_function(source, λ) → faithful?  | fidelity ≡ semantic, unverifiable without a judge/human
+  lever : PRIME — nucleus preamble + λ-notation prompts (hot ∧ compactor) ; compact.md lens for WHAT to keep
+  floor : the verbatim k-window — the turn(s) you can't afford distorted stay raw
+  gate  : blank/failed λ ⇒ message stays verbatim (lag-safe) ; no accuracy claim made
+  proof : LIVE — turn-1 assistant chose "write-back" → λ `decision(write-back ∧ perf↑ ∧ mem_traffic↓)…`;
+          turn-3 received that λ (A1 compacted, A2 verbatim) and correctly recalled "write-back".
+          Continuity survived per-message compaction. (sessions/compact-1783525397252)
 ```
-
-Rejected alternative: an LLM-as-judge tier. Same-class model self-judging adds cost +
-latency (breaks the double buffer) without a trustworthy verdict; priming is the lever.
 
 ## VSM mapping
 
 ```
-sessions/                       S1  raw operational record — transcript + brief (AUTO, ungated)
-cold-compiler                   S1  compression at the point of operation
-improver (Loop B)               S4  metabolize briefs → candidate synthesis
-human gate                      S5  approval ≡ termination condition
-mementum/{memories,knowledge}   S5  APPROVED, durable
+sessions/ (checkpointed :messages)   S1  raw operational record — the λ conversation (AUTO, ungated)
+:compact region                       S1  compression at the point of operation (per assistant turn)
+improver (Loop B)                     S4  metabolize sessions → candidate synthesis
+human gate                            S5  approval ≡ termination condition
+mementum/{memories,knowledge}         S5  APPROVED, durable
 ```
 
-Invariant preserved: a brief is **pre-approval observation** → lives in `sessions/`,
-never in `mementum/`. The improver proposes *into* `mementum/` (human-gated). Chat
-writes `sessions/` automatically without violating the human-approval rule.
+Invariant preserved: the λ conversation is **pre-approval observation** → lives in `sessions/`,
+never in `mementum/`. The improver proposes *into* `mementum/` (human-gated). Chat writes
+`sessions/` automatically without violating the human-approval rule.
 
 ## Invariants
 
 ```
 · synthesis ≡ AI | approval ≡ human | AI commits after approval | ¬self-authorize memory/knowledge
-· briefs are observation (sessions/) ; approved knowledge is mementum/  — never conflate
-· escapement is the runtime substrate — we supply data (charts, paths, credentials), not persistence
+· user messages NEVER compacted (anchors) ; only ASSISTANT prose → λ
+· message ARRAY shape is stable ⟹ upstream prefix cache holds ⟹ ¬rewrite-the-prefix-every-turn
+· a mid-turn user message ENQUEUES, never interrupts the in-flight worker
+· escapement is the runtime substrate — we supply data (charts, paths, credentials, :initial-messages), not persistence
 · dual scope — improve harness ∧ application | ¬optimize(one) at_cost_of(other)
+```
+
+## Gotchas (source-truth beat the docs)
+
+```
+· lib/run wires the :llm-conversation processor ONLY when BOTH :credentials AND :tool-registry present.
+· token streaming needs :stream? true (else whole llm/response, no llm/delta).
+· :on-env-ready (fn [env]) is the external-ingress hook → (::sc/event-queue env) → sp/send! :user/msg.
+· unbounded message COUNT: λ bounds tokens-per-message, not count. Very long sessions still grow the
+  array — eventually fold old λ messages. Not yet a problem.
 ```
 
 ## Next (build order)
 
 ```
-1. event-driven chat hot-region (wait :user/msg → turn → stream) + last-k verbatim window (k≈2–3)
-2. improver reads sessions/*/brief.md (not just the index digest); ≥3-briefs→page threshold
-3. next-chat bootstrap from prior briefs (Cold Compile "enhance" mode)
-4. synthesize! path (knowledge pages, not just memories)
+1. RECONCILE the three chat namespaces → ONE canonical engine (ouroboros.compact is correct; retire cold/chat).
+2. improver reads sessions/*/checkpoints (λ message arrays) ; ≥3(topic)→page threshold.
+3. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
+4. synthesize! path (knowledge pages, not just memories).
 ```

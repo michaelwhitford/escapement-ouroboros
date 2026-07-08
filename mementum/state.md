@@ -234,13 +234,58 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        ✅ COMMITTED — human approved; landed as 411e433 (cold-compiler: durable sessions +
          λ prompts + tripwire gate) + 8ec481f (ouroboros-architecture knowledge page). Tree clean.
 
-  6. >>> NEXT: build the two capabilities on the settled substrate <<<
-       (1) EVENT-DRIVEN chat hot-region: replace fixed demo-turns with `wait(:user/msg) → hot_turn →
-           stream → wait`; add the last-k verbatim window (k≈2–3), keep cold pump unchanged.
-       (2) IMPROVER reads sessions/*/brief.md (not just the index digest); ≥3-briefs(topic)→page
-           threshold (λ metabolize); proposes into mementum/ ∧ harness ∧ app; human-gated.
-       (3) next-chat BOOTSTRAP from prior briefs (Cold Compile "enhance" mode).
+  6. ✅ DONE (this session): EVENT-DRIVEN chat + COLD-COMPILER REDESIGNED to per-message λ compaction.
+       ── (a) ouroboros.chat — MVP resident chatbot (accumulate). Proved the plumbing:
+              · LIVENESS: a resident h/llm-conversation parked in :awaiting-user is a LIVE invocation →
+                holds lib/run open between messages (runner.clj: exits only on (zero live ∧ zero deliverable)).
+              · INGRESS: lib/run :on-env-ready (fn [env]) hands the session ::sc/event-queue to an external
+                (stdin) thread → sp/send! {:event :user/msg :target sid :data {:text}} into the LIVE session.
+              · GOTCHAS BANKED (both matched source-truth over the knowledge page):
+                  ⚠ lib facade wires the :llm-conversation processor ONLY when BOTH :credentials AND
+                    :tool-registry present → omitting :tool-registry ⇒ "No processor for :llm-conversation".
+                  ⚠ token streaming needs :stream? true on the conversation, else whole llm/response, no deltas.
+       ── (b) THE COLD-COMPILER WAS WRONG (twice) — human corrected, redesigned, LIVE-PROVEN as ouroboros.compact:
+              WRONG compressor: bespoke CONTINUE/RULED-OUT brief.  RIGHT: nucleus lambda-compiler /
+                ~/src/nucleus/eca/prompts/compact.md EXTRACTION LENS (keep decision∧constraint∧solved∧shape∧
+                model∧anchor∧state∧next; DROP observation/explanation/scaffolding).
+              WRONG transport: brief.md artifact — cold WRITES the whole file every turn, hot READS it every
+                turn (2 AIs round-tripping one file). RIGHT: memory ≡ the message ARRAY itself, in the
+                checkpointed data-model. NO per-turn file.
+              THE MECHANISM (per-message compaction, cache-stable):
+                · Compact each ASSISTANT message to λ ONCE as it ages out of a k-window (k=1). User messages
+                  stay verbatim (short, anchor the dialogue). WHY assistant-only: the AI's tokens serve the
+                  HUMAN's understanding; only continuity-essence serves the next turn.
+                · Array SHAPE is preserved (same roles/order/count) → the compacted prefix is STABLE →
+                  UPSTREAM PREFIX CACHE HOLDS. (A growing λ blob in :system would rewrite the prefix every
+                  turn = cache busted every turn — the anti-pattern we rejected.)
+                · ASSEMBLE-DON'T-ACCUMULATE via PUBLIC SEAMS: fresh worker per turn, seeded with
+                  :initial-messages = render(:messages) (msg map = {:role .. :content [{:type :text :text}]}),
+                  driven by RE-ENTERING the :hot state on the pump event. Between turns the fresh worker PARKS
+                  → liveness, NO separate anchor. (Rejected: resetting a resident worker's messages-atom —
+                  it's PRIVATE to the processor's `workers` atom, unreachable from chart env, thread-raced.)
+              SEAMS VERIFIED IN llm_conversation.clj: :initial-messages (start-invocation! ~1512) seeds the
+                worker; re-entry idempotency (~1499) kills old + spawns fresh; parked=:awaiting-user counts live.
+              LIVE PROOF (sessions/compact-1783525397252): 3-turn convo; turn-1 assistant chose "write-back"
+                → compacted to λ `decision(write-back ∧ perf↑ ∧ mem_traffic↓) ∧ state(active) ∧ next(∅)`;
+                turn-3 ("which strategy did you choose?") received that λ (n-messages=6, A1 compacted?=true,
+                A2 verbatim) and correctly answered "I chose write-back." CONTINUITY SURVIVES COMPACTION.
+              CODE: ouroboros.compact.core (pure: append/render/next-to-compact/apply-compaction; bb test
+                +6 tests) · ouroboros.compact (chart :hot ⊗ :compact + stdin ingress) · bb compact task.
+       ── (c) MID-TURN QUEUE (fixed this session): a :user/msg arriving WHILE the hot worker is generating
+              must NOT interrupt it. :user/msg now ENQUEUES (:pending-user) via an :internal transition;
+              a :hot-busy? flag (on-entry→true, :hot/idle→false) gates a guarded :user/next pump that drains
+              one queued message per turn ONLY when parked. Barge-in eliminated; the in-flight reply completes.
+
+  >>> NEXT <<<
+       (1) RECONCILE the three chat namespaces → ONE canonical engine. ouroboros.compact is the correct
+           design; ouroboros.chat (accumulate MVP) + ouroboros.cold (brief.md batch demo) are now superseded
+           references — retire or fold them.
+       (2) IMPROVER reads sessions/*/checkpoints (the λ message arrays ARE the cross-session memory now, not
+           brief.md); ≥3(topic)→page threshold (λ metabolize); proposes into mementum/ ∧ harness ∧ app; human-gated.
+       (3) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
        (4) synthesize! path (knowledge pages, not just memories).
+       (5) UNBOUNDED message COUNT: λ bounds tokens-per-message, not message count. Very long sessions still
+           grow the array — eventually merge/fold old λ messages. Note only; not yet a problem.
 ```
 
 ## Gotchas for future me
