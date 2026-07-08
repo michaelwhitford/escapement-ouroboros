@@ -1,6 +1,6 @@
-(ns ouroboros.loop.core
-  "Pure metabolize kernel for the improver (Loop B). Turns prior sessions'
-  λ-compacted message arrays into a digest the improver LLM pattern-matches over
+(ns ouroboros.curator.core
+  "Pure metabolize kernel for the CURATOR agent. Turns prior sessions'
+  λ-compacted message arrays into a digest the curator LLM pattern-matches over
   to propose memories (and, later, knowledge pages).
 
   No LLM, no escapement, no IO — callers pass already-loaded session data
@@ -9,7 +9,7 @@
   chart/tool layers sit above this fully-unit-testable core.
 
   λ metabolize.  the assistant turns marked λ ARE the compacted essence — the
-  cross-session memory. Rendering them together lets the improver spot recurring
+  cross-session memory. Rendering them together lets the curator spot recurring
   topics/decisions (≥3 → a knowledge-page candidate) grounded in what actually
   happened, not fabricated."
   (:require

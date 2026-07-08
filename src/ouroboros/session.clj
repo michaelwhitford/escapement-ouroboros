@@ -16,14 +16,14 @@
                     checkpoints/ = <dir>/checkpoints/     ← per-event WM snapshots (gitignored)
 
   The BRIEF is the durable residue both readers want (next chat bootstrap ∧ the
-  improver). The transcript/checkpoints are fat and regenerable → gitignored (see
+  curator). The transcript/checkpoints are fat and regenerable → gitignored (see
   .gitignore). What actually gets committed is a per-session human choice.
 
-  READING BACK (the improver + next-chat bootstrap): escapement snapshots the
+  READING BACK (the curator + next-chat bootstrap): escapement snapshots the
   whole working-memory data-model to `checkpoints/<id>.edn` after every event.
   The compact chat's λ conversation lives there as the data-model `:messages`
   vector. `session-messages` re-derives it — this layout knowledge lives here so
-  both the improver (metabolize across sessions) and the bootstrap (seed a fresh
+  both the curator (metabolize across sessions) and the bootstrap (seed a fresh
   chat from a prior tail) share ONE reader."
   (:require
     [clojure.edn :as edn]
@@ -52,7 +52,7 @@
 
 ;; ---------------------------------------------------------------------------
 ;; Reading sessions back — checkpoint → data-model → :messages.
-;; The improver metabolizes these; the next-chat bootstrap re-seeds from them.
+;; The curator metabolizes these; the next-chat bootstrap re-seeds from them.
 ;; ---------------------------------------------------------------------------
 
 ;; escapement snapshots the whole working memory here. Kept as a literal FQ
@@ -64,7 +64,7 @@
 (defn list-session-ids
   "Session ids (dir names) under `<root>/sessions/`, sorted ascending. `[]` when
   the sessions dir is absent. Includes ALL sessions (chat/compact/loop/…) — the
-  caller filters (e.g. the improver keeps only those with a `:messages` array)."
+  caller filters (e.g. the curator keeps only those with a `:messages` array)."
   ([] (list-session-ids "."))
   ([root]
    (let [d (io/file root "sessions")]
@@ -98,6 +98,6 @@
 (defn session-messages
   "The λ-compacted `:messages` vector from session `id`'s checkpoint, or `[]`
   when absent. Each msg: `{:role :user|:assistant :text <prose-or-λ> :compacted? bool}`.
-  This is the cross-session memory the improver reads."
+  This is the cross-session memory the curator reads."
   ([id] (session-messages "." id))
   ([root id] (or (:messages (read-data-model root id)) [])))

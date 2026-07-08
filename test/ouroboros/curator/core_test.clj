@@ -1,9 +1,9 @@
-(ns ouroboros.loop.core-test
+(ns ouroboros.curator.core-test
   "Pure metabolize kernel: recency ordering, λ-marked rendering, empty-safe digest."
   (:require
     [clojure.string :as str]
     [clojure.test :refer [deftest is]]
-    [ouroboros.loop.core :as core]))
+    [ouroboros.curator.core :as core]))
 
 (deftest recency-key-orders-by-trailing-epoch
   (is (= 1783525397252 (core/recency-key "compact-1783525397252")))

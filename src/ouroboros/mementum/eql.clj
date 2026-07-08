@@ -5,7 +5,7 @@
   the OKF Malli gate rejects malformed writes at the boundary.
 
   Env carries `:mementum/root` (the repo dir) so the same parser serves any
-  working tree — the loop, tests, or a live escapement region.
+  working tree — the curator, tests, or a live escapement region.
 
   Reads  (resolvers):
     ident  [{[:mementum/ref {:kind :knowledge :slug \"upstream/escapement-index\"}]
@@ -76,7 +76,7 @@
 
 ;; The core `store!` THROWS on invalid OKF (the hard gate — nothing persists).
 ;; The veneer translates that throw into a STRUCTURED EQL rejection so callers
-;; (the loop, tests) see first-class data, not pathom's opaque error string.
+;; (the curator, tests) see first-class data, not pathom's opaque error string.
 (def ^:private write-output
   [:mementum/path :mementum/written :mementum/error :mementum/errors])
 

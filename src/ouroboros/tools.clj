@@ -1,5 +1,5 @@
 (ns ouroboros.tools
-  "Custom escapement Tools exposing mementum to the LLM — the loop's hands.
+  "Custom escapement Tools exposing mementum to the LLM — the curator's hands.
   Dispatched inside the worker (invisible to the chart) per `escapement.tools.protocol`.
   `invoke` never throws; rejections become `{:is-error true}` corrective tool_results.
 
@@ -11,7 +11,7 @@
   (:require
     [clojure.string :as str]
     [escapement.tools.protocol :as tp]
-    [ouroboros.loop.core :as metabolize]
+    [ouroboros.curator.core :as metabolize]
     [ouroboros.mementum.store :as store]
     [ouroboros.session :as session]))
 
@@ -50,7 +50,7 @@
 
 ;; ---------------------------------------------------------------------------
 ;; :mementum/sessions — read prior conversations as λ-compacted arrays. No input.
-;; The cross-session memory the improver metabolizes (≥3 recurrences → a
+;; The cross-session memory the curator metabolizes (≥3 recurrences → a
 ;; knowledge-page candidate). Reads the FILESYSTEM checkpoints directly, not git.
 ;; ---------------------------------------------------------------------------
 
@@ -62,8 +62,8 @@
   "Impure loader: the metabolize digest of the most recent `limit` CONVERSATION
   sessions under `root` — those carrying a compacted `:messages` array (chat /
   compact sessions). Sessions without messages (loop / smoke / … reflections)
-  are excluded. Newest LAST (chronological, so the improver reads toward the
-  present). Pure rendering is delegated to `ouroboros.loop.core`."
+  are excluded. Newest LAST (chronological, so the curator reads toward the
+  present). Pure rendering is delegated to `ouroboros.curator.core`."
   [root limit]
   (->> (session/list-session-ids root)
     (map (fn [id] {:id id :messages (session/session-messages root id)}))

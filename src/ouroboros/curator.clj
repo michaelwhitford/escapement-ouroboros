@@ -1,7 +1,13 @@
-(ns ouroboros.loop
-  "Loop B — the closed self-improvement loop (the improver).
+(ns ouroboros.curator
+  "The CURATOR — Ouroboros's memory/knowledge curation agent.
 
-  An escapement chart observes Ouroboros's own state on TWO axes:
+  Ouroboros is ONE system of MANY self-improving agents (curator built; a
+  harness-improver, an app-improver, verifier(s), and a documenter are planned).
+  The curator's job is CURATION of the mementum store: notice what is worth
+  keeping and propose it — memory now, knowledge (the ≥3→page synthesize! path)
+  next.
+
+  It observes Ouroboros on TWO axes:
     · `:mementum/context`  — the knowledge index, memory index, recent commits.
     · `:mementum/sessions` — prior conversations as λ-compacted message arrays
                              (the cross-session memory; see ouroboros.compact).
@@ -15,10 +21,10 @@
   synthesis (the ≥3→page WRITE path) is a later increment; for now a ≥3 cluster
   is NOTED in the reflection, and the concrete gated artifact is one memory.
 
-  Pure metabolize rendering lives in `ouroboros.loop.core`; the session readers
-  in `ouroboros.session`.
+  Pure metabolize rendering lives in `ouroboros.curator.core`; the session
+  readers in `ouroboros.session`.
 
-  Run: bb loop"
+  Run: bb curate"
   (:require
     [babashka.process :as proc]
     [clojure.string :as str]
@@ -102,13 +108,13 @@ Human ⊗ AI ⊗ REPL
       [])))
 
 (defn run!
-  "Run the loop against `root` (default \".\"). Streams the assistant's tokens
+  "Run the curator against `root` (default \".\"). Streams the assistant's tokens
   live to stdout. Returns `{:result <lib/run summary> :proposed <paths>}` — the
   proposed memory(ies), if any, are UNCOMMITTED working-tree files."
   ([] (run! "."))
   ([root]
    (let [adapter     (sink/make-adapter)
-         session-id  (str "loop-" (System/currentTimeMillis))
+         session-id  (str "curator-" (System/currentTimeMillis))
          session-dir (session/session-dir root session-id)
          result  (lib/run
                    {:chart          propose-chart

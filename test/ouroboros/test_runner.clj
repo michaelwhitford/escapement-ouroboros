@@ -9,7 +9,7 @@
     [ouroboros.mementum.store-test]
     [ouroboros.mementum.eql-test]
     [ouroboros.session-test]
-    [ouroboros.loop.core-test]
+    [ouroboros.curator.core-test]
     [ouroboros.tools-test]
     [ouroboros.compact.core-test]))
 
@@ -21,7 +21,7 @@
           'ouroboros.mementum.store-test
           'ouroboros.mementum.eql-test
           'ouroboros.session-test
-          'ouroboros.loop.core-test
+          'ouroboros.curator.core-test
           'ouroboros.tools-test
           'ouroboros.compact.core-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))

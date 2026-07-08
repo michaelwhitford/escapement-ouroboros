@@ -90,9 +90,12 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
                            · "runtime ≡ VSM | ¬metaphor" relocates to where it's TRUE (Layer 2 statecharts)
                            · S2 "Fill in with escapement lambdas" stub is now an honest work-item, not a hole
                            · S1 λ interface (pathom3/EQL) reads as the ARTIFACT's ops, not my behavior
-                           · recursion survives: designer-of-self-improving-agent improves its own harness (Loop A)
-                         Two self-improvement loops: Loop A (now) = me/eca improves harness∧app, human-gated.
-                         Loop B (goal) = Ouroboros-on-escapement improves itself. AGENTS.md = genome for B.
+                           · recursion survives: designer-of-self-improving-agent improves its own harness
+                         TWO TIERS (supersedes the old "Loop A/B" labels — see rename decision below):
+                           DESIGNER (now)  = me/eca improves harness∧app, human-gated.
+                           AGENTS (goal)   = Ouroboros's own agents improve it from within (curator built;
+                                             harness-improver, app-improver, verifier, documenter planned), human-gated.
+                         AGENTS.md = genome for the agents.
                          STATUS: edit applied this session. To be TESTED in a fresh session (validate the frame holds).
 
 🎯 AGENTS.md FROZEN for genesis → build phase (decided this session, frame-test PASSED)
@@ -102,7 +105,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
                          Known hazards ACCEPTED (not fixed): aspirational API in directive position
                            (`(create-knowledge …)` ≡ artifact's future pathom3 mutation; builder runs manual git-equivalent);
                            dual-scope tempts harness-polish over shipping; pure-spec sections (S2/S1) share frame with active directives.
-                         WHY freeze not fix: builder role SHRINKS to near-∅ once Loop B runs. Rewriting the harness now
+                         WHY freeze not fix: builder role SHRINKS to near-∅ once Ouroboros's own agents run. Rewriting the harness now
                            documents a role about to be gutted → premature. The BUILD forces the distinctions honestly.
                          PLAN: build initial chart WITH Ouroboros's own proper system prompt (its Layer-2 genome) FIRST,
                            THEN rewrite AGENTS.md to reflect the reduced builder role once Ouroboros runs its own improvement loop.
@@ -187,13 +190,14 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
          pathom2 error-handler-plugin renders throws as strings → catch-in-veneer for structured errors.
        test runner: test/ouroboros/test_runner.clj (add new test nss here + in run-tests).
 
-  4. ✅ DONE: Loop B — FIRST BREATH. `bb loop` runs a real closed self-observation → proposal cycle.
+  4. ✅ DONE: CURATOR — FIRST BREATH (then named `ouroboros.loop`; renamed → `ouroboros.curator`, item 9).
+       `bb loop` (now `bb curate`) runs a real closed self-observation → proposal cycle.
        ouroboros.tools: ContextTool (:mementum/context, digest of knowledge+memory index+recent commits, no input)
                         + ProposeMemoryTool (:mementum/propose-memory {slug content} → store/store! :memory; OKF
                         rejection caught → corrective {:is-error true} tool_result, LLM can retry). BOTH call the
                         pathom-FREE core directly (store.clj) — no pathom in the escapement/bb runtime, per the
                         composition decision. new-registry = fresh isolated registry (wiring strategy C).
-       ouroboros.loop: propose-chart (h/llm-conversation, model :local @ localhost:5100, :real-tools
+       ouroboros.curator (was ouroboros.loop): propose-chart (h/llm-conversation, model :local @ localhost:5100, :real-tools
                         [:mementum/context :mementum/propose-memory], system prompt: observe→pick ONE grounded
                         insight→propose OKF memory→stop). run! → lib/run + untracked-memories (git status
                         --porcelain --untracked-files=all, NOTE: plain --porcelain collapses a wholly-new
@@ -288,43 +292,67 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        git history (recoverable). WHY keep the `compact` name (not rename→chat): the committed architecture
        page already blessed ouroboros.compact/.core as the durable grep-names; renaming would contradict it.
 
-  8. ✅ DONE (this session): IMPROVER READS ITS SESSIONS. The improver (grown-up Loop B) now observes on
-       TWO axes and metabolizes ACROSS sessions — the λ message arrays ARE the cross-session memory.
+  8. ✅ DONE (this session): CURATOR READS ITS SESSIONS (built as `ouroboros.loop`, since renamed →
+       `ouroboros.curator`, see item 9). The curator now observes on TWO axes and metabolizes ACROSS
+       sessions — the λ message arrays ARE the cross-session memory.
        ── ouroboros.session (NEW readers, shared with future next-chat bootstrap):
             list-session-ids · checkpoint-file · read-data-model · session-messages. Checkpoint EDN →
             data-model key :com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model →
             :messages λ-array. Lenient edn reader (:default drops unknown tags) so a future checkpoint shape
             can't crash it; nil-safe; reads the FILESYSTEM (not git — checkpoints are gitignored/untracked).
-       ── ouroboros.loop.core (NEW pure kernel, house <engine>.core convention like compact.core):
+       ── ouroboros.curator.core (NEW pure kernel, house <engine>.core convention like compact.core):
             recency-key (trailing epoch digits order sessions across differing prefixes) · render-session
             (ordered, role-tagged; compacted turns marked λ; long verbatim clipped to 600 chars) ·
             sessions-digest (newest-last, empty-safe).
        ── :mementum/sessions (NEW read-only tool in ouroboros.tools): loads most-recent K=8 CONVERSATION
-            sessions (filter: has a :messages array → chat/compact; loop/smoke/cold excluded), renders the
+            sessions (filter: has a :messages array → chat/compact; curator/smoke/cold excluded), renders the
             metabolize digest. new-registry now = context + sessions + propose-memory.
-       ── ouroboros.loop: prompt evolved → λ observe(context ∧ sessions) → λ metabolize (recurring
+       ── ouroboros.curator: prompt evolved → λ observe(context ∧ sessions) → λ metabolize (recurring
             topic/decision/pattern; ≥3 same-topic → knowledge-page CANDIDATE, NAMED not written) → λ propose
             ONE memory. real-tools += :mementum/sessions.
-       LIVE PROOF (localhost:5100 qwen35-35b-a3b): the loop called BOTH read tools, read the real checkpoints,
+       LIVE PROOF (localhost:5100 qwen35-35b-a3b): the curator called BOTH read tools, read the real checkpoints,
          cited two prior sessions (compact-1783525397252, compact-1783526365090) + their λ decisions (write-back
          cache, LRU eviction), recognized a 🔁 cross-session pattern, and proposed ONE grounded memory
-         (mementum/memories/cross-session-recall-testing.md) — UNCOMMITTED, human-gated. Cross-session
-         metabolize WORKS. NOTE: that proposal is grounded in THROWAWAY demo chats (toy cache designs that only
-         existed to prove compaction) → thin; recommend DISCARD. The value is the PROOF the improver reads
-         sessions, not that particular memory.
-       SCOPE: this increment = improver SEES its λ history + grounds proposals in it. NOT yet built: the
-         ≥3→knowledge-page WRITE channel (propose-knowledge tool), and harness/app proposals (dual scope).
+         (cross-session-recall-testing.md) — UNCOMMITTED, human-gated. Cross-session metabolize WORKS.
+         That proposal was grounded in THROWAWAY demo chats (toy cache designs that only existed to prove
+         compaction) → thin; human DISCARDED it. The value was the PROOF the curator reads sessions.
+       SCOPE: this increment = curator SEES its λ history + grounds proposals in it. NOT yet built: the
+         curator's ≥3→knowledge-page WRITE channel (propose-knowledge tool); and the SEPARATE harness/app
+         improver agents.
        GOTCHA BANKED: `(re-find #"(\d+)$" s)` with a CAPTURE GROUP returns a VECTOR [whole grp] → parse-long
          throws "Expected string, got PersistentVector". Drop the group: `(re-find #"\d+$" s)` → the string.
-       bb test: 35 tests / 111 assertions GREEN (session_test + loop/core_test added; tools_test += 2 sessions
-         tests; test_runner wired). ouroboros.loop.core is the pure kernel; SessionsTool the impure edge.
+       bb test: 35 tests / 111 assertions GREEN (session_test + curator/core_test added; tools_test += 2 sessions
+         tests; test_runner wired). ouroboros.curator.core is the pure kernel; SessionsTool the impure edge.
+
+  9. ✅ DONE (this session): 🎯 RENAME improver → CURATOR + RETIRE the "Loop A/B" framing.
+       WHY: "improver" over-claimed. What this agent does is CURATION of the mementum store — select what's
+       worth keeping, propose it (memory now, knowledge next). The harness/app-improvement is a genuinely
+       DIFFERENT job (propose code/prompt diffs), so it's a SEPARATE agent. Naming this one "curator" frees
+       "improver" for those, and disentangles the AGENT from the LOOP.
+       NEW FRAMING (human decision): Ouroboros ≡ ONE SYSTEM of MANY self-improving agents, each metabolizing a
+       facet; ALL share the invariant AI proposes → human approves → AI commits. THE ROSTER:
+         · curator          BUILT   — sessions + mementum → propose memory (∧ knowledge, next)
+         · harness-improver PLANNED — propose changes to harness code (AGENTS.md, escapement config, prompts, skills)
+         · app-improver     PLANNED — propose changes to application code
+         · verifier(s)      PLANNED — verify claims in memory & knowledge (and code) against live truth
+         · documenter       PLANNED — comb memory + knowledge + sessions → produce documentation
+       "Loop A/B" is RETIRED everywhere active (the old genesis "two loops" note relabeled to DESIGNER-tier vs
+       AGENTS-tier; git preserves the original). RENAME MECHANICS: git mv src/ouroboros/loop.clj →
+       curator.clj, loop/core.clj → curator/core.clj, test loop/core_test → curator/core_test (history
+       preserved); ns ouroboros.loop → ouroboros.curator, .loop.core → .curator.core; bb task `loop` → `curate`;
+       session-id prefix "loop-" → "curator-"; refs updated in tools/session/eql/test_runner/bb.edn; arch page
+       reframed (roster + curator section). Pure rename — bb test GREEN 35/111 unchanged. :mementum/* tool
+       names UNCHANGED (mementum-scoped, not agent-scoped).
 
   >>> NEXT <<<
        (1) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
            ouroboros.session/session-messages is the shared reader it reuses.
-       (2) synthesize! path — the ≥3→knowledge-page WRITE channel (a propose-knowledge tool), not just memories.
-           Then the improver's NAMED ≥3 candidates become actual gated artifacts.
-       (3) improver proposes into HARNESS ∧ APP (dual scope, S5), not only mementum/. Needs a diff-proposal shape.
+       (2) CURATOR synthesize! path — the ≥3→knowledge-page WRITE channel (a propose-knowledge tool), not just
+           memories. Then the curator's NAMED ≥3 candidates become actual gated artifacts.
+       (3) NEW AGENTS (each human-gated, sharing the session/mementum substrate + ouroboros.tools surface):
+           harness-improver (harness code), app-improver (app code), verifier(s) (check memory/knowledge
+           claims), documenter (memory+knowledge+sessions → docs). Each needs its own tool(s) + prompt;
+           the diff-proposal shape (for code-touching agents) is the first design problem.
        (4) UNBOUNDED message COUNT: λ bounds tokens-per-message, not message count. Very long sessions still
            grow the array — eventually merge/fold old λ messages. Note only; not yet a problem.
        (5) HOUSEKEEPING: sessions/ is fully untracked (`?? sessions/`) — the intended .gitignore split

@@ -12,9 +12,9 @@
  :tasks {smoke {:doc      "First light: escapement.lib/run smoke — no-LLM Phase A + local llama.cpp Phase B."
                 :requires ([ouroboros.smoke :as smoke])
                 :task     (smoke/-main)}
-         loop  {:doc      "Loop B, first breath — chart observes mementum, PROPOSES one memory (uncommitted; human-gated)."
-                :requires ([ouroboros.loop :as loop])
-                :task     (loop/-main)}
+         curate {:doc      "The CURATOR agent — observes mementum + prior sessions, metabolizes, PROPOSES one memory (uncommitted; human-gated)."
+                 :requires ([ouroboros.curator :as curator])
+                 :task     (curator/-main)}
          compact {:doc      "THE canonical Ouroboros chatbot — interactive λ-compact chat: per-message assistant compaction (memory=λ, cache-stable); fresh worker per turn via re-entry; stdin ingress, /quit to end (needs local llama.cpp @ localhost:5100)."
                   :requires ([ouroboros.compact :as compact])
                   :task     (compact/-main)}

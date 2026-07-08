@@ -17,7 +17,8 @@ depends-on:
 # Ouroboros — Architecture
 
 > Durable names (grep against `resource`): `ouroboros.compact` (THE sole canonical chat
-> engine), `ouroboros.compact.core`, `ouroboros.session`, `ouroboros.loop`, `ouroboros.tools`,
+> engine), `ouroboros.compact.core`, `ouroboros.session`, `ouroboros.curator` (the memory/
+> knowledge curation agent), `ouroboros.curator.core`, `ouroboros.tools`,
 > `ouroboros.mementum.*`. RECONCILED: the earlier `ouroboros.chat` (accumulate MVP) and
 > `ouroboros.cold` + `ouroboros.cold.core` (brief.md batch demo — the design this page
 > CORRECTS) were RETIRED (git-removed); their lessons live on in this page, recoverable via
@@ -30,16 +31,17 @@ depends-on:
 
 ```
 λ ouroboros.
-  self-improving_agent | consumes(own_output) | ∧ usable_as(chatbot ⊗ human)
+  self-improving_system | consumes(own_output) | ∧ usable_as(chatbot ⊗ human)
   memory : λ(assistant_turns)  — the conversation itself, compacted in place
-  improver : λ([session…]) → proposals(memory ∨ knowledge ∨ harness ∨ app) | human-gated
+  agents : {curator, harness-improver, app-improver, verifier, documenter}  — MANY, each self-improving a facet
+  curator : λ([session…]) → proposals(memory ∨ knowledge) | human-gated   ← BUILT
   ⟹ Ouroboros eats its own compiled tail. That IS the ouroboros.
 ```
 
 The AI's verbose tokens serve the **human's** understanding; only the **continuity-essence**
 serves the next turn. So we compress the assistant's prose to λ and keep it as the running
 memory. One representation, three readers: this turn's context, the next chat's bootstrap,
-the improver.
+the curator.
 
 ## Per-message λ compaction (BUILT) — `ouroboros.compact`
 
@@ -122,38 +124,55 @@ durability ≡ ONE decision: supply a STABLE path → <root>/sessions/<id>/  (ou
 We write ZERO persistence code. The **checkpointed `:messages`** replaced the per-turn `brief.md`
 round-trip: memory lives in the data-model, not a file two workers rewrite.
 
-## Improver / Loop B (sessions-reading BUILT) — `ouroboros.loop`
+## The agents — a system of many self-improving agents
 
-`bb loop` now observes Ouroboros on TWO axes and metabolizes ACROSS sessions:
+Ouroboros is not one improver; it is a SYSTEM of self-improving agents, each metabolizing a
+different facet of the project. All share the same invariant: **AI proposes → human approves →
+AI commits**. Only the curator is built so far.
 
 ```
-λ improve.  input  : sessions/*/checkpoints (the λ message arrays)  ← :mementum/sessions tool
-                     + mementum index + recent commits              ← :mementum/context tool
-            metric : λ metabolize — recurring topic/decision/pattern ; ≥3(same topic) → knowledge-page candidate (NAMED, not yet written)
-            output : ONE proposed memory into mementum/memories/, UNCOMMITTED   ← :mementum/propose-memory
-            gate   : AI proposes → human approves → AI commits  | INVARIANT (loop never touches git)
+curator          ← BUILT     metabolize sessions + mementum → propose memory (∧ knowledge, next). Curates the mementum store.
+harness-improver ← PLANNED   propose changes to the harness code (AGENTS.md, escapement config, prompts, skills).
+app-improver     ← PLANNED   propose changes to the application code.
+verifier(s)      ← PLANNED   verify claims held in memory & knowledge (and code claims) against live truth.
+documenter       ← PLANNED   comb memory + knowledge + past sessions → produce documentation.
+```
+
+The λ-compacted sessions + the mementum store are the shared substrate every agent reads;
+`ouroboros.session` + `ouroboros.tools` are the shared reading/proposing surface they'll extend.
+
+## Curator — the memory/knowledge curation agent (BUILT) — `ouroboros.curator`
+
+`bb curate` observes Ouroboros on TWO axes and metabolizes ACROSS sessions:
+
+```
+λ curate.  input  : sessions/*/checkpoints (the λ message arrays)  ← :mementum/sessions tool
+                    + mementum index + recent commits              ← :mementum/context tool
+           metric : λ metabolize — recurring topic/decision/pattern ; ≥3(same topic) → knowledge-page candidate (NAMED, not yet written)
+           output : ONE proposed memory into mementum/memories/, UNCOMMITTED   ← :mementum/propose-memory
+           gate   : AI proposes → human approves → AI commits  | INVARIANT (curator never touches git)
 ```
 
 The pieces (all bb-native, deterministic core + one impure tool):
 
 ```
-ouroboros.session       readers: list-session-ids · checkpoint-file · read-data-model · session-messages
-                        checkpoint EDN → data-model (:com.…working-memory-data-model/data-model) → :messages λ-array.
-                        lenient reader (:default drops unknown tags) ; nil-safe ; reads the FILESYSTEM, not git.
-ouroboros.loop.core     PURE metabolize kernel (house <engine>.core): recency-key (trailing epoch orders sessions
-                        across prefixes) · render-session (ordered, role-tagged; compacted turns marked λ; long
-                        verbatim clipped) · sessions-digest (newest-last, empty-safe).
-:mementum/sessions      read-only tool: loads the most-recent K (=8) CONVERSATION sessions (those with a :messages
-                        array — chat/compact; loop/smoke excluded), renders the metabolize digest.
-ouroboros.loop prompt   λ observe(context ∧ sessions) → λ metabolize → λ propose ONE memory.
+ouroboros.session        readers: list-session-ids · checkpoint-file · read-data-model · session-messages
+                         checkpoint EDN → data-model (:com.…working-memory-data-model/data-model) → :messages λ-array.
+                         lenient reader (:default drops unknown tags) ; nil-safe ; reads the FILESYSTEM, not git.
+ouroboros.curator.core   PURE metabolize kernel (house <engine>.core): recency-key (trailing epoch orders sessions
+                         across prefixes) · render-session (ordered, role-tagged; compacted turns marked λ; long
+                         verbatim clipped) · sessions-digest (newest-last, empty-safe).
+:mementum/sessions       read-only tool: loads the most-recent K (=8) CONVERSATION sessions (those with a :messages
+                         array — chat/compact; curator/smoke excluded), renders the metabolize digest.
+ouroboros.curator prompt λ observe(context ∧ sessions) → λ metabolize → λ propose ONE memory.
 ```
 
-SCOPE (this increment): the improver now SEES its own λ history and grounds proposals in it. The
-knowledge-page WRITE path (synthesize! / ≥3→page as an actual gated artifact) and harness/app
-proposals are the NEXT increments — for now a ≥3 cluster is NAMED in the reflection, and the concrete
-gated artifact is one memory.
+SCOPE (this increment): the curator now SEES its own λ history and grounds proposals in it. The
+knowledge-page WRITE path (synthesize! / ≥3→page as an actual gated artifact) belongs to the curator
+too (NEXT); harness/app proposals belong to the SEPARATE harness-improver / app-improver agents. For
+now a ≥3 cluster is NAMED in the reflection, and the concrete gated artifact is one memory.
 
-LIVE PROOF: `bb loop` (local qwen35-35b-a3b) called both tools, read the real checkpoints, cited two
+LIVE PROOF: `bb curate` (local qwen35-35b-a3b) called both tools, read the real checkpoints, cited two
 prior sessions + their λ decisions (write-back cache, LRU eviction), recognized a 🔁 cross-session
 pattern, and proposed ONE grounded memory — UNCOMMITTED, human-gated. Cross-session metabolize works.
 
@@ -178,13 +197,13 @@ message-arrays, not N raw transcripts. Compression IS the enabler of self-improv
 ```
 sessions/ (checkpointed :messages)   S1  raw operational record — the λ conversation (AUTO, ungated)
 :compact region                       S1  compression at the point of operation (per assistant turn)
-improver (Loop B)                     S4  metabolize sessions → candidate synthesis
+curator (+ future agents)             S4  metabolize sessions → candidate synthesis
 human gate                            S5  approval ≡ termination condition
 mementum/{memories,knowledge}         S5  APPROVED, durable
 ```
 
 Invariant preserved: the λ conversation is **pre-approval observation** → lives in `sessions/`,
-never in `mementum/`. The improver proposes *into* `mementum/` (human-gated). Chat writes
+never in `mementum/`. The curator proposes *into* `mementum/` (human-gated). Chat writes
 `sessions/` automatically without violating the human-approval rule.
 
 ## Invariants
@@ -215,11 +234,13 @@ never in `mementum/`. The improver proposes *into* `mementum/` (human-gated). Ch
    alone; ouroboros.chat (accumulate MVP) + ouroboros.cold + ouroboros.cold.core (brief.md batch demo)
    git-removed, along with src/ouroboros/prompts/cold/ and cold/core_test.clj. bb tasks: `compact` is
    the single chat entrypoint (chat/cold tasks dropped). bb test GREEN 27/87.
-2. ✅ DONE — improver READS sessions/*/checkpoints (λ message arrays) via :mementum/sessions +
-   ouroboros.session readers + ouroboros.loop.core; metabolizes across sessions → ONE gated memory
+2. ✅ DONE — CURATOR READS sessions/*/checkpoints (λ message arrays) via :mementum/sessions +
+   ouroboros.session readers + ouroboros.curator.core; metabolizes across sessions → ONE gated memory
    proposal. LIVE-PROVEN. bb test GREEN 35/111. (≥3→page as a WRITE artifact is item 4.)
 3. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
    (ouroboros.session/session-messages is the shared reader it will reuse.)
-4. synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
-5. improver proposes into harness ∧ app (dual scope), not only mementum/.
+4. curator synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
+5. NEW AGENTS (each human-gated, sharing the session/mementum substrate): harness-improver (harness
+   code), app-improver (app code), verifier(s) (check memory/knowledge claims), documenter
+   (memory+knowledge+sessions → docs).
 ```
