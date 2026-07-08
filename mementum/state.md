@@ -345,6 +345,24 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        names UNCHANGED (mementum-scoped, not agent-scoped).
 
   >>> NEXT <<<
+       (0) ⭐ SHADOW COMPACTION — "the trick" (designed this session; docs in mementum/knowledge/design/).
+           INSIGHT: the cold compiler's win is NOT speed, it's OVERLAP — compact turn[n-1] to λ DURING
+           the seconds the human spends READING reply[n]. reading-time (20–60s) ⋙ compaction (~2s) → 10–30×
+           hiding margin → compaction is PERCEPTUALLY FREE. Metric flips: felt-latency (never make the human
+           wait) ≻ throughput. DEFECT in built ouroboros.compact: compaction is scheduled on the PRE-GEN pump
+           (:user/next → :compact → :hot) = the one instant the human is blocked. FIX (Tier 1, pure topology):
+           decompose the fused :hot into :parked | :hot | :compact; fire compaction on :hot/idle (reading
+           shadow) → :parked; simplify :user/next (drop its :compact branch); add :user/msg enqueue to
+           :compact. Also fixes a latent :hot-busy? trap. Tier 2 (only if fast-human waits show up): (parallel
+           :hot :compact) + llama.cpp slot pinning via :extra-body. MEASURED: gen∥gen = 0% overlap (both
+           bandwidth-bound); gen∥prefill = ~½ hidden (prefill compute-bound fills decode bubbles) — compaction
+           is the lucky case. See design/shadow-compaction.md (full chart sketch + numbers + verification).
+           STATUS: design only, human asked for docs; NOT built. Docs UNCOMMITTED pending approval.
+       (0b) 🎯 escapement :extra-body PATCH (written this session on the escapement clone, branch mw_extra_body,
+           RC9 base, UNCOMMITTED, full suite GREEN 413/2260). Adds an OpenAI-wire passthrough so charts can inject
+           chat_template_kwargs / id_slot / cache_prompt — the levers shadow-compaction Tier 2 + thinking-off need.
+           4 gates patched: Request schema → build-request → run-turn call site → request->openai-json (merge LAST,
+           caller wins). See design/extra-body-seam.md. Good upstream-PR candidate.
        (1) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
            ouroboros.session/session-messages is the shared reader it reuses.
        (2) CURATOR synthesize! path — the ≥3→knowledge-page WRITE channel (a propose-knowledge tool), not just
@@ -368,4 +386,10 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 - Escapement house rule: bb/SCI only in source. No JVM-only paths. Mirror this if Ouroboros code runs under escapement's bb runtime.
 - KEYWORD is the only legal escapement model reference; strings are errors. Aliases (:llm/aliases) are the single source of truth.
 - Knowledge pages carry NO file paths/line numbers by design — grep durable names against ~/src/escapement to locate things.
+- LOCAL MODEL IS Qwen3.6, NOT 3.5: server serves `qwen36-35b-a3b` (Qwen3.6-35B-MTP-A3B, Q8_0). The charts hardcode
+  the string `qwen35-35b-a3b` (smoke.clj/curator.clj/compact.clj) — STALE but harmless (llama.cpp ignores the request
+  model field, serves what's loaded). Fix the name when convenient. Probe the SERVER (/v1/models,/props,/slots) for truth.
+- THINKING IS ON by default on the local model — every reply burns reasoning tokens first. `/no_think` token does NOT
+  work on the qwen3.6 template; only chat_template_kwargs {enable_thinking false} disables it → needs the :extra-body patch.
+- ESCAPEMENT IS RC9 (released), NOT "not even alpha" — that maturity claim is STALE wherever it appears (state/knowledge).
 ```
