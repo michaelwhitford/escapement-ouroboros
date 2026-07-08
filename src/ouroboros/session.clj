@@ -17,8 +17,16 @@
 
   The BRIEF is the durable residue both readers want (next chat bootstrap ∧ the
   improver). The transcript/checkpoints are fat and regenerable → gitignored (see
-  .gitignore). What actually gets committed is a per-session human choice."
+  .gitignore). What actually gets committed is a per-session human choice.
+
+  READING BACK (the improver + next-chat bootstrap): escapement snapshots the
+  whole working-memory data-model to `checkpoints/<id>.edn` after every event.
+  The compact chat's λ conversation lives there as the data-model `:messages`
+  vector. `session-messages` re-derives it — this layout knowledge lives here so
+  both the improver (metabolize across sessions) and the bootstrap (seed a fresh
+  chat from a prior tail) share ONE reader."
   (:require
+    [clojure.edn :as edn]
     [clojure.java.io :as io]))
 
 (def ^:private brief-rel "artifacts/brief.md")
@@ -41,3 +49,55 @@
   "Absolute path to session `id`'s compiled-λ brief artifact."
   ([id] (brief-path "." id))
   ([root id] (.getPath (io/file (session-dir root id) brief-rel))))
+
+;; ---------------------------------------------------------------------------
+;; Reading sessions back — checkpoint → data-model → :messages.
+;; The improver metabolizes these; the next-chat bootstrap re-seeds from them.
+;; ---------------------------------------------------------------------------
+
+;; escapement snapshots the whole working memory here. Kept as a literal FQ
+;; keyword (matches the codebase pattern — cf. compact/event-queue-key) so we
+;; needn't require the statecharts data-model root ns under bb.
+(def ^:private data-model-key
+  :com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model)
+
+(defn list-session-ids
+  "Session ids (dir names) under `<root>/sessions/`, sorted ascending. `[]` when
+  the sessions dir is absent. Includes ALL sessions (chat/compact/loop/…) — the
+  caller filters (e.g. the improver keeps only those with a `:messages` array)."
+  ([] (list-session-ids "."))
+  ([root]
+   (let [d (io/file root "sessions")]
+     (if (.isDirectory d)
+       (->> (.listFiles d)
+         (filter #(.isDirectory ^java.io.File %))
+         (mapv #(.getName ^java.io.File %))
+         sort vec)
+       []))))
+
+(defn checkpoint-file
+  "The checkpoint EDN `File` for session `id` (`<dir>/checkpoints/<id>.edn`), or
+  nil when absent. Escapement names the checkpoint after the session id."
+  ([id] (checkpoint-file "." id))
+  ([root id]
+   (let [f (io/file root "sessions" (str id) "checkpoints" (str id ".edn"))]
+     (when (.exists f) f))))
+
+(defn read-data-model
+  "Parse session `id`'s checkpoint and return the statechart working-memory
+  data-model map, or nil when the checkpoint is absent/unreadable. Unknown
+  tagged literals are read leniently (tag dropped → value) so a future
+  escapement checkpoint shape can't crash the reader."
+  ([id] (read-data-model "." id))
+  ([root id]
+   (when-let [f (checkpoint-file root id)]
+     (try
+       (get (edn/read-string {:default (fn [_tag v] v)} (slurp f)) data-model-key)
+       (catch Exception _ nil)))))
+
+(defn session-messages
+  "The λ-compacted `:messages` vector from session `id`'s checkpoint, or `[]`
+  when absent. Each msg: `{:role :user|:assistant :text <prose-or-λ> :compacted? bool}`.
+  This is the cross-session memory the improver reads."
+  ([id] (session-messages "." id))
+  ([root id] (or (:messages (read-data-model root id)) [])))

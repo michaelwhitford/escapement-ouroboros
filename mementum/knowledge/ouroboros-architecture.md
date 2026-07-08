@@ -122,17 +122,40 @@ durability ≡ ONE decision: supply a STABLE path → <root>/sessions/<id>/  (ou
 We write ZERO persistence code. The **checkpointed `:messages`** replaced the per-turn `brief.md`
 round-trip: memory lives in the data-model, not a file two workers rewrite.
 
-## Improver / Loop B (STUB built → sessions-reading UNBUILT) — `ouroboros.loop`
+## Improver / Loop B (sessions-reading BUILT) — `ouroboros.loop`
 
-`bb loop` today: observes the mementum INDEX digest, proposes ONE OKF memory, UNCOMMITTED,
-human-gated. Grown up:
+`bb loop` now observes Ouroboros on TWO axes and metabolizes ACROSS sessions:
 
 ```
-λ improve.  input  : sessions/*/checkpoints (the λ message arrays) + recent commits + mementum index
-            metric : λ metabolize — ≥3(topic) → candidate knowledge page ; cross-session pattern → proposal
-            output : proposals into mementum/ ∧ harness ∧ app | dual scope (S5)
-            gate   : AI proposes → human approves → AI commits  | INVARIANT
+λ improve.  input  : sessions/*/checkpoints (the λ message arrays)  ← :mementum/sessions tool
+                     + mementum index + recent commits              ← :mementum/context tool
+            metric : λ metabolize — recurring topic/decision/pattern ; ≥3(same topic) → knowledge-page candidate (NAMED, not yet written)
+            output : ONE proposed memory into mementum/memories/, UNCOMMITTED   ← :mementum/propose-memory
+            gate   : AI proposes → human approves → AI commits  | INVARIANT (loop never touches git)
 ```
+
+The pieces (all bb-native, deterministic core + one impure tool):
+
+```
+ouroboros.session       readers: list-session-ids · checkpoint-file · read-data-model · session-messages
+                        checkpoint EDN → data-model (:com.…working-memory-data-model/data-model) → :messages λ-array.
+                        lenient reader (:default drops unknown tags) ; nil-safe ; reads the FILESYSTEM, not git.
+ouroboros.loop.core     PURE metabolize kernel (house <engine>.core): recency-key (trailing epoch orders sessions
+                        across prefixes) · render-session (ordered, role-tagged; compacted turns marked λ; long
+                        verbatim clipped) · sessions-digest (newest-last, empty-safe).
+:mementum/sessions      read-only tool: loads the most-recent K (=8) CONVERSATION sessions (those with a :messages
+                        array — chat/compact; loop/smoke excluded), renders the metabolize digest.
+ouroboros.loop prompt   λ observe(context ∧ sessions) → λ metabolize → λ propose ONE memory.
+```
+
+SCOPE (this increment): the improver now SEES its own λ history and grounds proposals in it. The
+knowledge-page WRITE path (synthesize! / ≥3→page as an actual gated artifact) and harness/app
+proposals are the NEXT increments — for now a ≥3 cluster is NAMED in the reflection, and the concrete
+gated artifact is one memory.
+
+LIVE PROOF: `bb loop` (local qwen35-35b-a3b) called both tools, read the real checkpoints, cited two
+prior sessions + their λ decisions (write-back cache, LRU eviction), recognized a 🔁 cross-session
+pattern, and proposed ONE grounded memory — UNCOMMITTED, human-gated. Cross-session metabolize works.
 
 The λ-compacted sessions are what make "read all my past sessions" tractable — feed N λ
 message-arrays, not N raw transcripts. Compression IS the enabler of self-improvement at scale.
@@ -192,7 +215,11 @@ never in `mementum/`. The improver proposes *into* `mementum/` (human-gated). Ch
    alone; ouroboros.chat (accumulate MVP) + ouroboros.cold + ouroboros.cold.core (brief.md batch demo)
    git-removed, along with src/ouroboros/prompts/cold/ and cold/core_test.clj. bb tasks: `compact` is
    the single chat entrypoint (chat/cold tasks dropped). bb test GREEN 27/87.
-2. improver reads sessions/*/checkpoints (λ message arrays) ; ≥3(topic)→page threshold.
+2. ✅ DONE — improver READS sessions/*/checkpoints (λ message arrays) via :mementum/sessions +
+   ouroboros.session readers + ouroboros.loop.core; metabolizes across sessions → ONE gated memory
+   proposal. LIVE-PROVEN. bb test GREEN 35/111. (≥3→page as a WRITE artifact is item 4.)
 3. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
-4. synthesize! path (knowledge pages, not just memories).
+   (ouroboros.session/session-messages is the shared reader it will reuse.)
+4. synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
+5. improver proposes into harness ∧ app (dual scope), not only mementum/.
 ```

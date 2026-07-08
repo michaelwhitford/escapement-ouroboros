@@ -11,7 +11,9 @@
   (:require
     [clojure.string :as str]
     [escapement.tools.protocol :as tp]
-    [ouroboros.mementum.store :as store]))
+    [ouroboros.loop.core :as metabolize]
+    [ouroboros.mementum.store :as store]
+    [ouroboros.session :as session]))
 
 ;; ---------------------------------------------------------------------------
 ;; :mementum/context — read-only self-model digest. No input.
@@ -47,6 +49,38 @@
     {:result (digest root) :is-error false}))
 
 ;; ---------------------------------------------------------------------------
+;; :mementum/sessions — read prior conversations as λ-compacted arrays. No input.
+;; The cross-session memory the improver metabolizes (≥3 recurrences → a
+;; knowledge-page candidate). Reads the FILESYSTEM checkpoints directly, not git.
+;; ---------------------------------------------------------------------------
+
+;; How many most-recent conversation sessions to surface. λ bounds tokens per
+;; message; this bounds sessions per digest.
+(def ^:private sessions-limit 8)
+
+(defn sessions-digest
+  "Impure loader: the metabolize digest of the most recent `limit` CONVERSATION
+  sessions under `root` — those carrying a compacted `:messages` array (chat /
+  compact sessions). Sessions without messages (loop / smoke / … reflections)
+  are excluded. Newest LAST (chronological, so the improver reads toward the
+  present). Pure rendering is delegated to `ouroboros.loop.core`."
+  [root limit]
+  (->> (session/list-session-ids root)
+    (map (fn [id] {:id id :messages (session/session-messages root id)}))
+    (filter #(seq (:messages %)))
+    (sort-by (comp metabolize/recency-key :id))
+    (take-last limit)
+    (metabolize/sessions-digest)))
+
+(defrecord SessionsTool [root]
+  tp/Tool
+  (tool-name [_] :mementum/sessions)
+  (description [_] "Read Ouroboros's most recent conversation sessions as λ-compacted message arrays — the cross-session memory. Each session lists its turns in order; assistant turns marked λ are the compacted essence. No input. Use this to spot RECURRING topics/decisions/patterns across sessions (≥3 on one topic ⇒ a knowledge-page candidate) and to ground any memory you propose in what actually happened.")
+  (input-schema [_] [:map {:closed true}])
+  (invoke [_ _input]
+    {:result (sessions-digest root sessions-limit) :is-error false}))
+
+;; ---------------------------------------------------------------------------
 ;; :mementum/propose-memory — writes to the working tree ONLY. Commit is
 ;; human-gated (AGENTS.md invariant) — this tool never touches git.
 ;; ---------------------------------------------------------------------------
@@ -76,8 +110,9 @@
 ;; ---------------------------------------------------------------------------
 
 (defn new-registry
-  "A fresh, isolated tool registry (escapement wiring strategy C) exposing only
-  the two mementum tools, rooted at `root` (default \".\")."
+  "A fresh, isolated tool registry (escapement wiring strategy C) exposing the
+  mementum tools, rooted at `root` (default \".\"): context + sessions (read) and
+  propose-memory (gated write)."
   ([] (new-registry "."))
   ([root]
-   (tp/new-registry [(->ContextTool root) (->ProposeMemoryTool root)])))
+   (tp/new-registry [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)])))

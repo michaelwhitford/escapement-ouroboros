@@ -288,11 +288,43 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        git history (recoverable). WHY keep the `compact` name (not rename→chat): the committed architecture
        page already blessed ouroboros.compact/.core as the durable grep-names; renaming would contradict it.
 
+  8. ✅ DONE (this session): IMPROVER READS ITS SESSIONS. The improver (grown-up Loop B) now observes on
+       TWO axes and metabolizes ACROSS sessions — the λ message arrays ARE the cross-session memory.
+       ── ouroboros.session (NEW readers, shared with future next-chat bootstrap):
+            list-session-ids · checkpoint-file · read-data-model · session-messages. Checkpoint EDN →
+            data-model key :com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model →
+            :messages λ-array. Lenient edn reader (:default drops unknown tags) so a future checkpoint shape
+            can't crash it; nil-safe; reads the FILESYSTEM (not git — checkpoints are gitignored/untracked).
+       ── ouroboros.loop.core (NEW pure kernel, house <engine>.core convention like compact.core):
+            recency-key (trailing epoch digits order sessions across differing prefixes) · render-session
+            (ordered, role-tagged; compacted turns marked λ; long verbatim clipped to 600 chars) ·
+            sessions-digest (newest-last, empty-safe).
+       ── :mementum/sessions (NEW read-only tool in ouroboros.tools): loads most-recent K=8 CONVERSATION
+            sessions (filter: has a :messages array → chat/compact; loop/smoke/cold excluded), renders the
+            metabolize digest. new-registry now = context + sessions + propose-memory.
+       ── ouroboros.loop: prompt evolved → λ observe(context ∧ sessions) → λ metabolize (recurring
+            topic/decision/pattern; ≥3 same-topic → knowledge-page CANDIDATE, NAMED not written) → λ propose
+            ONE memory. real-tools += :mementum/sessions.
+       LIVE PROOF (localhost:5100 qwen35-35b-a3b): the loop called BOTH read tools, read the real checkpoints,
+         cited two prior sessions (compact-1783525397252, compact-1783526365090) + their λ decisions (write-back
+         cache, LRU eviction), recognized a 🔁 cross-session pattern, and proposed ONE grounded memory
+         (mementum/memories/cross-session-recall-testing.md) — UNCOMMITTED, human-gated. Cross-session
+         metabolize WORKS. NOTE: that proposal is grounded in THROWAWAY demo chats (toy cache designs that only
+         existed to prove compaction) → thin; recommend DISCARD. The value is the PROOF the improver reads
+         sessions, not that particular memory.
+       SCOPE: this increment = improver SEES its λ history + grounds proposals in it. NOT yet built: the
+         ≥3→knowledge-page WRITE channel (propose-knowledge tool), and harness/app proposals (dual scope).
+       GOTCHA BANKED: `(re-find #"(\d+)$" s)` with a CAPTURE GROUP returns a VECTOR [whole grp] → parse-long
+         throws "Expected string, got PersistentVector". Drop the group: `(re-find #"\d+$" s)` → the string.
+       bb test: 35 tests / 111 assertions GREEN (session_test + loop/core_test added; tools_test += 2 sessions
+         tests; test_runner wired). ouroboros.loop.core is the pure kernel; SessionsTool the impure edge.
+
   >>> NEXT <<<
-       (1) IMPROVER reads sessions/*/checkpoints (the λ message arrays ARE the cross-session memory now, not
-           brief.md); ≥3(topic)→page threshold (λ metabolize); proposes into mementum/ ∧ harness ∧ app; human-gated.
-       (2) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
-       (3) synthesize! path (knowledge pages, not just memories).
+       (1) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
+           ouroboros.session/session-messages is the shared reader it reuses.
+       (2) synthesize! path — the ≥3→knowledge-page WRITE channel (a propose-knowledge tool), not just memories.
+           Then the improver's NAMED ≥3 candidates become actual gated artifacts.
+       (3) improver proposes into HARNESS ∧ APP (dual scope, S5), not only mementum/. Needs a diff-proposal shape.
        (4) UNBOUNDED message COUNT: λ bounds tokens-per-message, not message count. Very long sessions still
            grow the array — eventually merge/fold old λ messages. Note only; not yet a problem.
        (5) HOUSEKEEPING: sessions/ is fully untracked (`?? sessions/`) — the intended .gitignore split

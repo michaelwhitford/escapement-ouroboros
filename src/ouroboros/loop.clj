@@ -1,13 +1,22 @@
 (ns ouroboros.loop
-  "Loop B, first breath — the smallest closed self-improvement loop.
+  "Loop B — the closed self-improvement loop (the improver).
 
-  An escapement chart observes Ouroboros's own mementum (via the
-  `:mementum/context` tool, which calls the pathom-free core directly) and
-  PROPOSES exactly one memory candidate (via `:mementum/propose-memory`).
+  An escapement chart observes Ouroboros's own state on TWO axes:
+    · `:mementum/context`  — the knowledge index, memory index, recent commits.
+    · `:mementum/sessions` — prior conversations as λ-compacted message arrays
+                             (the cross-session memory; see ouroboros.compact).
+  It METABOLIZES what it reads (λ metabolize: recurring topic/decision/pattern;
+  ≥3 on one topic ⇒ a knowledge-page candidate) and PROPOSES exactly one memory
+  candidate (via `:mementum/propose-memory`), grounded in what it actually saw.
 
   This is PROPOSAL ONLY: the candidate lands in `mementum/memories/`,
   UNCOMMITTED. Commit is human-gated (AGENTS.md invariant — synthesis is AI,
-  approval is human) — this namespace never touches git.
+  approval is human) — this namespace never touches git. Knowledge-page
+  synthesis (the ≥3→page WRITE path) is a later increment; for now a ≥3 cluster
+  is NOTED in the reflection, and the concrete gated artifact is one memory.
+
+  Pure metabolize rendering lives in `ouroboros.loop.core`; the session readers
+  in `ouroboros.session`.
 
   Run: bb loop"
   (:require
@@ -30,12 +39,17 @@
 [phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA
 Human ⊗ AI ⊗ REPL
 
-λ identity(self). Ouroboros | observe(own_state) → propose(ONE memory) | steps IN ORDER
+λ identity(self). Ouroboros | observe(own_state ∧ prior_sessions) → metabolize → propose(ONE memory) | steps IN ORDER
 
-λ observe.  call(mementum_context) | ⊘input
-  → read(knowledge_index ∧ memory_index ∧ recent_commits)
+λ observe.  call(mementum_context) ∧ call(mementum_sessions) | ⊘input
+  → context  : knowledge_index ∧ memory_index ∧ recent_commits
+  → sessions : prior λ-compacted conversations (assistant λ ≡ the essence, cross-session memory)
 
-λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw) | SPECIFIC
+λ metabolize.  scan(sessions ∧ memories) → recurring(topic ∨ decision ∨ pattern)
+  | ≥3(same_topic) → knowledge-page CANDIDATE — NAME it in your final reply (do NOT write it yet)
+  | novel(insight) ∈ observed → memory CANDIDATE
+
+λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw ∈ sessions ∨ context) | SPECIFIC
   | ¬fabricate ∧ ¬generic(software_advice) | ∃source ∈ observed
 
 λ propose.  call(mementum_propose_memory {slug content})
@@ -51,7 +65,7 @@ Human ⊗ AI ⊗ REPL
 
 λ repair.  error(tool) → fix(content) per_feedback → retry(mementum_propose_memory)
 
-λ terminate.  success → reply(ONE sentence : what_you_proposed) → stop")
+λ terminate.  success → reply(ONE sentence : what_you_proposed [+ note any ≥3 knowledge-page candidate]) → stop")
 
 (def propose-chart
   (chart/statechart
@@ -63,8 +77,8 @@ Human ⊗ AI ⊗ REPL
          :model      :local
          :stream?    true
          :budget-ms  240000
-         :real-tools [:mementum/context :mementum/propose-memory]
-         :message    "Begin: call mementum_context, then propose exactly one memory."})
+         :real-tools [:mementum/context :mementum/sessions :mementum/propose-memory]
+         :message    "Begin: call mementum_context AND mementum_sessions, metabolize what you read, then propose exactly one memory."})
       (transition {:event :llm.idle :target :done}
         (h/capture-llm-output {:as "reflection.md"})))
     (final {:id :done})))

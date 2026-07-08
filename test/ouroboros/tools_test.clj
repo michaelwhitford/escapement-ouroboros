@@ -22,6 +22,29 @@
     (is (str/includes? (:result r) "escapement-index") "names a known knowledge page")
     (is (str/includes? (:result r) "RECENT COMMITS"))))
 
+(defn- write-checkpoint! [root id messages]
+  (let [dir (fs/path root "sessions" id "checkpoints")]
+    (fs/create-dirs dir)
+    (spit (str (fs/path dir (str id ".edn")))
+      (pr-str {:com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model
+               {:messages messages}}))))
+
+(deftest sessions-tool-digests-conversation-sessions
+  (let [root (temp-root)
+        id   "compact-1783525397252"]
+    (write-checkpoint! root id
+      [{:role :user :text "pick a cache" :compacted? false}
+       {:role :assistant :text "decision(write-back)" :compacted? true}])
+    (let [r (tp/dispatch (tools/new-registry root) :mementum/sessions {})]
+      (is (false? (:is-error r)))
+      (is (str/includes? (:result r) (str "SESSION " id)))
+      (is (str/includes? (:result r) "decision(write-back)") "the λ essence is surfaced"))))
+
+(deftest sessions-tool-empty-safe
+  (let [r (tp/dispatch (tools/new-registry (temp-root)) :mementum/sessions {})]
+    (is (false? (:is-error r)))
+    (is (str/includes? (:result r) "no prior conversation"))))
+
 (deftest propose-memory-writes-valid-and-does-not-commit
   (let [root (temp-root)
         reg  (tools/new-registry root)
