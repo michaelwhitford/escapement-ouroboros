@@ -9,7 +9,6 @@
     [ouroboros.mementum.store-test]
     [ouroboros.mementum.eql-test]
     [ouroboros.tools-test]
-    [ouroboros.cold.core-test]
     [ouroboros.compact.core-test]))
 
 (defn run! [& _]
@@ -20,6 +19,5 @@
           'ouroboros.mementum.store-test
           'ouroboros.mementum.eql-test
           'ouroboros.tools-test
-          'ouroboros.cold.core-test
           'ouroboros.compact.core-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))

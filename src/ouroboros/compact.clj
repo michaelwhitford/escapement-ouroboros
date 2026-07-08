@@ -28,7 +28,7 @@
 
   Ingress (external): the runner grabs the session event-queue via
   `lib/run :on-env-ready` and a stdin thread `sp/send!`s `:user/msg {:text}` /
-  `:user/end` into the live session (same as ouroboros.chat).
+  `:user/end` into the live session.
 
   Run: bb compact   (needs local llama.cpp @ localhost:5100, model qwen35-35b-a3b)
   End: /quit (or /exit, /bye) or EOF (Ctrl-D)."

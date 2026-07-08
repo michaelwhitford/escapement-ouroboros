@@ -276,16 +276,27 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
               a :hot-busy? flag (on-entry→true, :hot/idle→false) gates a guarded :user/next pump that drains
               one queued message per turn ONLY when parked. Barge-in eliminated; the in-flight reply completes.
 
+  7. ✅ DONE (this session): RECONCILED the three chat namespaces → ONE canonical engine.
+       ouroboros.compact stands ALONE as THE chat engine. GIT-REMOVED: src/ouroboros/chat.clj
+       (accumulate MVP — its liveness+ingress lesson lives in the architecture page), src/ouroboros/cold.clj
+       + src/ouroboros/cold/core.clj (brief.md batch demo — the WRONG design the compact page corrects),
+       test/ouroboros/cold/core_test.clj, and src/ouroboros/prompts/cold/ (3 templates; compact.clj carries
+       its prompts INLINE, no file round-trip). bb.edn: dropped `chat` + `cold` tasks → `compact` is the
+       single canonical chat entrypoint (`bb compact`). test_runner: dropped cold.core-test. compact.clj
+       docstring made self-contained. bb test GREEN: 27 tests / 87 assertions (was 36/113 — the removed
+       cold.core-test suite accounts for the 9/26 delta). Lessons preserved in ouroboros-architecture.md +
+       git history (recoverable). WHY keep the `compact` name (not rename→chat): the committed architecture
+       page already blessed ouroboros.compact/.core as the durable grep-names; renaming would contradict it.
+
   >>> NEXT <<<
-       (1) RECONCILE the three chat namespaces → ONE canonical engine. ouroboros.compact is the correct
-           design; ouroboros.chat (accumulate MVP) + ouroboros.cold (brief.md batch demo) are now superseded
-           references — retire or fold them.
-       (2) IMPROVER reads sessions/*/checkpoints (the λ message arrays ARE the cross-session memory now, not
+       (1) IMPROVER reads sessions/*/checkpoints (the λ message arrays ARE the cross-session memory now, not
            brief.md); ≥3(topic)→page threshold (λ metabolize); proposes into mementum/ ∧ harness ∧ app; human-gated.
-       (3) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
-       (4) synthesize! path (knowledge pages, not just memories).
-       (5) UNBOUNDED message COUNT: λ bounds tokens-per-message, not message count. Very long sessions still
+       (2) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
+       (3) synthesize! path (knowledge pages, not just memories).
+       (4) UNBOUNDED message COUNT: λ bounds tokens-per-message, not message count. Very long sessions still
            grow the array — eventually merge/fold old λ messages. Note only; not yet a problem.
+       (5) HOUSEKEEPING: sessions/ is fully untracked (`?? sessions/`) — the intended .gitignore split
+           (commit artifacts/, ignore transcript+checkpoints) isn't taking at the dir level. Decide + fix.
 ```
 
 ## Gotchas for future me

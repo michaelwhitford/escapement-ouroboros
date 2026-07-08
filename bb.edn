@@ -15,13 +15,7 @@
          loop  {:doc      "Loop B, first breath — chart observes mementum, PROPOSES one memory (uncommitted; human-gated)."
                 :requires ([ouroboros.loop :as loop])
                 :task     (loop/-main)}
-         cold  {:doc      "Cold-compiler prototype — parallel :hot/:cold regions; hot conversation compressed into verified λ each turn (needs local llama.cpp @ localhost:5100)."
-                :requires ([ouroboros.cold :as cold])
-                :task     (cold/-main)}
-         chat  {:doc      "Interactive chatbot — resident conversation + stdin ingress; type to chat, /quit to end (needs local llama.cpp @ localhost:5100)."
-                :requires ([ouroboros.chat :as chat])
-                :task     (chat/-main)}
-         compact {:doc      "λ-compact chat — per-message assistant compaction (memory=λ, cache-stable); fresh worker per turn via re-entry (needs local llama.cpp @ localhost:5100)."
+         compact {:doc      "THE canonical Ouroboros chatbot — interactive λ-compact chat: per-message assistant compaction (memory=λ, cache-stable); fresh worker per turn via re-entry; stdin ingress, /quit to end (needs local llama.cpp @ localhost:5100)."
                   :requires ([ouroboros.compact :as compact])
                   :task     (compact/-main)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."

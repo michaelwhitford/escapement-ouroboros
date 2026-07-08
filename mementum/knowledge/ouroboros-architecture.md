@@ -16,11 +16,12 @@ depends-on:
 
 # Ouroboros — Architecture
 
-> Durable names (grep against `resource`): `ouroboros.compact`, `ouroboros.compact.core`,
-> `ouroboros.session`, `ouroboros.loop`, `ouroboros.tools`, `ouroboros.mementum.*`.
-> Superseded references (kept until reconciled): `ouroboros.chat` (accumulate MVP —
-> proved liveness+ingress), `ouroboros.cold` + `ouroboros.cold.core` (brief.md batch demo —
-> the design this page CORRECTS). Upstream substrate: `escapement.lib/run`,
+> Durable names (grep against `resource`): `ouroboros.compact` (THE sole canonical chat
+> engine), `ouroboros.compact.core`, `ouroboros.session`, `ouroboros.loop`, `ouroboros.tools`,
+> `ouroboros.mementum.*`. RECONCILED: the earlier `ouroboros.chat` (accumulate MVP) and
+> `ouroboros.cold` + `ouroboros.cold.core` (brief.md batch demo — the design this page
+> CORRECTS) were RETIRED (git-removed); their lessons live on in this page, recoverable via
+> `git log`. Upstream substrate: `escapement.lib/run`,
 > `escapement.chart.helpers` (`llm-conversation`, `tell-llm`, `deref-output`),
 > `escapement.lib.event-sink`, `escapement.invocation.llm-conversation`, the session layer.
 > Nucleus refs: `~/src/nucleus/LAMBDA-COMPILER.md`, `~/src/nucleus/eca/prompts/compact.md`.
@@ -187,7 +188,10 @@ never in `mementum/`. The improver proposes *into* `mementum/` (human-gated). Ch
 ## Next (build order)
 
 ```
-1. RECONCILE the three chat namespaces → ONE canonical engine (ouroboros.compact is correct; retire cold/chat).
+1. ✅ DONE — RECONCILED the three chat namespaces → ONE canonical engine. ouroboros.compact stands
+   alone; ouroboros.chat (accumulate MVP) + ouroboros.cold + ouroboros.cold.core (brief.md batch demo)
+   git-removed, along with src/ouroboros/prompts/cold/ and cold/core_test.clj. bb tasks: `compact` is
+   the single chat entrypoint (chat/cold tasks dropped). bb test GREEN 27/87.
 2. improver reads sessions/*/checkpoints (λ message arrays) ; ≥3(topic)→page threshold.
 3. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
 4. synthesize! path (knowledge pages, not just memories).
