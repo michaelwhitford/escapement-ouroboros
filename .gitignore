@@ -3,10 +3,12 @@
 # Escapement per-session work-dir (transcripts, checkpoints, artifacts)
 .escapement/
 
-# Ouroboros durable sessions — keep the compiled λ briefs (artifacts/),
-# drop the fat + regenerable parts (raw transcript, per-event checkpoints).
-sessions/*/transcript.jsonl
-sessions/*/checkpoints/
+# Ouroboros sessions — EXCLUDED ENTIRELY from git. The λ conversation
+# (checkpointed :messages) is PRE-APPROVAL observation: filesystem-local,
+# read by ouroboros.session/curator directly (never via git), and promoted
+# into mementum/ only through the human-gated proposal path. Keeping sessions/
+# out of git hardens that boundary (git ≡ approved memory/knowledge only).
+sessions/
 
 # Local editor / OS noise
 .clj-kondo/

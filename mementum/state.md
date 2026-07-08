@@ -373,8 +373,13 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            the diff-proposal shape (for code-touching agents) is the first design problem.
        (4) UNBOUNDED message COUNT: λ bounds tokens-per-message, not message count. Very long sessions still
            grow the array — eventually merge/fold old λ messages. Note only; not yet a problem.
-       (5) HOUSEKEEPING: sessions/ is fully untracked (`?? sessions/`) — the intended .gitignore split
-           (commit artifacts/, ignore transcript+checkpoints) isn't taking at the dir level. Decide + fix.
+       (5) ✅ RESOLVED: sessions/ is EXCLUDED ENTIRELY from git (🎯 human decision, this session — supersedes
+           the old "commit artifacts/, ignore transcript+checkpoints" split). WHY: the λ conversation
+           (checkpointed :messages) is PRE-APPROVAL observation — filesystem-local, read directly by
+           ouroboros.session/curator (never via git), promoted to mementum/ only through the human-gated
+           proposal path. `.gitignore` now has a bare `sessions/`. This hardens the invariant: git ≡ approved
+           memory/knowledge only. NOTE: session λ-memory is therefore NOT backed up by git — filesystem is the
+           only copy. Fine for now (sessions are ephemeral observation); revisit if durable session archival is wanted.
 ```
 
 ## Gotchas for future me
