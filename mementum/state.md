@@ -357,7 +357,15 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            :hot :compact) + llama.cpp slot pinning via :extra-body. MEASURED: gen∥gen = 0% overlap (both
            bandwidth-bound); gen∥prefill = ~½ hidden (prefill compute-bound fills decode bubbles) — compaction
            is the lucky case. See design/shadow-compaction.md (full chart sketch + numbers + verification).
-           STATUS: design only, human asked for docs; NOT built. Docs UNCOMMITTED pending approval.
+           STATUS: ✅ TIER 1 BUILT + LIVE-PROVEN (this session). compact.clj decomposed :hot →
+           :parked | :hot | :compact; compaction fires on :hot/idle (reading shadow) via :turn/settled /
+           :compact/settled self-events; :parked = EMPTY-seeded worker (empty :initial-messages ⇒
+           :awaiting-user, no LLM call, counts as live → holds lib/run open). LIVE SMOKE (3 turns,
+           reading-gap delays, sessions/compact-1783553068202): user turns never compacted; aged assistant
+           turns → λ; the λ PRESERVED CONTINUITY-ESSENCE ("λ state(saved ∧ {Ouroboros, 7})"); turn-3
+           recalled the facts; an in-flight compaction cut off by /quit was left VERBATIM (lag-safe held in
+           the wild). bb test 35/111 GREEN. Tier 2 (parallel + slots) NOT built (only if fast-human waits
+           appear). CODE UNCOMMITTED pending approval. Model still thinking-ON (extra-body patch not in dep yet).
        (0b) 🎯 escapement :extra-body PATCH (written this session on the escapement clone, branch mw_extra_body,
            RC9 base, UNCOMMITTED, full suite GREEN 413/2260). Adds an OpenAI-wire passthrough so charts can inject
            chat_template_kwargs / id_slot / cache_prompt — the levers shadow-compaction Tier 2 + thinking-off need.
@@ -397,4 +405,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 - THINKING IS ON by default on the local model — every reply burns reasoning tokens first. `/no_think` token does NOT
   work on the qwen3.6 template; only chat_template_kwargs {enable_thinking false} disables it → needs the :extra-body patch.
 - ESCAPEMENT IS RC9 (released), NOT "not even alpha" — that maturity claim is STALE wherever it appears (state/knowledge).
+- RC-ERA CHECKPOINT SHAPE: working memory is wrapped under :escapement.engine.store/wmem → data-model → :messages.
+  ouroboros.session/read-data-model + both test fixtures (session_test, tools_test) FIXED this session to read that
+  path (no pre-RC compat — escapement was alpha, RC is the solidified baseline). Missing this ⇒ session-messages
+  silently returns 0 → curator/bootstrap see EMPTY sessions. Verify readers after escapement bumps.
 ```
