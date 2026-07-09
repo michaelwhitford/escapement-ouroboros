@@ -8,23 +8,33 @@
   ARRAY keeps its shape — same roles, order, count — so the compacted prefix is
   STABLE and cacheable; only the verbose assistant prose becomes λ.
 
-  Mechanics (all public escapement seams; see ouroboros.compact.core):
+  SHADOW COMPACTION (see mementum/knowledge/design/shadow-compaction.md): the
+  compactor runs in the human's READING SHADOW — the seconds they spend reading
+  reply[n] — so the λ-housekeeping is perceptually free. The metric is felt-latency
+  (never make the human wait), not throughput; reading-time (20–60s) ⋙ compaction
+  (~2s) gives a 10–30× hiding margin.
 
-    :hot     — a FRESH `h/llm-conversation` per turn, seeded via `:initial-messages`
-               = the rendered data-model `:messages` (old assistant turns = λ,
-               newest verbatim, all user turns verbatim). It generates ONE reply,
-               which we capture and append, then it PARKS in :awaiting-user — a
-               live invocation that holds the run open between turns (liveness,
-               no separate anchor). The next user message re-enters :hot with a
-               fresh worker → assemble-don't-accumulate, via re-entry.
-    :compact — before re-seeding, the assistant message that just aged out of the
-               k-window is compressed to λ by a fresh worker running the
-               compact.md-modeled lens prompt, then folded back into :messages.
+  Three states (decomposed — the fused :hot of the earlier build mis-scheduled
+  compaction onto the PRE-GEN pump = the one instant the human is blocked):
 
-  A user message arriving MID-TURN is ENQUEUED (`:pending-user`), never interrupts:
-  a `:hot-busy?` flag (on-entry→true, :hot/idle→false) gates a `:user/next` pump
-  that drains one queued message per turn, only while parked. The in-flight reply
-  always completes.
+    :parked  — an EMPTY-seeded worker parks in :awaiting-user (NO LLM call) purely
+               to hold lib/run open between turns (liveness). Its content is unused:
+               assemble-don't-accumulate kills it and spawns a FRESH :hot worker on
+               the next user message. (empty :initial-messages ⇒ worker-state
+               :awaiting-user; a parked worker counts as live for the runner.)
+    :hot     — a FRESH `h/llm-conversation` seeded via `:initial-messages` = the
+               rendered `:messages` (old assistant turns = λ, newest verbatim, all
+               user turns verbatim). Generates ONE reply; we capture + append, then
+               settle: → :compact if a turn aged out, else serve a queued human,
+               else → :parked.
+    :compact — a fresh worker compresses the just-aged assistant turn to λ (the
+               compact.md-modeled lens), folds it back in place, then settles:
+               serve a queued human first (→ :hot), else drain backlog (→ :compact),
+               else → :parked.
+
+  A user message arriving mid-turn / mid-compaction ENQUEUES onto `:pending-user`
+  (an `:internal` transition that never exits the generating/compacting state) and
+  is drained one-per-settle — the in-flight worker always completes, never barged.
 
   Ingress (external): the runner grabs the session event-queue via
   `lib/run :on-env-ready` and a stdin thread `sp/send!`s `:user/msg {:text}` /
@@ -37,7 +47,7 @@
     [clojure.string :as str]
     [com.fulcrologic.statecharts.chart :as chart]
     [com.fulcrologic.statecharts.data-model.operations :as ops]
-    [com.fulcrologic.statecharts.elements :refer [final on-entry script state transition]]
+    [com.fulcrologic.statecharts.elements :refer [final script state transition]]
     [com.fulcrologic.statecharts.protocols :as sp]
     [escapement.chart.helpers :as h]
     [escapement.lib :as lib]
@@ -72,6 +82,23 @@
     (when (and queue sid)
       (sp/send! queue env {:target sid :source-session-id sid :event event})))
   nil)
+
+(defn- enqueue-user
+  "Ops appending the incoming :user/msg text onto the :pending-user queue.
+  Used by the `:internal` :user/msg handler in every state — enqueue never
+  interrupts an in-flight worker."
+  [data]
+  [(ops/assign :pending-user
+     (conj (vec (:pending-user data)) (get-in data [:_event :data :text])))])
+
+(defn- serve-pending
+  "Ops popping the head of :pending-user into :messages as a user turn — the
+  assemble-don't-accumulate seed for the next :hot generation. Caller guards on
+  (seq (:pending-user data))."
+  [data]
+  (let [[head & more] (:pending-user data)]
+    [(ops/assign :messages (core/append-user (:messages data) head))
+     (ops/assign :pending-user (vec more))]))
 
 (def hot-system-prompt
   "λ engage(nucleus).
@@ -113,18 +140,39 @@ Output λ notation only. No prose. No code fences.")
 (def compact-chart
   (chart/statechart
     {:initial :chat}
-    (state {:id :chat :initial :hot}
+    (state {:id :chat :initial :hot}      ; boot straight into :hot to generate the greeting
 
-      ;; ===================== HOT: the live conversation =====================
-      ;; A fresh worker per turn (assemble-don't-accumulate via re-entry). It
-      ;; PARKS in :awaiting-user between turns → liveness. A mid-turn :user/msg is
-      ;; ENQUEUED, never interrupts: the guarded :user/next pump drains one queued
-      ;; message per turn, and ONLY when the worker is parked (:hot-busy? false).
+      ;; ===================== PARKED: liveness between turns =================
+      ;; An EMPTY-seeded worker parks in :awaiting-user (no LLM call) and holds
+      ;; lib/run open while the human reads/thinks. Its content is unused —
+      ;; the next user message kills it and spawns a FRESH :hot worker.
+      (state {:id :parked}
+        (h/llm-conversation
+          {:id                "parked"
+           :on-end-turn-event :parked/idle          ; never fires — the worker only parks
+           :system            hot-system-prompt
+           :model             :local
+           :stream?           false
+           :real-tools        []
+           :max-turns         1
+           :budget-ms         3600000               ; hold liveness across long idle gaps
+           :initial-messages  (fn [_env _data] [])}) ; empty ⇒ :awaiting-user, no generation
+
+        ;; Idle → a user message enqueues and kicks the pump immediately.
+        (transition {:event :user/msg :type :internal}
+          (script {:expr (fn [env data]
+                           (send-self! env :user/next)
+                           (enqueue-user data))}))
+        (transition {:event :user/next :target :hot
+                     :cond  (fn [_env data] (seq (:pending-user data)))}
+          (script {:expr (fn [_env data] (serve-pending data))}))
+        (transition {:event :user/end :target :done}))
+
+      ;; ===================== HOT: generate ONE reply ========================
+      ;; A fresh worker per turn (assemble-don't-accumulate via re-entry), seeded
+      ;; with the rendered message list (λ old + verbatim recent). NO tell-llm
+      ;; accumulation. Entered with :messages ending in a USER turn ⇒ it generates.
       (state {:id :hot}
-        ;; Entering :hot starts a turn (the seeded worker generates) → busy.
-        (on-entry {}
-          (script {:expr (fn [_env _data] [(ops/assign :hot-busy? true)])}))
-
         (h/llm-conversation
           {:id                "hot"
            :on-end-turn-event :hot/idle
@@ -132,53 +180,40 @@ Output λ notation only. No prose. No code fences.")
            :model             :local
            :stream?           true
            :real-tools        []
-           :max-turns         4               ; each fresh worker does ONE seeded turn then parks
+           :max-turns         2               ; one seeded turn; killed on the settle transition
            :budget-ms         600000
-           ;; seed the fresh worker with the rendered message list (λ old +
-           ;; verbatim recent). NO tell-llm accumulation.
            :initial-messages  (fn [_env data] (core/render-messages (:messages data)))})
 
-        ;; Reply produced → capture verbatim, append; mark parked; drain if queued.
+        ;; Reply produced → capture verbatim + append, then settle (via a self-
+        ;; event so the routing conds see the APPENDED array).
         (transition {:event :hot/idle :type :internal}
           (script {:expr (fn [env data]
-                           (let [msgs (core/append-assistant (:messages data) (h/deref-output env data))]
-                             (when (seq (:pending-user data)) (send-self! env :user/next))
-                             [(ops/assign :messages msgs)
-                              (ops/assign :hot-busy? false)]))}))
+                           (send-self! env :turn/settled)
+                           [(ops/assign :messages
+                              (core/append-assistant (:messages data) (h/deref-output env data)))])}))
 
-        ;; A user message ALWAYS enqueues (internal: does NOT exit :hot → the
-        ;; in-flight worker is untouched). If already parked, kick the pump.
+        ;; SETTLE: compact the just-aged turn FIRST (the reading shadow), else
+        ;; serve a queued human, else park. Compaction is prioritized because it
+        ;; is cheap and hides under the human's read of the reply just produced.
+        (transition {:event :turn/settled :target :compact
+                     :cond  (fn [_env data] (core/needs-compaction? (:messages data) k))})
+        (transition {:event :turn/settled :target :hot
+                     :cond  (fn [_env data] (and (not (core/needs-compaction? (:messages data) k))
+                                              (seq (:pending-user data))))}
+          (script {:expr (fn [_env data] (serve-pending data))}))
+        (transition {:event :turn/settled :target :parked
+                     :cond  (fn [_env data] (and (not (core/needs-compaction? (:messages data) k))
+                                              (empty? (:pending-user data))))})
+
+        ;; Mid-turn user message ENQUEUES (internal: does NOT exit :hot → the
+        ;; in-flight worker is untouched); drained at the next settle.
         (transition {:event :user/msg :type :internal}
-          (script {:expr (fn [env data]
-                           (let [pending (conj (vec (:pending-user data))
-                                           (get-in data [:_event :data :text]))]
-                             (when-not (:hot-busy? data) (send-self! env :user/next))
-                             [(ops/assign :pending-user pending)]))}))
-
-        ;; PUMP: process ONE queued message. Guarded to fire only when PARKED
-        ;; (¬busy) with work waiting — so a stray :user/next while busy is dropped,
-        ;; never interrupting. Pop the head, append; compact an aged assistant
-        ;; first if one is due, else re-seed hot directly.
-        (transition {:event :user/next :target :compact
-                     :cond  (fn [_env data] (and (not (:hot-busy? data))
-                                              (seq (:pending-user data))
-                                              (core/needs-compaction? (:messages data) k)))}
-          (script {:expr (fn [_env data]
-                           (let [[head & more] (:pending-user data)]
-                             [(ops/assign :messages (core/append-user (:messages data) head))
-                              (ops/assign :pending-user (vec more))]))}))
-        (transition {:event :user/next :target :hot
-                     :cond  (fn [_env data] (and (not (:hot-busy? data))
-                                              (seq (:pending-user data))
-                                              (not (core/needs-compaction? (:messages data) k))))}
-          (script {:expr (fn [_env data]
-                           (let [[head & more] (:pending-user data)]
-                             [(ops/assign :messages (core/append-user (:messages data) head))
-                              (ops/assign :pending-user (vec more))]))}))
-
+          (script {:expr (fn [_env data] (enqueue-user data))}))
         (transition {:event :user/end :target :done}))
 
-      ;; ===================== COMPACT: age an assistant turn into λ ===========
+      ;; ===================== COMPACT: age ONE turn into λ ===================
+      ;; Runs in the reading shadow. A fresh worker compresses the aged assistant
+      ;; turn; blank/failed λ leaves it verbatim (lag-safe).
       (state {:id :compact}
         (h/llm-conversation
           {:id                "compact"
@@ -192,11 +227,29 @@ Output λ notation only. No prose. No code fences.")
            :message           (fn [_env data]
                                 (str "compile:\n\n" (core/compact-target-text (:messages data) k)))})
 
-        ;; λ produced → fold it in place (blank/fail leaves the message verbatim), then re-seed hot.
-        (transition {:event :compact/idle :target :hot}
+        ;; λ produced → fold in place + settle (self-event so conds see the fold).
+        (transition {:event :compact/idle :type :internal}
           (script {:expr (fn [env data]
+                           (send-self! env :compact/settled)
                            [(ops/assign :messages
-                              (core/apply-compaction (:messages data) k (h/deref-output env data)))])}))))
+                              (core/apply-compaction (:messages data) k (h/deref-output env data)))])}))
+
+        ;; SETTLE: serve a human who queued during compaction FIRST (never make
+        ;; them wait for backlog); else drain more backlog; else park.
+        (transition {:event :compact/settled :target :hot
+                     :cond  (fn [_env data] (seq (:pending-user data)))}
+          (script {:expr (fn [_env data] (serve-pending data))}))
+        (transition {:event :compact/settled :target :compact
+                     :cond  (fn [_env data] (and (empty? (:pending-user data))
+                                              (core/needs-compaction? (:messages data) k)))})
+        (transition {:event :compact/settled :target :parked
+                     :cond  (fn [_env data] (and (empty? (:pending-user data))
+                                              (not (core/needs-compaction? (:messages data) k))))})
+
+        ;; Fast human typing during compaction ENQUEUES, never interrupts.
+        (transition {:event :user/msg :type :internal}
+          (script {:expr (fn [_env data] (enqueue-user data))}))
+        (transition {:event :user/end :target :done})))
 
     (final {:id :done})))
 
@@ -252,8 +305,7 @@ Output λ notation only. No prose. No code fences.")
               :checkpoint-dir  (str session-dir "/checkpoints")
               :tool-registry   (tools/new-registry root)   ; REQUIRED to wire the llm processor
               :initial-data    {:messages      [(core/message :user greeting-instruction)]
-                                :pending-user  []
-                                :hot-busy?     false}
+                                :pending-user  []}
               :on-env-ready    (fn [env]
                                  (start-stdin-ingress! (get env event-queue-key) env session-id))
               :credentials     [{:provider :openai :api-key "sk-local" :base-url local-base-url}]
