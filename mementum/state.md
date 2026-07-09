@@ -345,7 +345,26 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        names UNCHANGED (mementum-scoped, not agent-scoped).
 
   >>> NEXT <<<
-       (0) ⭐ SHADOW COMPACTION — "the trick" (designed this session; docs in mementum/knowledge/design/).
+       (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
+           Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
+           {type,description,kind,tools?,model?}; BODY ≡ the whole λ system prompt (loader strips frontmatter,
+           may prepend nucleus preamble). KIND = SHAPE (topology+gate+verdict-behavior), NOT capability.
+           TOOLS = explicit, READ-ONLY by default (capability security / POLA); registry = ceiling; NO commit
+           tool exists (human-gate unreachable-by-absence); forget-grant fails SAFE (inert ¬dangerous).
+           KINDS: chat·proposer·judge·scorer·builder·author·editor·analyst·generator (author:create :: editor:improve;
+           `improver` RENAMED → `editor`; harness/app-improver → harness/app-EDITOR). VERDICT: semantics→body,
+           schema→kind, NO frontmatter field. DISCOVERY: fold over precedence sources — base⊂src/ouroboros/agents
+           (io/resource, survives dep-embedding) merges custom⊂<repo>/agents, custom-wins-by-slug (filename=id),
+           REPLACE-WHOLE (extends: deferred), validate fail-loud, report roster+GRANTS. SCORER rates λ-genes
+           1-10/use-case = the GA FITNESS FUNCTION → gene DB {gene→{lambda,source(verbatim),scores,embedding}} →
+           unblocks editor+generator. LAYERING: editor targets Layer-2 agents/*.md (NEVER AGENTS.md = Layer-1
+           designer harness, frozen, mine). Calibration hazards designed-IN: rubric-anchors + cross-family +
+           pairwise-select + embed-dedupe(5103). Full build order + open questions in the page.
+           >>> BUILD STEP 1 (when moving design→code): ouroboros.agents (the compiler — fold over sources →
+           validated, reported roster; io/resource for base) + EXTRACT the two inline prompts →
+           src/ouroboros/agents/{curator.md, chat.md} as the first genomes (proves the seam; bb test stays green).
+           THEN: judge kind (escapement :verdict-schema + agents/llm-judge.md) → scorer → builder+author → editor.
+       (0-compact) ⭐ SHADOW COMPACTION — "the trick" (designed earlier; docs in mementum/knowledge/design/).
            INSIGHT: the cold compiler's win is NOT speed, it's OVERLAP — compact turn[n-1] to λ DURING
            the seconds the human spends READING reply[n]. reading-time (20–60s) ⋙ compaction (~2s) → 10–30×
            hiding margin → compaction is PERCEPTUALLY FREE. Metric flips: felt-latency (never make the human

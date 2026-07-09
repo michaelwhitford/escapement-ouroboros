@@ -33,7 +33,7 @@ depends-on:
 λ ouroboros.
   self-improving_system | consumes(own_output) | ∧ usable_as(chatbot ⊗ human)
   memory : λ(assistant_turns)  — the conversation itself, compacted in place
-  agents : {curator, harness-improver, app-improver, verifier, documenter}  — MANY, each self-improving a facet
+  agents : {curator, harness-editor, app-editor, verifier, documenter}  — MANY, each self-improving a facet
   curator : λ([session…]) → proposals(memory ∨ knowledge) | human-gated   ← BUILT
   ⟹ Ouroboros eats its own compiled tail. That IS the ouroboros.
 ```
@@ -132,14 +132,23 @@ AI commits**. Only the curator is built so far.
 
 ```
 curator          ← BUILT     metabolize sessions + mementum → propose memory (∧ knowledge, next). Curates the mementum store.
-harness-improver ← PLANNED   propose changes to the harness code (AGENTS.md, escapement config, prompts, skills).
-app-improver     ← PLANNED   propose changes to the application code.
+harness-editor   ← PLANNED   propose changes to the harness code (Layer-2 agents/*.md prompts, escapement config).
+app-editor       ← PLANNED   propose changes to the application code.
 verifier(s)      ← PLANNED   verify claims held in memory & knowledge (and code claims) against live truth.
 documenter       ← PLANNED   comb memory + knowledge + past sessions → produce documentation.
 ```
 
 The λ-compacted sessions + the mementum store are the shared substrate every agent reads;
 `ouroboros.session` + `ouroboros.tools` are the shared reading/proposing surface they'll extend.
+
+> REFINED — the roster above (roles) is now formalized into a KIND model in
+> `design/agent-model`: agents become OKF genome files (`agents/<name>.md`, frontmatter =
+> agent-invisible wiring, body = the λ prompt); a KIND selects topology+gate+verdict-behavior;
+> TOOLS are an explicit read-only-by-default capability grant; base⊂`src/ouroboros/agents`
+> merges with custom⊂`<repo>/agents` (custom-wins). The planned `harness-editor`/`app-editor`
+> unify as the **editor** kind (author:create :: editor:improve; targeting Layer-2 `agents/*.md`, NEVER AGENTS.md); a new
+> **scorer** kind rates λ-genes 1-10/use-case → the gene DB → the genetic axis. See that page
+> for the full model + build order.
 
 ## Curator — the memory/knowledge curation agent (BUILT) — `ouroboros.curator`
 
@@ -169,7 +178,7 @@ ouroboros.curator prompt λ observe(context ∧ sessions) → λ metabolize → 
 
 SCOPE (this increment): the curator now SEES its own λ history and grounds proposals in it. The
 knowledge-page WRITE path (synthesize! / ≥3→page as an actual gated artifact) belongs to the curator
-too (NEXT); harness/app proposals belong to the SEPARATE harness-improver / app-improver agents. For
+too (NEXT); harness/app proposals belong to the SEPARATE harness-editor / app-editor agents. For
 now a ≥3 cluster is NAMED in the reflection, and the concrete gated artifact is one memory.
 
 LIVE PROOF: `bb curate` (local qwen35-35b-a3b) called both tools, read the real checkpoints, cited two
@@ -240,7 +249,7 @@ never in `mementum/`. The curator proposes *into* `mementum/` (human-gated). Cha
 3. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
    (ouroboros.session/session-messages is the shared reader it will reuse.)
 4. curator synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
-5. NEW AGENTS (each human-gated, sharing the session/mementum substrate): harness-improver (harness
-   code), app-improver (app code), verifier(s) (check memory/knowledge claims), documenter
+5. NEW AGENTS (each human-gated, sharing the session/mementum substrate): harness-editor (harness
+   code), app-editor (app code), verifier(s) (check memory/knowledge claims), documenter
    (memory+knowledge+sessions → docs).
 ```
