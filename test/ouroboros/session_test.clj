@@ -7,7 +7,9 @@
     [clojure.test :refer [deftest is]]
     [ouroboros.session :as session]))
 
-;; The exact key escapement snapshots the working-memory data-model under.
+;; The exact keys escapement snapshots under: the working memory is wrapped in
+;; wmem-key (1.0.0-RC+), and the data-model lives under dm-key inside it.
+(def ^:private wmem-key :escapement.engine.store/wmem)
 (def ^:private dm-key
   :com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model)
 
@@ -21,7 +23,7 @@
   (let [dir (fs/path root "sessions" id "checkpoints")]
     (fs/create-dirs dir)
     (spit (str (fs/path dir (str id ".edn")))
-      (pr-str {dm-key {:_sessionid id :messages messages}}))))
+      (pr-str {wmem-key {dm-key {:_sessionid id :messages messages}}}))))
 
 (defn- temp-root [] (str (fs/create-temp-dir {:prefix "ouro-session"})))
 

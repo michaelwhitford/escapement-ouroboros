@@ -24,7 +24,12 @@
   The compact chat's λ conversation lives there as the data-model `:messages`
   vector. `session-messages` re-derives it — this layout knowledge lives here so
   both the curator (metabolize across sessions) and the bootstrap (seed a fresh
-  chat from a prior tail) share ONE reader."
+  chat from a prior tail) share ONE reader.
+
+  LAYOUT: escapement (1.0.0-RC+) wraps the checkpoint's working memory under
+  `:escapement.engine.store/wmem`; `read-data-model` unwraps it to reach the
+  data-model `:messages`. (Reading the wrong key silently returns zero messages —
+  the curator/bootstrap would see empty sessions.)"
   (:require
     [clojure.edn :as edn]
     [clojure.java.io :as io]))
@@ -55,11 +60,15 @@
 ;; The curator metabolizes these; the next-chat bootstrap re-seeds from them.
 ;; ---------------------------------------------------------------------------
 
-;; escapement snapshots the whole working memory here. Kept as a literal FQ
-;; keyword (matches the codebase pattern — cf. compact/event-queue-key) so we
+;; escapement snapshots the whole working memory here. Kept as literal FQ
+;; keywords (matches the codebase pattern — cf. compact/event-queue-key) so we
 ;; needn't require the statecharts data-model root ns under bb.
 (def ^:private data-model-key
   :com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model)
+
+;; escapement (1.0.0-RC+) wraps the whole working memory under this key in the
+;; checkpoint; read-data-model unwraps it to reach the data-model.
+(def ^:private wmem-key :escapement.engine.store/wmem)
 
 (defn list-session-ids
   "Session ids (dir names) under `<root>/sessions/`, sorted ascending. `[]` when
@@ -92,7 +101,9 @@
   ([root id]
    (when-let [f (checkpoint-file root id)]
      (try
-       (get (edn/read-string {:default (fn [_tag v] v)} (slurp f)) data-model-key)
+       (-> (edn/read-string {:default (fn [_tag v] v)} (slurp f))
+         (get wmem-key)          ; escapement wraps WM here (1.0.0-RC+)
+         (get data-model-key))
        (catch Exception _ nil)))))
 
 (defn session-messages

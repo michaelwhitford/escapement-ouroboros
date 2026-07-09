@@ -26,8 +26,9 @@
   (let [dir (fs/path root "sessions" id "checkpoints")]
     (fs/create-dirs dir)
     (spit (str (fs/path dir (str id ".edn")))
-      (pr-str {:com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model
-               {:messages messages}}))))
+      (pr-str {:escapement.engine.store/wmem
+               {:com.fulcrologic.statecharts.data-model.working-memory-data-model/data-model
+                {:messages messages}}}))))
 
 (deftest sessions-tool-digests-conversation-sessions
   (let [root (temp-root)
