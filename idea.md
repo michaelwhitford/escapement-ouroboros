@@ -1,3 +1,3 @@
-Ouroboros - self-improving agent running on escapement
+Ouroboros - self-improving multi-agent system running on escapement
 
 
