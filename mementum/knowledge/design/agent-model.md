@@ -13,12 +13,18 @@ related:
   - upstream/escapement-multi-agent-and-services
   - upstream/escapement-llm-conversation
   - upstream/escapement-library-embedding
+  - design/vsm-on-escapement
 depends-on:
   - upstream/escapement-multi-agent-and-services
   - ouroboros-architecture
 ---
 
 # Agent Model
+
+> COMPANION: `design/vsm-on-escapement` is the LAYER ABOVE this one — how these kinds regulate each
+> other (VSM channels, the human as System+1 S5, feedforward) and how the harness self-improvement
+> loop CONVERGES (the `editor`/`judge`/`scorer` termination protocol). This page = *what the agents
+> are* ; that page = *how they govern + improve the whole*.
 
 > Forward-looking durable names (this is DESIGN — grep once built, against `resource`):
 > planned namespace `ouroboros.agents` (the loader/compiler), the genome convention
@@ -182,6 +188,9 @@ Distinct kinds because output type + downstream wiring + failure modes + body ne
   pairwise-select  LLMs rank A-vs-B ⋙ score absolute | store absolute for the DB, use PAIRWISE when GA must CHOOSE
   embed-dedupe     5103 embeddings collapse near-identical genes → pool stays clean (semantic-equality leveraged)
 ```
+The `editor` kind's convergence uses these: champion/challenger + PAIRWISE (not absolute) + regression-guard
++ patience-based STOP (plateau ≠ target), calibrated against the human's recorded session decisions. Full
+termination protocol → `design/vsm-on-escapement` (§The adaptive loop (S4→S5) and how it terminates).
 
 ## Genes & the genetic axis — the scorer is the missing FITNESS FUNCTION
 

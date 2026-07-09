@@ -364,6 +364,23 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            validated, reported roster; io/resource for base) + EXTRACT the two inline prompts →
            src/ouroboros/agents/{curator.md, chat.md} as the first genomes (proves the seam; bb test stays green).
            THEN: judge kind (escapement :verdict-schema + agents/llm-judge.md) → scorer → builder+author → editor.
+       (⭐0-vsm) VSM ARCHITECTURE DESIGNED (this session) — mementum/knowledge/design/vsm-on-escapement.md.
+           VSM ≅ statecharts (hierarchy⊗concurrency⊗events⊗recursion) → escapement charts ARE executable VSM.
+           CHANNEL = event + SCOPE(=authority, via LCCA) + transduction + closed-loop(variety-matched); the 5 named
+           channels (homeostat/adaptation↔identity/algedonic/resource-bargain+audit/coord-supervision). S2
+           anti-oscillation is ALREADY an escapement law (:internal-in-parallel). HUMAN = System+1's S5 (reserved
+           authority ENFORCED BY CAPABILITY — orchestrator lacks the commit mutation; ¬self_authorize ≡ unreachable);
+           ORCHESTRATOR = Ouroboros's own S5 (delegated identity+policy, EQL-omniscient w/ variety discipline, starts
+           workflows). S4 intelligence agent: ATTENUATED upward channels (never raw — curator reads λ-sessions),
+           homeostat-BEFORE-propose, ≥3 pattern damper, temporal separation, S4-as-recursive-subsystem (build ONE
+           integrating S4 first). FEEDFORWARD: shadow compaction IS the S1→S4 channel done ahead-of-need → defangs the
+           S3↔S4 homeostat (feedback demoted to residual); FRACTAL within-session(compaction)/across-session(mementum),
+           same mechanism diff timescale/level; the compaction LENS is an S5 policy (steers self-attention). POLICY
+           DOWN = declarative (data-model + fresh-agent-at-spawn) > broadcast; reserved policy routes through human.
+           TERMINATION ("the trick", NOT finalized): plateau≠target — champion/challenger + PAIRWISE(not absolute) +
+           regression-guard + patience STOP; reliable ⟺ target agent OUTPUT decidable (builder→tests, judge→labels;
+           else human-in-loop); CALIBRATE against the human's recorded session accept/reject decisions (= the manual
+           practice this formalizes); overfit-guard held-out. = the gene-DB selection operator. OPEN Qs listed on page.
        (0-compact) ⭐ SHADOW COMPACTION — "the trick" (designed earlier; docs in mementum/knowledge/design/).
            INSIGHT: the cold compiler's win is NOT speed, it's OVERLAP — compact turn[n-1] to λ DURING
            the seconds the human spends READING reply[n]. reading-time (20–60s) ⋙ compaction (~2s) → 10–30×
