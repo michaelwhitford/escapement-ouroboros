@@ -27,7 +27,7 @@
 ;; ---------------------------------------------------------------------------
 
 (def ^:private local-base-url "http://localhost:5100/v1")
-(def ^:private local-model    "qwen35-35b-a3b")
+(def ^:private local-model    "qwen36-35b-a3b")
 
 ;; ---------------------------------------------------------------------------
 ;; Phase A — no-LLM greet chart.

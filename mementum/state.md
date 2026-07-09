@@ -399,9 +399,15 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 - Escapement house rule: bb/SCI only in source. No JVM-only paths. Mirror this if Ouroboros code runs under escapement's bb runtime.
 - KEYWORD is the only legal escapement model reference; strings are errors. Aliases (:llm/aliases) are the single source of truth.
 - Knowledge pages carry NO file paths/line numbers by design — grep durable names against ~/src/escapement to locate things.
-- LOCAL MODEL IS Qwen3.6, NOT 3.5: server serves `qwen36-35b-a3b` (Qwen3.6-35B-MTP-A3B, Q8_0). The charts hardcode
-  the string `qwen35-35b-a3b` (smoke.clj/curator.clj/compact.clj) — STALE but harmless (llama.cpp ignores the request
-  model field, serves what's loaded). Fix the name when convenient. Probe the SERVER (/v1/models,/props,/slots) for truth.
+- LOCAL MODELS — MULTI-SERVER MAP (probed live; probe /v1/models for truth, several llama-server instances run):
+    5100 → qwen36-35b-a3b     ← the chat/reasoning model ALL charts use (smoke/curator/compact)
+    5102 → ornith-35b-a3b
+    5103 → qwen3-embedding-8b ← embeddings
+    5104 → vibethinker-3b
+    5105 → qwythos-9b
+  ✅ FIXED: charts now hardcode the correct `qwen36-35b-a3b` @ localhost:5100 (was stale `qwen35-…`; harmless because
+  llama.cpp ignores the request model field, but now accurate). The `:local` alias → provider :openai, base-url
+  localhost:5100/v1. If you point a chart at a different model, change BOTH the port (base-url) AND the model string.
 - THINKING IS ON by default on the local model — every reply burns reasoning tokens first. `/no_think` token does NOT
   work on the qwen3.6 template; only chat_template_kwargs {enable_thinking false} disables it → needs the :extra-body patch.
 - ESCAPEMENT IS RC9 (released), NOT "not even alpha" — that maturity claim is STALE wherever it appears (state/knowledge).

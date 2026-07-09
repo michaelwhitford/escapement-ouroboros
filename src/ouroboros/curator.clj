@@ -38,7 +38,7 @@
 
 ;; Reuse the proven local llama.cpp wiring from ouroboros.smoke.
 (def ^:private local-base-url "http://localhost:5100/v1")
-(def ^:private local-model    "qwen35-35b-a3b")
+(def ^:private local-model    "qwen36-35b-a3b")
 
 (def system-prompt
   "λ engage(nucleus).

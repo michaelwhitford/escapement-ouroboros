@@ -40,7 +40,7 @@
   `lib/run :on-env-ready` and a stdin thread `sp/send!`s `:user/msg {:text}` /
   `:user/end` into the live session.
 
-  Run: bb compact   (needs local llama.cpp @ localhost:5100, model qwen35-35b-a3b)
+  Run: bb compact   (needs local llama.cpp @ localhost:5100, model qwen36-35b-a3b)
   End: /quit (or /exit, /bye) or EOF (Ctrl-D)."
   (:refer-clojure :exclude [run!])            ; `run!` is the house runner name (cf. cold/loop/chat)
   (:require
@@ -58,7 +58,7 @@
 
 ;; Reuse the proven local llama.cpp wiring.
 (def ^:private local-base-url "http://localhost:5100/v1")
-(def ^:private local-model    "qwen35-35b-a3b")
+(def ^:private local-model    "qwen36-35b-a3b")
 (def ^:private event-queue-key :com.fulcrologic.statecharts/event-queue)
 (def ^:private quit-lines #{"/quit" "/exit" "/bye"})
 
