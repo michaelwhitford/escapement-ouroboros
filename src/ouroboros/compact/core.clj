@@ -74,9 +74,13 @@
 (defn apply-compaction
   "Replace the due assistant message's text with `lambda` and mark it compacted.
   No-op (returns the vector) if nothing is due or `lambda` is blank — a blank
-  λ leaves the message verbatim (safe under compactor lag/failure)."
+  λ leaves the message verbatim (safe under compactor lag/failure). A leading
+  \"λ:\" label (the exemplar gate's answer marker, which the model sometimes
+  repeats) is stripped so stored λ text is uniform; if stripping leaves nothing,
+  that too is a failed compaction → verbatim."
   [messages k lambda]
-  (let [messages (vec messages)]
+  (let [messages (vec messages)
+        lambda   (some-> lambda str/trim (str/replace-first #"^λ:\s*" "") str/trim)]
     (if-let [i (and (not (str/blank? lambda)) (next-to-compact messages k))]
       (assoc messages i (assoc (nth messages i) :text lambda :compacted? true))
       messages)))

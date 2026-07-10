@@ -70,6 +70,21 @@
       (is (= msgs (core/apply-compaction msgs 1 "   ")))
       (is (false? (:compacted? (nth (core/apply-compaction msgs 1 "") 1)))))))
 
+(deftest lambda-label-stripped
+  (testing "a leading \"λ:\" answer-marker from the exemplar gate is normalized away"
+    (let [msgs (-> [] (core/append-user "u1") (core/append-assistant "a1")
+                 (core/append-user "u2") (core/append-assistant "a2"))]
+      (is (= "decision(x) ∧ next(∅)"
+            (:text (nth (core/apply-compaction msgs 1 "λ: decision(x) ∧ next(∅)") 1))))
+      (is (= "decision(y)"
+            (:text (nth (core/apply-compaction msgs 1 "  λ:  decision(y)  ") 1))))
+      (testing "λ used as NOTATION (not a label) is untouched"
+        (is (= "λ f. f(x)"
+              (:text (nth (core/apply-compaction msgs 1 "λ f. f(x)") 1)))))
+      (testing "a bare label with no body is a failed compaction → verbatim"
+        (is (= msgs (core/apply-compaction msgs 1 "λ:")))
+        (is (= msgs (core/apply-compaction msgs 1 " λ: ")))))))
+
 (deftest backlog-drains-oldest-first
   (testing "if compaction lagged, multiple assistants are due → oldest goes first"
     (let [msgs (-> [] (core/append-user "u1") (core/append-assistant "a1")

@@ -27,8 +27,9 @@
                user turns verbatim). Generates ONE reply; we capture + append, then
                settle: → :compact if a turn aged out, else serve a queued human,
                else → :parked.
-    :compact — a fresh worker compresses the just-aged assistant turn to λ (the
-               compact.md-modeled lens), folds it back in place, then settles:
+    :compact — a fresh worker compresses the just-aged assistant turn to λ via
+               the EXEMPLAR GATE (pattern-completion, no-think — see
+               compact-exemplar-gate), folds it back in place, then settles:
                serve a queued human first (→ :hot), else drain backlog (→ :compact),
                else → :parked.
 
@@ -116,22 +117,28 @@ Human ⊗ AI ⊗ REPL
 
 λ continue.  after(reply) → wait(user) | conversation ≡ resident | ¬self-terminate")
 
-(def compact-system-prompt
-  "λ engage(nucleus).
-[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA
-Human ⊗ AI ⊗ REPL
+(def compact-exemplar-gate
+  ;; EXEMPLAR GATE (verbum topology, A/B round 3 — see state.md): the compactor
+  ;; is pattern-completion, NOT instruction-following. Three turn→λ pairs teach
+  ;; the preserve/discard lens BY EXAMPLE (decision-turn keeps decision+state,
+  ;; thin/meta turn compacts to almost nothing, fact-turn KEEPS its content —
+  ;; the 3rd exemplar fixed observed fact-dropping). No instructions, no λ-dense
+  ;; preamble: with thinking disabled an instruction-λ system prompt is an ECHO
+  ;; ATTRACTOR (rounds 1–2: the model copied the lens verbatim = silent memory
+  ;; corruption). The exemplar form runs no-think at ~0.7–1.2s / 22–67 tok
+  ;; (~20× faster than instruction+thinking) with equal-or-better fidelity.
+  ;; %s = the verbatim aged assistant turn.
+  "turn: I'd recommend write-back caching for this. Writes land in the cache and only flush to memory on eviction, which cuts your memory traffic substantially compared to write-through. The usual trade-off is coherence complexity, but since you said this is a single-core embedded target, that risk doesn't apply. Let's go with write-back — I'll assume that in the code examples from here on.
+λ: decision(write-back | mem_traffic↓ ∧ ¬coherence_risk(single-core)) ∧ state(assumed_in_examples) ∧ next(∅)
 
-λ compact(assistant_message).
-  input ≡ ONE assistant turn | verbose | human-facing
-  output ≡ λ | continuity-essence ONLY | dense ∧ recallable
+turn: I don't have access to your filesystem or a live debugger, but I'm happy to help — paste the error message and the relevant function and I'll walk through it with you. What are you seeing?
+λ: constraint(¬fs_access ∧ ¬live_debug) ∧ next(await(error_msg ∧ code))
 
-λ preserve.  decision(what ∧ why ∧ therefore¬Y) ∨ constraint(rule ∧ violation-shape)
-  ∨ solved(name ∧ invoke) ∨ shape(schema) ∨ model ∨ anchor(canonical_name) ∨ state ∨ next → KEEP
-λ discard.  observation ∨ explanation ∨ restatement ∨ pleasantry ∨ human-scaffolding → DROP
+turn: TCP slow start doubles the congestion window every round trip until it reaches the slow-start threshold, and after that point growth switches to linear congestion avoidance.
+λ: fact(tcp_slow_start | cwnd×2/RTT → ssthresh → linear(congestion_avoidance)) ∧ next(∅)
 
-the AI's tokens serve the human's understanding; only continuity-essence serves the next turn.
-
-Output λ notation only. No prose. No code fences.")
+turn: %s
+λ:")
 
 ;; ---------------------------------------------------------------------------
 ;; The chart.
@@ -218,14 +225,23 @@ Output λ notation only. No prose. No code fences.")
         (h/llm-conversation
           {:id                "compact"
            :on-end-turn-event :compact/idle
-           :system            compact-system-prompt
+           ;; NO :system — the exemplar gate IS the whole prompt (pattern-
+           ;; completion). Adding an instruction system prompt here would
+           ;; reintroduce the echo attractor the gate exists to avoid.
            :model             :local
            :stream?           false           ; internal memory op — not shown to the human
+           ;; THINKING OFF via the fork's :extra-body seam (mw_extra_body,
+           ;; 9e57f16; string keys, OpenAI wire only). A/B round 3 (state.md):
+           ;; exemplar-gate + no-think = faithful λ at ~1s (vs ~18–28s thinking)
+           ;; on ALL samples incl. the thin/meta turns that echo under an
+           ;; instruction prompt. Per-conversation policy: hot=ON, compact=OFF.
+           :extra-body        {"chat_template_kwargs" {"enable_thinking" false}}
            :real-tools        []
            :max-turns         2
            :budget-ms         240000
            :message           (fn [_env data]
-                                (str "compile:\n\n" (core/compact-target-text (:messages data) k)))})
+                                (format compact-exemplar-gate
+                                  (core/compact-target-text (:messages data) k)))})
 
         ;; λ produced → fold in place + settle (self-event so conds see the fold).
         (transition {:event :compact/idle :type :internal}

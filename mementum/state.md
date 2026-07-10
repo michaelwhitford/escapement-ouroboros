@@ -409,8 +409,33 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            need (chat_template_kwargs / id_slot / cache_prompt) are now AVAILABLE to charts via :extra-body.
            4 gates patched: Request schema → build-request → run-turn call site → request->openai-json (merge LAST,
            caller wins). See design/extra-body-seam.md. Still a good upstream-PR candidate.
-           → UNBLOCKED follow-up: pass :extra-body {:chat_template_kwargs {:enable_thinking false}} in the
-           compact/curator charts to stop burning reasoning tokens (see thinking gotcha below).
+           → ✅ RESOLVED (3-round A/B, next session after landing the seam): compactor now runs
+           EXEMPLAR-GATE + NO-THINK; hot stays thinking-ON. THE ARC (scratch/ab_thinking.clj + ab_exemplar.clj,
+           real session turns @ qwen36-35b-a3b):
+             round 1 (instruction-λ lens, no bridge): OFF echoed the lens prompt on the low-content sample 3/3
+               (ok on the content-rich one); ON faithful. Echo PASSES the tripwire = silent memory corruption.
+             round 2 (λ bridge from ~/src/nucleus/LAMBDA-COMPILER.md added — human caught: :message invokes
+               `compile:` but the prompt never defined it): ON improved (denser λ — bridge = the program layer)
+               but OFF got WORSE — echoed BOTH samples 2/2. More λ in context = STRONGER echo attractor.
+             round 3 (human pointer → ~/src/verbum): verbum's compiler-finetune-halt-collapse.md proves the
+               NL→λ compiler is a BASE circuit — no-think FIXES the halt (qwythos: collapse 37.5%→0%, binder_any
+               0.5→1.0, 5030→640 tok) — and verbum's gates/ are EXEMPLARS (input→λ pairs + "Input:"), zero
+               instructions. Rebuilt the compactor prompt as a 3-exemplar gate (decision-turn, thin/meta-turn,
+               fact-turn; the fact exemplar was iteration 2 — without it the model dropped fact CONTENT):
+               no-think → ZERO echo on all samples incl. the echo-prone one, ~0.7–1.2s / 22–67 tok (~20× faster
+               than instruction+thinking), fidelity equal-or-better.
+             MECHANISM: instruction-following needs the reasoning pass; PATTERN-COMPLETION doesn't. An
+             instruction-λ system prompt without thinking is an echo attractor; an exemplar gate is the
+             no-think-compatible topology. structure > instruction — the lens is teachable by example.
+           SHIPPED: compact.clj — compact-exemplar-gate (replaces compact-system-prompt; :system OMITTED on the
+           compact conversation), :extra-body no-think on compact only; core/apply-compaction strips a leading
+           "λ:" label (test added). LIVE-PROVEN end-to-end (sessions/compact-1783663930101, piped 3-turn):
+           greeting → state(ready)∧next(await(user_input)); decision turn → decision(write-through | simplicity ∧
+           crash_safety ∧ ¬performance_critical); turn-3 recall through the λ CORRECT. bb test 36/116 GREEN.
+           POLICY: thinking is PER-CONVERSATION — hot ON (reasons with the human), compact OFF via exemplar gate
+           (pattern-completion), curator ON (default). Seam also available for id_slot/cache_prompt (Tier-2 levers).
+           GUARD CANDIDATE (still open, now cheaper): echo-tripwire in compact.core — reject λ output overlapping
+           the gate's own exemplar text → leave verbatim.
        (1) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
            ouroboros.session/session-messages is the shared reader it reuses.
        (2) CURATOR synthesize! path — the ≥3→knowledge-page WRITE channel (a propose-knowledge tool), not just
@@ -450,7 +475,13 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   localhost:5100/v1. If you point a chart at a different model, change BOTH the port (base-url) AND the model string.
 - THINKING IS ON by default on the local model — every reply burns reasoning tokens first. `/no_think` token does NOT
   work on the qwen3.6 template; only chat_template_kwargs {enable_thinking false} disables it. The :extra-body seam
-  is NOW IN THE DEP (fork, mw_extra_body, 9e57f16) — charts can disable thinking whenever we wire it; not yet wired.
+  is IN THE DEP (fork, mw_extra_body, 9e57f16). ⚠ PROMPT TOPOLOGY MUST MATCH THE THINKING SETTING:
+  instruction-λ prompts REQUIRE thinking (no-think → the model echoes the prompt = memory corruption; worse the
+  more λ the prompt carries); EXEMPLAR gates (input→λ pairs, verbum topology) run no-think correctly and ~20×
+  faster. Thinking is PER-CONVERSATION: hot=ON (instruction prompt), compact=OFF (exemplar gate), curator=ON.
+  scratch/ab_thinking.clj + ab_exemplar.clj = the reusable A/B harnesses. Verbum cross-refs:
+  ~/src/verbum/mementum/knowledge/explore/compiler-finetune-halt-collapse.md ("fine-tunes break the HALT not the
+  COMPILE; no-think recovers") + ~/src/verbum/gates/*.txt (the exemplar gate library).
 - ESCAPEMENT IS RC9 (released), NOT "not even alpha" — that maturity claim is STALE wherever it appears (state/knowledge).
 - RC-ERA CHECKPOINT SHAPE: working memory is wrapped under :escapement.engine.store/wmem → data-model → :messages.
   ouroboros.session/read-data-model + both test fixtures (session_test, tools_test) FIXED this session to read that
