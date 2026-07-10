@@ -23,19 +23,25 @@
     (is (= :assistant (:role (last m2))))
     (is (false? (:compacted? (last m2))))))
 
+(defn- va
+  "A verbatim assistant turn long enough to satisfy the compression contract
+  (apply-compaction rejects any λ not STRICTLY shorter than the original)."
+  [s]
+  (str s " — a long verbatim assistant reply, clearly longer than any λ that replaces it."))
+
 (deftest k1-eviction-sequence
   (testing "k=1 keeps the single most-recent assistant verbatim; the one behind it is due"
     ;; greeting turn: [greetU, A0]
-    (let [g   [(core/message :user "greet") (core/message :assistant "A0")]]
+    (let [g   [(core/message :user "greet") (core/message :assistant (va "A0"))]]
       (testing "A0 is the only/latest assistant → nothing due"
         (is (nil? (core/next-to-compact g 1)))
         (is (false? (core/needs-compaction? g 1))))
 
       ;; turn 1: user U1 then reply A1 → [greetU, A0, U1, A1]
-      (let [t1 (-> g (core/append-user "U1") (core/append-assistant "A1"))]
+      (let [t1 (-> g (core/append-user "U1") (core/append-assistant (va "A1")))]
         (testing "now A0 has aged out behind A1 → A0 (index 1) is due"
           (is (= 1 (core/next-to-compact t1 1)))
-          (is (= "A0" (core/compact-target-text t1 1))))
+          (is (= (va "A0") (core/compact-target-text t1 1))))
 
         ;; compact A0 → λA0
         (let [t1c (core/apply-compaction t1 1 "λ A0.")]
@@ -45,17 +51,17 @@
             (is (nil? (core/next-to-compact t1c 1))))
 
           ;; turn 2: U2 then A2 → A1 ages out
-          (let [t2 (-> t1c (core/append-user "U2") (core/append-assistant "A2"))]
+          (let [t2 (-> t1c (core/append-user "U2") (core/append-assistant (va "A2")))]
             (testing "A1 (index 3) is now due; A0 already compacted, A2 in window"
               (is (= 3 (core/next-to-compact t2 1)))
-              (is (= "A1" (core/compact-target-text t2 1))))))))))
+              (is (= (va "A1") (core/compact-target-text t2 1))))))))))
 
 (deftest user-messages-never-compacted
   (testing "no user message is ever selected for compaction, at any k"
     (let [msgs (-> []
-                 (core/append-user "u1") (core/append-assistant "a1")
-                 (core/append-user "u2") (core/append-assistant "a2")
-                 (core/append-user "u3") (core/append-assistant "a3"))]
+                 (core/append-user "u1") (core/append-assistant (va "a1"))
+                 (core/append-user "u2") (core/append-assistant (va "a2"))
+                 (core/append-user "u3") (core/append-assistant (va "a3")))]
       (doseq [k [1 2 3]]
         (loop [m msgs]
           (when-let [i (core/next-to-compact m k)]
@@ -72,8 +78,8 @@
 
 (deftest lambda-label-stripped
   (testing "a leading \"λ:\" answer-marker from the exemplar gate is normalized away"
-    (let [msgs (-> [] (core/append-user "u1") (core/append-assistant "a1")
-                 (core/append-user "u2") (core/append-assistant "a2"))]
+    (let [msgs (-> [] (core/append-user "u1") (core/append-assistant (va "a1"))
+                 (core/append-user "u2") (core/append-assistant (va "a2")))]
       (is (= "decision(x) ∧ next(∅)"
             (:text (nth (core/apply-compaction msgs 1 "λ: decision(x) ∧ next(∅)") 1))))
       (is (= "decision(y)"
@@ -87,9 +93,9 @@
 
 (deftest backlog-drains-oldest-first
   (testing "if compaction lagged, multiple assistants are due → oldest goes first"
-    (let [msgs (-> [] (core/append-user "u1") (core/append-assistant "a1")
-                 (core/append-user "u2") (core/append-assistant "a2")
-                 (core/append-user "u3") (core/append-assistant "a3"))]
+    (let [msgs (-> [] (core/append-user "u1") (core/append-assistant (va "a1"))
+                 (core/append-user "u2") (core/append-assistant (va "a2"))
+                 (core/append-user "u3") (core/append-assistant (va "a3")))]
       ;; a1(1) and a2(3) are aged out (a3 in window); a1 is oldest → first
       (is (= 1 (core/next-to-compact msgs 1)))
       (let [after (core/apply-compaction msgs 1 "λa1")]
@@ -158,3 +164,23 @@
     (let [line (core/tool-line :fs/write {:path "f" :content (apply str (repeat 500 "x"))} 40)]
       (is (<= (count line) (+ (count "tool: :fs/write ") 41)))
       (is (clojure.string/ends-with? line "…")))))
+
+(deftest compression-contract-echo-tripwire
+  (testing "a 'λ' not shorter than the original is a FAILED compaction → verbatim"
+    (let [long-turn (clojure.string/trim (apply str (repeat 40 "the assistant explained things at length ")))
+          msgs (-> [] (core/append-user "u1") (core/append-assistant long-turn)
+                 (core/append-user "u2") (core/append-assistant "a2"))]
+      (testing "derail/echo output (longer than the turn) is rejected"
+        (let [ramble (apply str (repeat 100 "The user has provided a list of tools "))]
+          (is (= msgs (core/apply-compaction msgs 1 ramble)))
+          (is (false? (:compacted? (nth (core/apply-compaction msgs 1 ramble) 1))))))
+      (testing "equal length is rejected (must STRICTLY compress)"
+        (is (= msgs (core/apply-compaction msgs 1 (:text (nth msgs 1))))))
+      (testing "a genuinely shorter λ still lands"
+        (let [after (core/apply-compaction msgs 1 "λ: state(explained) ∧ next(∅)")]
+          (is (true? (:compacted? (nth after 1))))
+          (is (= "state(explained) ∧ next(∅)" (:text (nth after 1))))))))
+  (testing "short turns whose λ can't beat them stay verbatim — safe, not an error"
+    (let [msgs (-> [] (core/append-user "u1") (core/append-assistant "FIFO.")
+                 (core/append-user "u2") (core/append-assistant "a2"))]
+      (is (= msgs (core/apply-compaction msgs 1 "decision(FIFO) ∧ next(∅)"))))))

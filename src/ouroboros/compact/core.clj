@@ -77,11 +77,22 @@
   λ leaves the message verbatim (safe under compactor lag/failure). A leading
   \"λ:\" label (the exemplar gate's answer marker, which the model sometimes
   repeats) is stripped so stored λ text is uniform; if stripping leaves nothing,
-  that too is a failed compaction → verbatim."
+  that too is a failed compaction → verbatim.
+
+  COMPRESSION CONTRACT (the echo tripwire): the λ must be STRICTLY SHORTER than
+  the text it replaces, else it is a failed compaction → verbatim. This is the
+  structural guard against the derail/echo failure mode observed live (a
+  tool-flavored aged turn pulled the no-think compactor into ANSWERING the turn
+  — 2440 tokens of prose folded in as \"memory\" = silent corruption + context
+  EXPANSION). Compaction that does not compress is not compaction. Short turns
+  whose λ can't beat them simply stay verbatim — always safe."
   [messages k lambda]
   (let [messages (vec messages)
-        lambda   (some-> lambda str/trim (str/replace-first #"^λ:\s*" "") str/trim)]
-    (if-let [i (and (not (str/blank? lambda)) (next-to-compact messages k))]
+        lambda   (some-> lambda str/trim (str/replace-first #"^λ:\s*" "") str/trim)
+        i        (next-to-compact messages k)]
+    (if (and i
+          (not (str/blank? lambda))
+          (< (count lambda) (count (:text (nth messages i)))))
       (assoc messages i (assoc (nth messages i) :text lambda :compacted? true))
       messages)))
 
