@@ -91,24 +91,24 @@ does **not** assign tools (that axis was decoupled — see §Tools). Many kinds 
 base topologies (the expensive part built once); a role is a *genome of a kind*.
 
 ```
-BASE TOPOLOGIES (few — build once)
-  T-chat        resident · ingress · λ-compaction · human dialogue        BUILT (ouroboros.compact)
-  T-shot        read → turn(s) → produce artifact                         BUILT-ish (curator)
-  T-verdict     T-shot + forces submit_verdict against a schema           escapement-native
-  T-workflow    COMPOSES T-shot/T-verdict agents with loops + human gates  the coding pipeline
+BASE TOPOLOGIES (few — build once; plain names — the kind name carries the meaning)
+  chat        resident · ingress · λ-compaction · human dialogue        BUILT (ouroboros.compact)
+  shot        read → turn(s) → produce artifact                         BUILT-ish (curator)
+  verdict     shot + forces submit_verdict against a schema             escapement-native (ouroboros.verdict)
+  workflow    COMPOSES shot/verdict agents with loops + human gates     the coding pipeline
 
 KINDS (the working list — build order left→right)
   KIND       topology    gate            output              status / blocker
   ─────────────────────────────────────────────────────────────────────────────────
-  chat       T-chat      resident        dialogue            ✅ BUILT (compact)
-  proposer   T-shot      human-gate      prose → mementum    ✅ BUILT (curator; +documenter genome)
-  judge      T-verdict   machine (:cond) {status,notes}      ⭐ NEXT — escapement-native, thin wiring
-  scorer     T-verdict   measurement     {score 1-10,notes}  ⭐ from the START (gene fitness) — see §Genes
-  builder    T-shot(loop) next-stage     code diff           ○ needs write+repl+run-tests tools
-  author     T-shot      next-stage      document            ○ read-only subset (design∪plan collapse here)
-  editor     T-shot      human-gate      DIFF (genome/code)  ○ after judge (it USES a judge)
-  analyst    T-shot      informs         map/graph/report    ◇ UNBUILT — needs code tooling (clj-kondo/bb)
-  generator  T-shot/fanout selection     N candidates        ◇ UNBUILT — needs gene DB + GA (§Genes)
+  chat       chat        resident        dialogue            ✅ BUILT (compact)
+  proposer   shot        human-gate      prose → mementum    ✅ BUILT (curator; +documenter genome)
+  judge      verdict     machine (:cond) {status,notes}      ✅ BUILT (ouroboros.verdict + llm-judge.md)
+  scorer     verdict     measurement     {score 1-10,notes}  ⭐ NEXT (gene fitness) — see §Genes
+  builder    shot(loop)  next-stage      code diff           ○ needs write+repl+run-tests tools
+  author     shot        next-stage      document            ○ read-only subset (design∪plan collapse here)
+  editor     shot        human-gate      DIFF (genome/code)  ○ after judge (it USES a judge)
+  analyst    shot        informs         map/graph/report    ◇ UNBUILT — needs code tooling (clj-kondo/bb)
+  generator  shot/fanout selection       N candidates        ◇ UNBUILT — needs gene DB + GA (§Genes)
 ```
 Concrete roles map onto kinds: `curator`+`documenter`→**proposer**; `llm-judge`+`critique`→**judge**
 (a critic is a judge whose `notes` are actionable); `design`+`plan`→**author**;
@@ -250,7 +250,7 @@ gate follows for free: custom-agent diff → local/cheap; base-agent diff → pr
 3. judge kind — escapement :verdict-schema wiring + agents/llm-judge.md (first NEW genome, born in the convention).
    cross-family routing (build→qwen36, judge→ornith) via :target/:llm/aliases.
 4. scorer kind — {score 1-10} verdict + rubric-anchored body ; embed-dedupe (5103) ; the gene-DB substrate.
-5. builder + author — the coding workflow spine (T-workflow composes them with a bounded revise loop + human gate).
+5. builder + author — the coding workflow spine (the workflow topology composes them with a bounded revise loop + human gate).
 6. editor (uses a judge) ; then analyst (clj-kondo tools) ; then generator (GA over the gene DB).
 ```
 
