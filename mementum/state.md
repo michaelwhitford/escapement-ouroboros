@@ -32,7 +32,7 @@ and the **application**. Never optimize one at the cost of the other.
                 genomes src/ouroboros/agents/{chat,curator,gene-scorer,llm-judge}.md (+manifest.edn) ·
                 ouroboros.verdict (verdict-topology runner: judge + scorer kinds, cross-family run-across!) ·
                 ouroboros.models (alias→endpoint routing table)
-  gate        : bb test ≡ deterministic (60 tests / 189 assertions GREEN) | bb compact ≡ live chat |
+  gate        : bb test ≡ deterministic (66 tests / 210 assertions GREEN) | bb compact ≡ live chat |
                 bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
                 bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
@@ -493,6 +493,30 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             (prompt + review), not capability. Roster report screams the escalation (audit surface
             works). Revisit before any AUTONOMOUS agent gets shell.
        ── VERIFIED: bb test 60/190 GREEN; live: "read idea.md and quote it" → :fs/read → VERBATIM match.
+
+  15. ✅ DONE (this session, human-requested): COMPACT TEXT-UI OVERHAUL — tool calls visible, uniform lines.
+       ── ROOT CAUSE of the blank-line complaint: the old :transcript-tap printed two raw newlines on EVERY
+            :llm/response ROW (region-UNfiltered) — every compact-worker run + every pure-tool-call round-trip
+            segment (text-free) emitted stray blanks; tool activity itself was dropped on the floor.
+       ── compact.core += pure ECHO KERNEL (echo-init / echo-text / echo-break / tool-line): every emitted
+            line prefixed "assistant: "; newline runs → ONE; whitespace-only lines vanish; leading/trailing
+            blanks stripped (newlines DEFERRED — realized only when real content follows); code indentation
+            preserved (:ws buffer distinguishes blank lines from indent). Pure fold state × chunk → {state' out}.
+       ── compact.clj tap → routes on SINK EVENTS, hot invokeid ONLY: :text-delta → kernel · :tool-call →
+            "tool: :fs/read {:path …}" (params pr-str, truncated 160; results HIDDEN except "→ ERROR" +
+            validation failures) · :llm-response stop-reason ∈ #{:end_turn :refusal} → turn end (close line,
+            one blank, "user: " prompt). Dangling-prompt flag (shared w/ the stdin ingress) closes the prompt
+            line when a QUEUED mid-generation message drains instead of typed input.
+       ── SEAM FACTS (source-verified): event_sink.cljc SYNTHESIZES :tool-call from the tool-RESULT row —
+            no pre-execution event exists → a slow shell/run's line appears on COMPLETION (upstream fork seam
+            if ever needed). stop-reason vocab (openai.clj parse-finish-reason): :end_turn :max_tokens
+            :tool_use :refusal — :tool_use/:max_tokens are segment boundaries, NOT turn ends.
+       ── VERIFIED: bb test 66/210 GREEN (+6 echo-kernel tests); live piped smoke: prefixes uniform, a
+            model-forced blank line stripped, tool line visible, λ-recall across compaction intact.
+       ── ALSO (human): LICENSE added (MIT) — pre-release intent declared; guardrails 1.2.16 → 1.3.3 human
+            bump (test-verified; the stale "MUST stay 1.2.16" comment fixed — the WHY is the EXPLICIT pin
+            beating pathom's transitive 0.0.12, not the version); human_ideas.md → .gitignore (structural:
+            a blind `git add` can never catch the human's scratch pad).
 
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).

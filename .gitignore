@@ -10,6 +10,10 @@
 # out of git hardens that boundary (git ≡ approved memory/knowledge only).
 sessions/
 
+# The human's private scratch pad — standing instruction: NEVER commit,
+# never read unless asked. Ignored so a blind `git add` can't catch it.
+human_ideas.md
+
 # Local editor / OS noise
 .clj-kondo/
 .lsp/
