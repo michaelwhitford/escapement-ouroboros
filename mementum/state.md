@@ -532,10 +532,18 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             ≈ append-only (checkpoint-granular; hybrid qwen3.5/3.6 can't truncate recurrent state) →
             the per-turn λ-rewrite (k=1) busts the cache EVERY turn: full re-prefill ~1.5s@2.5k.
             Append-only turns restore near-totally (61-token eval / 200ms — the good path).
-       ── MITIGATIONS on the table (undecided): A batch compactions (backlog ≥ B → (B-1)/B turns
-            append-only) · B compactor → small-model server (qwythos-9b @5105; A/B exemplar fidelity first
-            via scratch/ab_exemplar.clj) · C server flags (human's call: -np explicit, checkpoints denser,
-            --no-cache-idle-slots). A+B combined = the strong play.
+       ── 🎯 MITIGATION DECIDED (human): C — DEDICATED SLOTS via server params (ansible-managed).
+            The load-bearing flag: EXPLICIT -np 4 ⇒ unified KV off ⇒ per-slot KV persists while idle
+            (idle-slot save+clear is documented as unified-KV behavior) ⇒ in-slot divergent-tail reuse
+            (proven on this model: 605/640 middle-rewrite) covers the λ-rewrite. Full recommended line
+            given to human: -np 4 · -c 524288 (ctx SPLITS across slots when non-unified → 131k/slot) ·
+            --ctx-checkpoints 32 --checkpoint-min-step 128 (hybrid restores are checkpoint-granular) ·
+            --cache-ram 16384 (was 7663/8192 = near-thrash). RESIDUAL RISK: no slot reservation —
+            other clients select similarity→LRU and can occasionally evict slots 0/1 (one re-prefill to
+            recover). Fallback if that bites: second llama-server instance, own port, -np 2.
+            A (batch compactions) + B (small-model compactor) remain SHELVED options, not built.
+            VERIFY after redeploy: smoke → post-compaction hot turns cached ≈ prefix-to-rewrite (not 0);
+            no "clearing prompt" against idle slot 0 in the log.
        ── GOTCHA BANKED: a "selected slot by LRU" 3k-token intruder request appeared mid-analysis — OTHER
             local clients share 5100; never assume sole tenancy when reading /slots or the log.
 
