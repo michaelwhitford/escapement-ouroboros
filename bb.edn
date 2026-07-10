@@ -2,6 +2,9 @@
  :deps  {;; Escapement is the runtime Ouroboros runs on. Local/root so bb reads
          ;; escapement's deps.edn transitively (statecharts/guardrails/malli/
          ;; cheshire/http-client) — the lib path needs no pathom.
+         ;; ~/src/escapement = the FORK (michaelwhitford/escapement), branch
+         ;; mw_extra_body: RC9 + the :extra-body passthrough (9e57f16) that
+         ;; enables chat_template_kwargs/id_slot/cache_prompt injection.
          com.fulcrologic/escapement {:local/root "/Users/mwhitford/src/escapement"}
          ;; guardrails MUST stay pinned 1.2.16 — Pathom 2's transitive 0.0.12
          ;; breaks bb (escapement's documented constraint). Pin it BEFORE pathom.

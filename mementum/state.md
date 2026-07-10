@@ -401,12 +401,16 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            turns → λ; the λ PRESERVED CONTINUITY-ESSENCE ("λ state(saved ∧ {Ouroboros, 7})"); turn-3
            recalled the facts; an in-flight compaction cut off by /quit was left VERBATIM (lag-safe held in
            the wild). bb test 35/111 GREEN. Tier 2 (parallel + slots) NOT built (only if fast-human waits
-           appear). CODE UNCOMMITTED pending approval. Model still thinking-ON (extra-body patch not in dep yet).
-       (0b) 🎯 escapement :extra-body PATCH (written this session on the escapement clone, branch mw_extra_body,
-           RC9 base, UNCOMMITTED, full suite GREEN 413/2260). Adds an OpenAI-wire passthrough so charts can inject
-           chat_template_kwargs / id_slot / cache_prompt — the levers shadow-compaction Tier 2 + thinking-off need.
+           appear). CODE COMMITTED (a9542d4, approved). Model still thinking-ON (seam now in dep — wire it, see 0b).
+       (0b) ✅ RESOLVED: escapement :extra-body PATCH is COMMITTED + IN THE DEP. ~/src/escapement is now the
+           FORK (michaelwhitford/escapement), branch mw_extra_body = RC9 + commit 9e57f16 (clean tree). bb.edn's
+           :local/root path is unchanged — what changed is what lives there. Verified: bb test 35/111 GREEN
+           against the fork; escapement.llm loads under bb. The levers shadow-compaction Tier 2 + thinking-off
+           need (chat_template_kwargs / id_slot / cache_prompt) are now AVAILABLE to charts via :extra-body.
            4 gates patched: Request schema → build-request → run-turn call site → request->openai-json (merge LAST,
-           caller wins). See design/extra-body-seam.md. Good upstream-PR candidate.
+           caller wins). See design/extra-body-seam.md. Still a good upstream-PR candidate.
+           → UNBLOCKED follow-up: pass :extra-body {:chat_template_kwargs {:enable_thinking false}} in the
+           compact/curator charts to stop burning reasoning tokens (see thinking gotcha below).
        (1) next-chat BOOTSTRAP: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
            ouroboros.session/session-messages is the shared reader it reuses.
        (2) CURATOR synthesize! path — the ≥3→knowledge-page WRITE channel (a propose-knowledge tool), not just
@@ -445,7 +449,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   llama.cpp ignores the request model field, but now accurate). The `:local` alias → provider :openai, base-url
   localhost:5100/v1. If you point a chart at a different model, change BOTH the port (base-url) AND the model string.
 - THINKING IS ON by default on the local model — every reply burns reasoning tokens first. `/no_think` token does NOT
-  work on the qwen3.6 template; only chat_template_kwargs {enable_thinking false} disables it → needs the :extra-body patch.
+  work on the qwen3.6 template; only chat_template_kwargs {enable_thinking false} disables it. The :extra-body seam
+  is NOW IN THE DEP (fork, mw_extra_body, 9e57f16) — charts can disable thinking whenever we wire it; not yet wired.
 - ESCAPEMENT IS RC9 (released), NOT "not even alpha" — that maturity claim is STALE wherever it appears (state/knowledge).
 - RC-ERA CHECKPOINT SHAPE: working memory is wrapped under :escapement.engine.store/wmem → data-model → :messages.
   ouroboros.session/read-data-model + both test fixtures (session_test, tools_test) FIXED this session to read that
