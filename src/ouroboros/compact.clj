@@ -64,6 +64,12 @@
 (def ^:private event-queue-key :com.fulcrologic.statecharts/event-queue)
 (def ^:private quit-lines #{"/quit" "/exit" "/bye"})
 
+;; Text-UI role prefixes — every assistant line is prefixed (via the echo
+;; kernel, core/echo-text) and the user types after an explicit prompt, so the
+;; transcript-on-screen reads uniformly:  user: … / assistant: … / tool: …
+(def ^:private assistant-prefix "assistant: ")
+(def ^:private user-prompt      "user: ")
+
 ;; Verbatim window: how many most-recent ASSISTANT replies stay uncompressed in
 ;; context. k=1 → only the latest reply is verbatim; older ones are λ. Smaller k
 ;; = more cache-stable + denser; larger k = more recent verbatim fidelity.
@@ -290,7 +296,11 @@ turn: %s
        data (assoc :data data)))))
 
 (defn- start-stdin-ingress!
-  [queue env sid]
+  "`at-prompt?` is the shared UI flag: the tap sets it when it prints the
+  `user: ` prompt; real typed input CONSUMES the prompt line, so dispatching
+  here clears it. (If instead a QUEUED message drains into the next turn, the
+  tap sees the flag still set and closes the dangling prompt line first.)"
+  [queue env sid at-prompt?]
   (doto (Thread.
           (fn []
             (loop []
@@ -299,9 +309,10 @@ turn: %s
                   (nil? line)                        (send-event! queue env sid :user/end)
                   (contains? quit-lines (str/trim line)) (send-event! queue env sid :user/end)
                   (str/blank? line)                  (recur)
-                  :else (do (send-event! queue env sid :user/msg {:text line})
-                            ;; Blank line after the user's enter — the streamed
-                            ;; reply starts visually separated from the input.
+                  :else (do (reset! at-prompt? false)
+                            (send-event! queue env sid :user/msg {:text line})
+                            ;; Blank line after the user's enter — the reply
+                            ;; block starts visually separated from the input.
                             (println)
                             (recur)))))))
     (.setDaemon true)
@@ -322,7 +333,23 @@ turn: %s
   ([root]
    (let [adapter     (sink/make-adapter)
          session-id  (str "compact-" (System/currentTimeMillis))
-         session-dir (session/session-dir root session-id)]
+         session-dir (session/session-dir root session-id)
+         ;; Echo line-discipline state (core/echo-text) — the impure shell
+         ;; around the pure kernel. Serialized: escapement invokes the tap
+         ;; sequentially per transcript row.
+         echo        (atom core/echo-init)
+         ;; Dangling-prompt flag, shared with the stdin ingress (see
+         ;; start-stdin-ingress! docstring for the queued-message case).
+         at-prompt?  (atom false)
+         emit!       (fn [s] (when (seq s) (print s) (flush)))
+         ;; Called before any tap output: if the `user: ` prompt is dangling
+         ;; (a queued message drained — nothing was typed on it), close it.
+         pre!        (fn [] (when @at-prompt?
+                              (reset! at-prompt? false)
+                              (emit! "\n")))
+         break!      (fn [] (let [{:keys [state out]} (core/echo-break @echo)]
+                              (reset! echo state)
+                              (emit! out)))]
      (println "Ouroboros λ-compact chat —  type a message, Enter.  /quit (or Ctrl-D) to end.\n")
      (let [result
            (lib/run
@@ -335,19 +362,64 @@ turn: %s
               :initial-data    {:messages      [(core/message :user greeting-instruction)]
                                 :pending-user  []}
               :on-env-ready    (fn [env]
-                                 (start-stdin-ingress! (get env event-queue-key) env session-id))
+                                 (start-stdin-ingress! (get env event-queue-key) env session-id at-prompt?))
               :credentials     [{:provider :openai :api-key "sk-local" :base-url local-base-url}]
               :config          {:llm/aliases             {:local [{:provider :openai :model local-model}]}
                                 :llm/preferences         [:local]
                                 :llm/eligibility-strict? false}
-              :transcript-tap  (fn [row]
-                                 (doseq [e (sink/feed! adapter row)]
-                                   (when (and (= :text-delta (:type e))
-                                           (= "hot" (str (:invokeid e))))
-                                     (print (get-in e [:delta :text]))
-                                     (flush)))
-                                 (when (= :llm/response (:event row))
-                                   (println) (println) (flush)))})]
+              ;; The text UI rides the SINK EVENTS, hot region ONLY — the
+              ;; compact/parked workers stay silent (the old tap printed two
+              ;; raw newlines on EVERY :llm/response row, region-unfiltered:
+              ;; each compact run + each pure-tool-call round-trip segment
+              ;; showed up as stray blank lines).
+              :transcript-tap
+              (fn [row]
+                (doseq [e (sink/feed! adapter row)]
+                  (when (= "hot" (str (:invokeid e)))
+                    (case (:type e)
+                      ;; Streamed reply text → uniform lines: newline runs
+                      ;; collapsed, blank lines dropped, "assistant: " prefix.
+                      :text-delta
+                      (let [{:keys [state out]}
+                            (core/echo-text @echo assistant-prefix
+                              (get-in e [:delta :text]))]
+                        (reset! echo state)
+                        (when (seq out) (pre!))
+                        (emit! out))
+
+                      ;; Tool CALL made visible (name + truncated params); the
+                      ;; result is deliberately NOT shown. NOTE (source-truth):
+                      ;; the sink synthesizes :tool-call from the tool-RESULT
+                      ;; row, so this line appears when the tool completes.
+                      :tool-call
+                      (do (pre!)
+                          (break!)
+                          (emit! (str (core/tool-line (:tool e) (:input e)) "\n")))
+
+                      ;; Results are hidden — except failures, which the human
+                      ;; should see (the model will react to them anyway).
+                      :tool-result
+                      (when (:is-error e)
+                        (pre!)
+                        (break!)
+                        (emit! (str "tool: " (:tool e) " → ERROR\n")))
+
+                      :tool-validation-failure
+                      (do (pre!)
+                          (break!)
+                          (emit! (str "tool: " (:tool e) " → invalid ("
+                                   (or (:message e) (:reason e)) ")\n")))
+
+                      ;; End of the assistant's TURN (not a :tool_use /
+                      ;; :max_tokens segment boundary): close the line, one
+                      ;; blank line, then the prompt the human types after.
+                      :llm-response
+                      (when (contains? #{:end_turn :refusal} (:stop-reason e))
+                        (break!)
+                        (emit! (str "\n" user-prompt))
+                        (reset! at-prompt? true))
+
+                      nil))))})]
        (assoc result :session-dir session-dir)))))
 
 (defn -main [& _]

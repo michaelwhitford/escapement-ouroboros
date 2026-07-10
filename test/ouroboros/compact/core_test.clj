@@ -94,3 +94,67 @@
       (is (= 1 (core/next-to-compact msgs 1)))
       (let [after (core/apply-compaction msgs 1 "λa1")]
         (is (= 3 (core/next-to-compact after 1)))))))
+
+;; ---------------------------------------------------------------------------
+;; Echo line discipline (the text-UI kernel)
+;; ---------------------------------------------------------------------------
+
+(defn- echo-all
+  "Fold a seq of streamed chunks through core/echo-text; return the full
+  printed string (as the terminal would show it, before any echo-break)."
+  [chunks]
+  (:out (reduce (fn [{:keys [state out]} chunk]
+                  (let [{:keys [state] :as r} (core/echo-text state "assistant: " chunk)]
+                    {:state state :out (str out (:out r))}))
+          {:state core/echo-init :out ""}
+          chunks)))
+
+(deftest echo-prefixes-every-line
+  (testing "each emitted line begins with the role prefix"
+    (is (= "assistant: hello" (echo-all ["hello"])))
+    (is (= "assistant: one\nassistant: two" (echo-all ["one\ntwo"])))
+    (testing "prefix is applied once per line even when tokens arrive split"
+      (is (= "assistant: hel lo" (echo-all ["hel" " " "lo"])))
+      (is (= "assistant: one\nassistant: two" (echo-all ["one\n" "two"]))))))
+
+(deftest echo-collapses-blank-lines
+  (testing "newline runs collapse to ONE; whitespace-only lines vanish"
+    (is (= "assistant: a\nassistant: b" (echo-all ["a\n\n\nb"])))
+    (is (= "assistant: a\nassistant: b" (echo-all ["a\n  \n\t\nb"])))
+    (testing "even split across chunks"
+      (is (= "assistant: a\nassistant: b" (echo-all ["a\n" "\n" "  \n" "b"]))))))
+
+(deftest echo-strips-leading-and-trailing-blanks
+  (testing "leading newlines/whitespace-lines before any content are dropped"
+    (is (= "assistant: hi" (echo-all ["\n\n  \nhi"]))))
+  (testing "trailing newlines/whitespace are deferred and never printed"
+    (is (= "assistant: hi" (echo-all ["hi\n\n  "])))
+    (is (= "" (echo-all ["\n\n   \n"])))))
+
+(deftest echo-preserves-intra-line-content
+  (testing "line-leading indentation with content is preserved (code blocks)"
+    (is (= "assistant: code:\nassistant:   (defn f [x]"
+          (echo-all ["code:\n  (defn f [x]"]))))
+  (testing "intra-line spacing survives token splits"
+    (is (= "assistant: a  b" (echo-all ["a" "  " "b"])))))
+
+(deftest echo-break-closes-open-lines
+  (testing "break emits a newline only when content was emitted, and resets"
+    (let [{:keys [state]} (core/echo-text core/echo-init "assistant: " "hi")]
+      (is (= "\n" (:out (core/echo-break state))))
+      (is (= core/echo-init (:state (core/echo-break state)))))
+    (testing "no content → no newline"
+      (is (= "" (:out (core/echo-break core/echo-init))))
+      (let [{:keys [state]} (core/echo-text core/echo-init "assistant: " "\n \n")]
+        (is (= "" (:out (core/echo-break state))))))))
+
+(deftest tool-line-renders-and-truncates
+  (testing "tool + params on one line, params pr-str'd"
+    (is (= "tool: :fs/read {:path \"idea.md\"}"
+          (core/tool-line :fs/read {:path "idea.md"}))))
+  (testing "nil input → name only"
+    (is (= "tool: :mementum/context" (core/tool-line :mementum/context nil))))
+  (testing "oversized params are truncated with an ellipsis"
+    (let [line (core/tool-line :fs/write {:path "f" :content (apply str (repeat 500 "x"))} 40)]
+      (is (<= (count line) (+ (count "tool: :fs/write ") 41)))
+      (is (clojure.string/ends-with? line "…")))))
