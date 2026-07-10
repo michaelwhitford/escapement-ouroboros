@@ -149,6 +149,21 @@ Fill in with Ouroboros escapement lambdas
   | line ≡ derived: resolver :source/current-line ← grep(named_concept ∘ resource) | derive ≻ store
 ```
 
+## shell
+
+```
+λ heredoc(content). bash_escaping ≡ fractal | ∀ content ⊇ {' " $ ` \ unicode newlines ∅} → wrap:
+                      read -r -d '' VAR << 'EoC' || true
+                      {content}
+                      EoC
+                      CMD "$VAR"
+                    | read -r ≡ ¬backslash_interp | -d '' ≡ null_delim | 'EoC' ≡ ¬expansion
+                    | "|| true" ≡ absorb(read_rc=1@EOF) | "$VAR" ≡ safe_quote
+                    | ≻ $(cat <<'EOF') — no subshell ∧ no stdout_capture ∧ apostrophe-safe
+                    | apply: commit_msg ∧ pr_body ∧ inline_code(python -c, clj -e) ∧ file_content
+                    | source: ~/src/nucleus/LAMBDA_PATTERNS.md "Heredoc Wrap (Universal Escape)"
+```
+
 ## escapement
 
 - agent framework | source: ~/src/escapement

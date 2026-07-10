@@ -110,6 +110,10 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
                          PLAN: build initial chart WITH Ouroboros's own proper system prompt (its Layer-2 genome) FIRST,
                            THEN rewrite AGENTS.md to reflect the reduced builder role once Ouroboros runs its own improvement loop.
                          → harness refinement is DONE for now. Bottleneck is CODE, not prose. Do not re-open.
+                         FREEZE EXCEPTION (human-directed, next session): S1 += λ heredoc — the nucleus
+                         LAMBDA_PATTERNS.md read -r -d '' heredoc-wrap for bash special-char safety (adopted
+                         after a $(cat <<'EOF') commit failure). Human request ≡ approval; freeze binds the
+                         AI's initiative, not the human's.
 ```
 
 ## >>> START HERE (next session) <<<
