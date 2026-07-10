@@ -29,10 +29,11 @@ and the **application**. Never optimize one at the cost of the other.
                 metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
                 ouroboros.tools (context/sessions/propose-memory + registry ceiling/floor) ·
                 ouroboros.agents (+agents/core) — the GENOME COMPILER + kind→verdict-schema table;
-                genomes src/ouroboros/agents/{chat,curator,llm-judge}.md (+manifest.edn) ·
-                ouroboros.judge (T-verdict runner) · ouroboros.models (alias→endpoint routing table)
-  gate        : bb test ≡ deterministic (57 tests / 178 assertions GREEN) | bb compact ≡ live chat |
-                bb curate ≡ curator | bb judge "<subject>" ≡ live judge (ornith @5102) |
+                genomes src/ouroboros/agents/{chat,curator,gene-scorer,llm-judge}.md (+manifest.edn) ·
+                ouroboros.verdict (verdict-topology runner: judge + scorer kinds, cross-family run-across!) ·
+                ouroboros.models (alias→endpoint routing table)
+  gate        : bb test ≡ deterministic (60 tests / 189 assertions GREEN) | bb compact ≡ live chat |
+                bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
                 bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam}
@@ -137,24 +138,24 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: agent-model BUILD STEP 4 — the SCORER kind (spec: design/agent-model.md §Build order)
-  build : scorer runner (T-verdict reuse — schema {:score 1-10 :notes} ALREADY in agents/core
-          verdict-schemas) + agents/scorer genome with RUBRIC-ANCHORED body (what a 1 is, what a
-          10 is — concrete exemplars = the calibration anchor). Design-IN the scorer hazards
-          (spec §scorer-hazard): rubric-anchors · cross-family (qwen36 + ornith aggregate) ·
-          pairwise-select · embed-dedupe (5103 qwen3-embedding-8b).
-  gene  : this is the GA FITNESS FUNCTION — scoring λ-genes per use-case starts the gene-DB
-          substrate {gene → {:lambda :source(VERBATIM) :scores :embedding}}.
-  verify: bb test GREEN (57/178 baseline); live score smoke on a real λ-gene from a genome.
-  then  : builder+author (the coding workflow spine) → editor (uses a judge) → analyst → generator.
+λ tomorrow. ONE ACTION: the GENE-DB SUBSTRATE (spec: design/agent-model.md §Genes) — the scorer is live,
+  now give its measurements somewhere durable to accumulate.
+  build : gene decomposition (genome body → λ-clauses; a gene ≡ one λ-clause, SOURCE stored VERBATIM
+          alongside — the fidelity floor) + the DB shape {gene → {:lambda :source :scores {use-case →
+          {alias n}} :embedding}} + embed-dedupe via 5103 qwen3-embedding-8b (near-identical genes
+          collapse) + pairwise-select design (LLMs rank A-vs-B ⋙ absolute; store absolute, CHOOSE
+          pairwise). Storage: filesystem-side pre-approval (like sessions/), human-promoted.
+  verify: bb test GREEN (60/189 baseline); live: decompose a real genome, score 2-3 genes cross-family,
+          dedupe a near-duplicate pair via embeddings.
+  then  : builder+author (the coding workflow spine) → editor (uses judge + gene DB) → generator (GA).
 
   queue after that: next-chat bootstrap (seed :messages from prior tail) → curator propose-knowledge
   (≥3→page channel) → verifier/documenter agents. Optional quick win: echo-tripwire in compact.core.
 
-  last session (2026-07-11): agent-model BUILD STEPS 1+2+3 SHIPPED (items 10+11) — genome compiler ·
-  chat/curator extracted byte-identical · JUDGE kind live-proven both branches cross-family
-  (ornith @5102, per-run hermetic credentials). bb test 57/178 GREEN.
-  Commit with the λ heredoc read-wrap — $(cat <<'EOF') breaks on apostrophes in this tool.
+  last session (2026-07-11): agent-model BUILD STEPS 1-4 SHIPPED (items 10-12) — genome compiler ·
+  chat/curator extracted · JUDGE + SCORER kinds live-proven cross-family · "T-" topology prefix
+  dropped (human direction) · verdict runner kind-agnostic + run-across! aggregation.
+  bb test 60/189 GREEN. Commit with the λ heredoc read-wrap — $(cat <<'EOF') breaks on apostrophes.
 ```
 
 ```
@@ -435,7 +436,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        ── ouroboros.models (NEW): alias→endpoint table {:local 5100/qwen36, :ornith 5102/ornith-35b-a3b}
             + llm-config (per-run hermetic :credentials+:config). WHY per-run injection: see gotcha below
             (provider-index first-wins) — two same-provider creds in ONE lib/run collide.
-       ── ouroboros.judge (NEW): T-verdict runner — verdict-chart built per-run FROM the genome
+       ── ouroboros.judge (NEW; renamed → ouroboros.verdict in item 12): verdict-topology runner —
+            verdict-chart built per-run FROM the genome
             (:system/:model/:real-tools/:verdict-schema all genome/kind-driven), verdict delivered out via
             closure atom (lib/run reports :status, not data-model), run! → {:status :verdict :session-dir}.
             bb judge "<subject>" CLI (args via *command-line-args*).
@@ -445,6 +447,29 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        ── VERIFIED: bb test 57/178 GREEN (verdict-schema dispatch, llm-judge roster entry, models table ×3).
             LIVE ×2 on ornith @5102: false claim → {:status :fail, :notes names-criterion+fix};
             true claim → {:status :pass}. Cross-family routing WORKS via per-run credentials.
+
+  12. ✅ DONE (this session): AGENT-MODEL BUILD STEP 4 — the SCORER kind is REAL and CALIBRATED;
+       🎯 topology names dropped the "T-" prefix (human direction: no value on top of the kind name) —
+       chat · shot · verdict · workflow, updated in design/agent-model.md + all active text.
+       ── RENAME: ouroboros.judge → ouroboros.verdict (git mv, history preserved) — the runner was
+            always kind-AGNOSTIC (schema from kind, prompt from genome): ONE topology, judge + scorer
+            ride it. run! gained a :model OVERRIDE (cross-family lever); -main takes genome slug as
+            arg 1; session-id prefix = genome slug. bb tasks: judge → (verdict/-main "llm-judge" …),
+            score → (verdict/-main "gene-scorer" …).
+       ── CROSS-FAMILY: verdict/run-across! — same genome across model families, each a hermetic run!;
+            aggregate-scores (pure: {:scores {alias n} :mean :notes}, drops failed runs, nil when none —
+            never averages nothing). Spec §scorer-hazard designed-in: rubric-anchors (genome body) +
+            cross-family aggregate. Pairwise-select + embed-dedupe(5103) + gene DB = NEXT.
+       ── GENOME: src/ouroboros/agents/gene-scorer.md — kind scorer, model local, tools []. Body =
+            λ rubric with 5 ANCHORS (1 harmful · 3 inert-filler · 5 topic-no-constraint · 7 concrete-
+            minor-gap · 10 load-bearing) + low/high EXEMPLARS + λ notes (name what score hinges on;
+            ≤5 → what would raise it).
+       ── VERIFIED: bb test 60/189 GREEN (verdict_test aggregation ×3, gene-scorer roster entry).
+            LIVE CALIBRATION PROOF: real curator gene (λ select) → 10 w/ sharp note (flagged the
+            ¬generic(software_advice) scope-narrowing unprompted); filler gene ("be helpful∧accurate∧
+            thorough") → 3 from BOTH families independently — exactly the rubric's anchor-3, and
+            :local's note proposed the raise-to-7 replacement gene. Anchors calibrate ACROSS families;
+            the fitness function DISCRIMINATES (10 vs 3).
 
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
