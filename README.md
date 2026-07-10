@@ -94,9 +94,11 @@ load-bearing:
 
 - **Dedicated slots** — pass `-np` *explicitly*. An explicit slot count turns
   off the unified KV buffer, so an idle slot keeps its KV. The hot conversation
-  pins to slot 0 and the compactor to slot 1 (`id_slot` in the request body),
+  and the compactor each pin to their own slot (`id_slot` in the request body —
+  this repo uses the top two, leaving the low slots for other local clients),
   so compaction never evicts the conversation's warm prefix. Note the total
-  context (`-c`) splits across slots in this mode.
+  context (`-c`) splits across slots in this mode, and there is no server-side
+  slot *reservation* — unpinned traffic can still land anywhere.
 - **Dense context checkpoints** — the in-place λ-rewrite makes each prompt
   diverge slightly from its predecessor, and hybrid/SWA models can only resume
   from checkpoint positions. Tighter spacing means only the rewritten tail is

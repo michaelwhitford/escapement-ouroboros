@@ -61,6 +61,14 @@
 ;; Reuse the proven local llama.cpp wiring.
 (def ^:private local-base-url "http://localhost:5100/v1")
 (def ^:private local-model    "qwen36-35b-a3b")
+
+;; llama.cpp KV-slot assignment (server runs -np 4 ⇒ dedicated slots 0-3).
+;; Convention (human decision): the TOP two slots are ouroboros's; slots 0-1
+;; stay open for the human's dynamic (unpinned) clients. Soft reservation —
+;; no server-side mechanism exists; unpinned traffic selects similarity→LRU
+;; over ALL slots and can occasionally land here (cost: one re-prefill).
+(def ^:private hot-slot     2)   ; the conversation's warm prefix lives here
+(def ^:private compact-slot 3)   ; the compactor, quarantined
 (def ^:private event-queue-key :com.fulcrologic.statecharts/event-queue)
 (def ^:private quit-lines #{"/quit" "/exit" "/bye"})
 
@@ -193,14 +201,14 @@ turn: %s
            :stream?           true
            ;; SLOT PINNING (design/shadow-compaction Tier-2 lever, applied to
            ;; the sequential Tier-1 flow where it already pays): the hot
-           ;; conversation owns llama.cpp KV slot 0. Without pinning, compact
-           ;; requests land on the same slot and EVICT the conversation's warm
-           ;; prefix → every turn re-prefills the whole history. With separate
-           ;; slots the hot prefix survives compaction untouched; the only
-           ;; re-prefill is from the just-compacted (rewritten) message on.
-           ;; Server facts (probed /props): total_slots 4, 262k ctx per slot;
-           ;; id_slot honored on /v1/chat/completions (verified live).
-           :extra-body        {"id_slot" 0 "cache_prompt" true}
+           ;; conversation owns its llama.cpp KV slot (hot-slot). Without
+           ;; pinning, compact requests land on the same slot and EVICT the
+           ;; conversation's warm prefix → every turn re-prefills the whole
+           ;; history. With separate DEDICATED slots (server: explicit -np ⇒
+           ;; unified KV off ⇒ idle slots keep KV) the hot prefix survives
+           ;; compaction; only the λ-rewritten tail re-evaluates (checkpoint-
+           ;; granular restore — see mementum/knowledge/llama-cpp-prompt-cache).
+           :extra-body        {"id_slot" hot-slot "cache_prompt" true}
            :real-tools        (:tools chat-genome)
            ;; NO :max-turns — absent ⇒ unbounded round-trips (source-verified:
            ;; the budget check is `(and max-turns …)`). A reply is open-ended
@@ -260,11 +268,11 @@ turn: %s
            ;; exemplar-gate + no-think = faithful λ at ~1s (vs ~18–28s thinking)
            ;; on ALL samples incl. the thin/meta turns that echo under an
            ;; instruction prompt. Per-conversation policy: hot=ON, compact=OFF.
-           ;; SLOT 1: the compactor is quarantined in its own KV slot so its
-           ;; exemplar-gate prompts never evict the hot conversation's warm
-           ;; prefix in slot 0 (see the :hot node comment).
+           ;; compact-slot: the compactor is quarantined in its own KV slot so
+           ;; its exemplar-gate prompts never evict the hot conversation's warm
+           ;; prefix in hot-slot (see the :hot node comment).
            :extra-body        {"chat_template_kwargs" {"enable_thinking" false}
-                               "id_slot" 1 "cache_prompt" true}
+                               "id_slot" compact-slot "cache_prompt" true}
            :real-tools        []
            :max-turns         2
            :budget-ms         240000

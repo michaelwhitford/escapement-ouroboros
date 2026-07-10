@@ -527,6 +527,12 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             "restored context checkpoint (pos_min=2399)" at the λ-rewrite boundary; no more
             "clearing prompt" on idle slots; compact quarantined on slot 1; continuity intact.
             Full prefill now paid ONCE per session. Reuse grows in ~128-tok checkpoint grains.
+       ── 🎯 SLOT CONVENTION (human, after dropping litellm — direct llama.cpp now): ouroboros → TOP
+            slots (hot→2, compact→3, named constants in compact.clj), 0/1 left for dynamic clients.
+            Soft reservation only (no server mechanism; unpinned = similarity→LRU over ALL slots);
+            hot is shielded by recency during active sessions, compact absorbs strays cheaply.
+            LIVE-VERIFIED: "selected slot by id (2/3)", checkpoint restore at 2399 intact.
+            Realistic compaction target (human): 3-5× context, NOT 100× — size expectations accordingly.
             (history of the investigation below — kept for the reasoning trail)
        ── BUILT: hot → :extra-body {"id_slot" 0 "cache_prompt" true}, compact → {"id_slot" 1 …} (design's
             Tier-2 lever applied to sequential Tier-1). Log-proven: "selected slot by id (0/1)". bb test
