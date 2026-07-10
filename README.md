@@ -62,9 +62,24 @@ The exemplar form was ~20× faster with equal-or-better fidelity.)
 
 Requirements: [babashka](https://babashka.org/), and for the live chat an
 OpenAI-compatible server on `localhost:5100` (developed against llama.cpp; the
-model name is hardcoded in `src/ouroboros/compact.clj` — adjust to yours). The
-escapement dependency is a git sha pinned to a fork (RC9 + an `:extra-body`
-passthrough the no-think compactor uses) and is fetched automatically.
+model name is hardcoded in `src/ouroboros/compact.clj` — adjust to yours).
+
+**Escapement fork requirement.** The `:extra-body` passthrough (which the
+no-think compactor uses to inject `chat_template_kwargs` per request) is not
+yet in upstream escapement. The `bb.edn` dependency is pinned to a git sha on
+[the fork](https://github.com/michaelwhitford/escapement) (branch
+`mw_extra_body`) and is fetched automatically; escapement itself should be
+installed with [bbin](https://github.com/babashka/bbin) from a clone of the
+fork:
+
+```bash
+git clone https://github.com/michaelwhitford/escapement
+cd escapement && git checkout mw_extra_body
+bbin install .
+```
+
+Once upstream accepts the `:extra-body` PR this requirement goes away and
+everything here moves to upstream escapement directly.
 
 ```
 bb test      # deterministic suite — no network, no LLM
