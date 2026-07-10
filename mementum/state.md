@@ -471,6 +471,15 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             :local's note proposed the raise-to-7 replacement gene. Anchors calibrate ACROSS families;
             the fitness function DISCRIMINATES (10 vs 3).
 
+  13. ✅ DONE (this session, human-directed): CHAT GETS ITS HANDS + a blank line.
+       ── chat.md drops `tools: []` → NO tools key ⇒ the read-only FLOOR (context + sessions) — the
+            first live use of absent⇒floor. Body += λ tools (call ⟺ asked about own memory/knowledge/
+            history; ¬small_talk). :hot :max-turns REMOVED (was 2 — tools would have died mid-answer;
+            human directed: no arbitrary turn integer, bound by budget-ms + ctx window instead — see
+            gotcha below). LIVE-PROVEN: "how many knowledge pages?" → called context, answered 16
+            (correct: 11 upstream + architecture + 4 design) naming two real pages.
+       ── stdin ingress prints a blank line on :user/msg dispatch — reply visually separated from input.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
@@ -612,6 +621,15 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   ~/src/verbum/mementum/knowledge/explore/compiler-finetune-halt-collapse.md ("fine-tunes break the HALT not the
   COMPILE; no-think recovers") + ~/src/verbum/gates/*.txt (the exemplar gate library).
 - ESCAPEMENT IS RC9 (released), NOT "not even alpha" — that maturity claim is STALE wherever it appears (state/knowledge).
+- :max-turns counts LLM ROUND-TRIPS, and a TOOL CALL is a round-trip (source-verified in
+  llm_conversation.clj). A tool-granted conversation with :max-turns 2 dies :error.llm.max-turns
+  mid-answer (context + sessions + answer = 3 round-trips). 🎯 compact's :hot has NO :max-turns
+  (human direction: an arbitrary integer is the wrong bound for open-ended work) — absent ⇒
+  unbounded (the check is `(and max-turns …)`); real bounds = :budget-ms (hard wall-clock) +
+  model ctx window. Token-aware bounding when wanted = :budget-extender (receives :messages,
+  returns a new limit — "replace the dumb integer with a progress decision"). Bounded-SHAPE
+  workers legitimately keep small limits (compactor 2 = one pattern-completion; verdict 3 =
+  turn + wrap-up); it's open-ended work where the integer is wrong.
 - ⚠ MULTI-MODEL IN ONE lib/run COLLIDES: escapement's multi-backend provider-index is FIRST-WINS per
   provider tag, and :llm/aliases candidates carrying :provider dispatch by that tag BYPASSING the
   model-string regex — two :openai credentials with different base-urls (5100+5102) in one run would send
