@@ -86,6 +86,46 @@ bb test      # deterministic suite — no network, no LLM
 bb compact   # the λ-compact chat (the flow described above, live)
 ```
 
+### AI backend example (llama.cpp)
+
+Any OpenAI-compatible server works, but the cache economics of the compaction
+flow were tuned against llama.cpp's `llama-server`, where two settings are
+load-bearing:
+
+- **Dedicated slots** — pass `-np` *explicitly*. An explicit slot count turns
+  off the unified KV buffer, so an idle slot keeps its KV. The hot conversation
+  pins to slot 0 and the compactor to slot 1 (`id_slot` in the request body),
+  so compaction never evicts the conversation's warm prefix. Note the total
+  context (`-c`) splits across slots in this mode.
+- **Dense context checkpoints** — the in-place λ-rewrite makes each prompt
+  diverge slightly from its predecessor, and hybrid/SWA models can only resume
+  from checkpoint positions. Tighter spacing means only the rewritten tail is
+  re-evaluated each turn.
+
+```bash
+llama-server \
+  --host 0.0.0.0 --port 5100 \
+  -m /path/to/model.gguf \
+  -a model-alias-used-by-the-client \
+  -np 4 \
+  -c 524288 \
+  --ctx-checkpoints 32 \
+  --checkpoint-min-step 128 \
+  --cache-ram 16384 \
+  --flash-attn on \
+  --jinja
+```
+
+(`-np 4` ⇒ four dedicated slots of 131k each here; `--cache-ram` is the
+host-memory prompt cache in MiB; the alias must match the model name in
+`src/ouroboros/compact.clj` / `src/ouroboros/models.clj`.)
+
+Measured effect (Qwen3.6-35B-A3B): post-compaction turns went from a full
+re-prefill (~2,500 tokens, ~1.5 s) to a checkpoint restore plus a ~70-token
+eval (~200 ms). The per-request knobs this relies on — `id_slot`,
+`cache_prompt`, and `chat_template_kwargs` (compactor thinking-off) — ride the
+escapement fork's `:extra-body` passthrough described above.
+
 Other tasks (`bb curate`, `bb judge`, `bb score`, `bb smoke`) exercise the
 self-improvement experiments below.
 
