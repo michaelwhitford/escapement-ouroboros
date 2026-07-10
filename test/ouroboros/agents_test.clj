@@ -109,6 +109,20 @@
     (is (<= 3 (count errs)) "kind + tools + body problems reported TOGETHER")))
 
 ;; ---------------------------------------------------------------------------
+;; verdict schemas — SCHEMA lives with the KIND, semantics with the body
+;; ---------------------------------------------------------------------------
+
+(deftest verdict-schema-dispatches-by-kind
+  (is (= [:map [:status [:enum :pass :fail]] [:notes :string]]
+        (core/verdict-schema :judge))
+    "judge GATES: {:status pass|fail :notes}")
+  (is (= [:map [:score [:int {:min 1 :max 10}]] [:notes :string]]
+        (core/verdict-schema :scorer))
+    "scorer MEASURES: {:score 1-10 :notes}")
+  (is (nil? (core/verdict-schema :chat)) "non-verdict kinds idle free-text")
+  (is (nil? (core/verdict-schema :proposer))))
+
+;; ---------------------------------------------------------------------------
 ;; merge-roster — custom wins by slug, replace-whole, visible provenance
 ;; ---------------------------------------------------------------------------
 
@@ -141,7 +155,15 @@
       (let [c (:chat roster)]
         (is (= :chat (:kind c)))
         (is (= [] (:tools c)) "explicit empty grant — the resident chatbot holds no tools")
-        (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))))))
+        (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))))
+    (testing "llm-judge genome — first genome born in the convention"
+      (let [j (:llm-judge roster)]
+        (is (= :judge (:kind j)))
+        (is (= :ornith (:model j)) "first non-:local genome — cross-family routing")
+        (is (= [] (:tools j)) "the subject carries everything; no grant")
+        (is (str/starts-with? (:prompt j) "λ engage(nucleus)."))
+        (is (not (str/includes? (:prompt j) "submit_verdict"))
+          "verdict SCHEMA is kind-owned wiring — the body carries only semantics")))))
 
 (deftest custom-tier-adds-and-overrides
   (with-temp-repo

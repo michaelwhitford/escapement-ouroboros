@@ -41,6 +41,31 @@
   a new kind."
   #{:chat :proposer :judge :scorer :builder :author :editor :analyst :generator})
 
+(def verdict-schemas
+  "SCHEMA lives with the KIND (uniform per kind); SEMANTICS (when pass/fail,
+  when 1 vs 10, what notes) live in the genome BODY — the agent must REASON
+  about semantics, so they cannot hide in loader-only wiring. Frontmatter
+  carries NO verdict field by design (agent-model spec §Judge & Scorer).
+
+  A kind absent here idles free-text (escapement: nil :verdict-schema ⇒ no
+  forced wrap-up). Keyword enums are safe: escapement decodes the model's
+  JSON strings through Malli's json-transformer before validating
+  (\"pass\" → :pass).
+
+    judge  → GATES  — consumed by a :cond transition (pass→continue, fail→loop)
+    scorer → MEASURES — consumed as a measurement (rank · accumulate · fitness)"
+  {:judge  [:map
+            [:status [:enum :pass :fail]]
+            [:notes :string]]
+   :scorer [:map
+            [:score [:int {:min 1 :max 10}]]
+            [:notes :string]]})
+
+(defn verdict-schema
+  "The forced-submit_verdict Malli schema for `kind`, or nil (free-text idle)."
+  [kind]
+  (get verdict-schemas kind))
+
 (def ^:private non-blank-string
   [:and :string [:fn {:error/message "must be non-blank"} (complement str/blank?)]])
 
