@@ -22,8 +22,9 @@ and the **application**. Never optimize one at the cost of the other.
 ```
 λ state.
   repo        : /Users/mwhitford/src/escapement-ouroboros | git LIVE (root 79ac142)
-  runtime dep : bb.edn :local/root → ~/src/escapement = THE FORK (michaelwhitford/escapement,
-                branch mw_extra_body = RC9 + :extra-body passthrough 9e57f16)
+  runtime dep : bb.edn :git/sha 9e57f16… → github michaelwhitford/escapement (THE FORK, branch
+                mw_extra_body = RC9 + :extra-body passthrough) | was :local/root; converted for
+                pre-release (outsiders get a hermetic fetch; verified: fresh ~/.gitlibs clone, tests green)
   code        : mementum substrate (okf/store/eql) · ouroboros.compact (THE chat engine: λ-compaction,
                 shadow Tier 1, exemplar-gate no-think compactor) · ouroboros.curator (cross-session
                 metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
@@ -46,6 +47,9 @@ and the **application**. Never optimize one at the cost of the other.
 
 ```
 AGENTS.md                                    designer harness (S5→S1 λ directives; FROZEN + λ heredoc added by human direction)
+README.md                                    the pre-release front door — pitched at TOOLING AUTHORS adopting the
+                                             cold-compaction flow; explicitly read-the-code, NOT for direct use (human framing)
+LICENSE                                      MIT (human-added)
 idea.md                                      the seed (one line)
 human_ideas.md                               UNTRACKED, DO-NOT-READ until the human asks (standing instruction)
 bb.edn                                       tasks: test · compact · curate · smoke | dep = the fork (see λ state)
