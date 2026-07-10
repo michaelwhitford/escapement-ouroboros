@@ -569,6 +569,20 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             2400-tok system prefix from the host cache ACROSS sessions.
        ── bb test 70/227 GREEN. Usage: bb cache-report [session-id] (default latest-with-transcript).
 
+  18. ✅ DONE (this session): COMPRESSION CONTRACT — the echo-tripwire queue item, landed via real data.
+       ── bb cache-report's compact stats exposed it on the human's live session: call 4 in=495 out=2440 —
+            the no-think exemplar compactor DERAILED on a tool-flavored aged turn (out-of-distribution vs
+            the 3 exemplars) and ANSWERED it; apply-compaction (blank-check only) folded 2440 tokens of
+            prose in as "memory" = SILENT CORRUPTION + context expansion. Compaction that doesn't compress
+            isn't compaction.
+       ── FIX (pure kernel, compact.core/apply-compaction): λ accepted ⟺ strictly shorter than the text it
+            replaces; else verbatim (existing lag-safe path). Short turns simply stay verbatim.
+       ── GOTCHAS BANKED: (a) tiny test fixtures ("a1") now violate the contract by design → fixtures must
+            model reality (va helper); (b) a drain-loop test that recurs on apply-compaction will loop
+            FOREVER when the λ is permanently rejected — the bb test "hang" was this, not machine load;
+            (c) healthy compact stats: out ≈ 13-52 tok/call; out ≈ in ⇒ derail — cache-report makes this
+            visible per session.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
