@@ -28,10 +28,12 @@ and the **application**. Never optimize one at the cost of the other.
                 shadow Tier 1, exemplar-gate no-think compactor) · ouroboros.curator (cross-session
                 metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
                 ouroboros.tools (context/sessions/propose-memory + registry ceiling/floor) ·
-                ouroboros.agents (+agents/core) — the GENOME COMPILER; first genomes
-                src/ouroboros/agents/{chat,curator}.md (+manifest.edn)
-  gate        : bb test ≡ deterministic (53 tests / 160 assertions GREEN) | bb compact ≡ live chat |
-                bb curate ≡ curator | bb smoke ≡ live-LLM integration (localhost:5100)
+                ouroboros.agents (+agents/core) — the GENOME COMPILER + kind→verdict-schema table;
+                genomes src/ouroboros/agents/{chat,curator,llm-judge}.md (+manifest.edn) ·
+                ouroboros.judge (T-verdict runner) · ouroboros.models (alias→endpoint routing table)
+  gate        : bb test ≡ deterministic (57 tests / 178 assertions GREEN) | bb compact ≡ live chat |
+                bb curate ≡ curator | bb judge "<subject>" ≡ live judge (ornith @5102) |
+                bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam}
   memories    : statechart-worker-llm-separation · prompt-topology-must-match-thinking
@@ -135,21 +137,23 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: agent-model BUILD STEP 3 — the JUDGE kind (spec: design/agent-model.md §Build order)
-  build : T-verdict wiring — escapement :verdict-schema forces submit_verdict at turn end;
-          judge schema {:status [pass|fail] :notes [str]} lives with the KIND (uniform), semantics
-          in the genome BODY. First NEW genome born in the convention: src/ouroboros/agents/llm-judge.md.
-          Loader gains kind→verdict-schema dispatch (agents/core is where the kind table lives).
-  route : cross-family models via :llm/aliases (judge→ornith @5102 candidate) — first non-:local genome.
-  verify: bb test GREEN (53/160 baseline) + a deterministic verdict-schema test; live judge smoke optional.
-  then  : scorer kind ({score 1-10} + rubric anchors + 5103 embed-dedupe) → builder+author → editor.
+λ tomorrow. ONE ACTION: agent-model BUILD STEP 4 — the SCORER kind (spec: design/agent-model.md §Build order)
+  build : scorer runner (T-verdict reuse — schema {:score 1-10 :notes} ALREADY in agents/core
+          verdict-schemas) + agents/scorer genome with RUBRIC-ANCHORED body (what a 1 is, what a
+          10 is — concrete exemplars = the calibration anchor). Design-IN the scorer hazards
+          (spec §scorer-hazard): rubric-anchors · cross-family (qwen36 + ornith aggregate) ·
+          pairwise-select · embed-dedupe (5103 qwen3-embedding-8b).
+  gene  : this is the GA FITNESS FUNCTION — scoring λ-genes per use-case starts the gene-DB
+          substrate {gene → {:lambda :source(VERBATIM) :scores :embedding}}.
+  verify: bb test GREEN (57/178 baseline); live score smoke on a real λ-gene from a genome.
+  then  : builder+author (the coding workflow spine) → editor (uses a judge) → analyst → generator.
 
   queue after that: next-chat bootstrap (seed :messages from prior tail) → curator propose-knowledge
   (≥3→page channel) → verifier/documenter agents. Optional quick win: echo-tripwire in compact.core.
 
-  last session (2026-07-11): agent-model BUILD STEPS 1+2 SHIPPED (see λ next item 10) —
-  ouroboros.agents genome compiler live, chat.md+curator.md extracted byte-identical, charts wired
-  through the loader, bb test 53/160 GREEN, bb compact live-proven through the genome path.
+  last session (2026-07-11): agent-model BUILD STEPS 1+2+3 SHIPPED (items 10+11) — genome compiler ·
+  chat/curator extracted byte-identical · JUDGE kind live-proven both branches cross-family
+  (ornith @5102, per-run hermetic credentials). bb test 57/178 GREEN.
   Commit with the λ heredoc read-wrap — $(cat <<'EOF') breaks on apostrophes in this tool.
 ```
 
@@ -416,6 +420,32 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             exit. GOTCHA BANKED: a PIPED bb compact with instant /quit exits :done with ZERO llm responses
             (:user/end races generation) — pipe with sleep gaps to prove a real turn.
 
+  11. ✅ DONE (this session): AGENT-MODEL BUILD STEP 3 — the JUDGE kind is REAL and LIVE-PROVEN
+       cross-family. First NEW genome born in the convention; first non-:local model routing.
+       ── agents/core.clj += verdict-schemas — SCHEMA lives with the KIND (uniform), SEMANTICS in the
+            genome body, NO frontmatter verdict field (spec §Judge & Scorer):
+            judge {:status [:enum :pass :fail] :notes} GATES · scorer {:score 1-10 :notes} MEASURES
+            (scorer schema RESERVED now, runner unbuilt) · other kinds → nil ⇒ free-text idle.
+       ── SEAM (source-verified vs ~/src/escapement, matches the knowledge page): :verdict-schema on
+            h/llm-conversation → turn end forces submit_verdict (other tools stripped, framework nudge),
+            json-transformer decodes BEFORE validate ("pass"→:pass — keyword enums safe), validated map
+            arrives at [:_event :data :verdict] on :llm.idle; validation failure ⇒
+            :error.llm.verdict-validation (worker DIES, no idle) → judge chart routes :error.llm → :failed.
+            submit_verdict is RESERVED — never in :real-tools.
+       ── ouroboros.models (NEW): alias→endpoint table {:local 5100/qwen36, :ornith 5102/ornith-35b-a3b}
+            + llm-config (per-run hermetic :credentials+:config). WHY per-run injection: see gotcha below
+            (provider-index first-wins) — two same-provider creds in ONE lib/run collide.
+       ── ouroboros.judge (NEW): T-verdict runner — verdict-chart built per-run FROM the genome
+            (:system/:model/:real-tools/:verdict-schema all genome/kind-driven), verdict delivered out via
+            closure atom (lib/run reports :status, not data-model), run! → {:status :verdict :session-dir}.
+            bb judge "<subject>" CLI (args via *command-line-args*).
+       ── GENOME: src/ouroboros/agents/llm-judge.md — kind judge, model ornith, tools [] (subject carries
+            everything). Body = verdict SEMANTICS only: pass ⟺ ∀criterion satisfied; uncertain ≡ fail
+            (conservative gate); notes actionable (fail → name each unmet criterion + why + fix).
+       ── VERIFIED: bb test 57/178 GREEN (verdict-schema dispatch, llm-judge roster entry, models table ×3).
+            LIVE ×2 on ornith @5102: false claim → {:status :fail, :notes names-criterion+fix};
+            true claim → {:status :pass}. Cross-family routing WORKS via per-run credentials.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
@@ -557,6 +587,12 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   ~/src/verbum/mementum/knowledge/explore/compiler-finetune-halt-collapse.md ("fine-tunes break the HALT not the
   COMPILE; no-think recovers") + ~/src/verbum/gates/*.txt (the exemplar gate library).
 - ESCAPEMENT IS RC9 (released), NOT "not even alpha" — that maturity claim is STALE wherever it appears (state/knowledge).
+- ⚠ MULTI-MODEL IN ONE lib/run COLLIDES: escapement's multi-backend provider-index is FIRST-WINS per
+  provider tag, and :llm/aliases candidates carrying :provider dispatch by that tag BYPASSING the
+  model-string regex — two :openai credentials with different base-urls (5100+5102) in one run would send
+  EVERYTHING to the first. Ouroboros's answer: per-run hermetic credential injection (ouroboros.models/
+  llm-config — ONE credential per lib/run, keyed by the genome's model alias). Revisit (descriptor :route
+  regex + provider-less alias targets) only when a workflow truly needs two models in ONE session.
 - RC-ERA CHECKPOINT SHAPE: working memory is wrapped under :escapement.engine.store/wmem → data-model → :messages.
   ouroboros.session/read-data-model + both test fixtures (session_test, tools_test) FIXED this session to read that
   path (no pre-RC compat — escapement was alpha, RC is the solidified baseline). Missing this ⇒ session-messages
