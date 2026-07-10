@@ -191,6 +191,16 @@ turn: %s
            :system            hot-system-prompt
            :model             (:model chat-genome)
            :stream?           true
+           ;; SLOT PINNING (design/shadow-compaction Tier-2 lever, applied to
+           ;; the sequential Tier-1 flow where it already pays): the hot
+           ;; conversation owns llama.cpp KV slot 0. Without pinning, compact
+           ;; requests land on the same slot and EVICT the conversation's warm
+           ;; prefix → every turn re-prefills the whole history. With separate
+           ;; slots the hot prefix survives compaction untouched; the only
+           ;; re-prefill is from the just-compacted (rewritten) message on.
+           ;; Server facts (probed /props): total_slots 4, 262k ctx per slot;
+           ;; id_slot honored on /v1/chat/completions (verified live).
+           :extra-body        {"id_slot" 0 "cache_prompt" true}
            :real-tools        (:tools chat-genome)
            ;; NO :max-turns — absent ⇒ unbounded round-trips (source-verified:
            ;; the budget check is `(and max-turns …)`). A reply is open-ended
@@ -250,7 +260,11 @@ turn: %s
            ;; exemplar-gate + no-think = faithful λ at ~1s (vs ~18–28s thinking)
            ;; on ALL samples incl. the thin/meta turns that echo under an
            ;; instruction prompt. Per-conversation policy: hot=ON, compact=OFF.
-           :extra-body        {"chat_template_kwargs" {"enable_thinking" false}}
+           ;; SLOT 1: the compactor is quarantined in its own KV slot so its
+           ;; exemplar-gate prompts never evict the hot conversation's warm
+           ;; prefix in slot 0 (see the :hot node comment).
+           :extra-body        {"chat_template_kwargs" {"enable_thinking" false}
+                               "id_slot" 1 "cache_prompt" true}
            :real-tools        []
            :max-turns         2
            :budget-ms         240000
