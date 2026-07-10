@@ -480,6 +480,20 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             (correct: 11 upstream + architecture + 4 design) naming two real pages.
        ── stdin ingress prints a blank line on :user/msg dispatch — reply visually separated from input.
 
+  14. ✅ DONE (this session, 🎯 human decision): CHAT GETS FULL HANDS — testing phase.
+       ── registry ceiling += escapement built-ins (escapement.tools.builtin/builtin-tools):
+            fs/{read,write,edit,multi-edit,glob,grep} + shell/run + web/fetch; :web/search excluded
+            EXPLICITLY (deterministic — builtin-tools env-gates it on GEMINI_API_KEY, but the ceiling
+            must not depend on env).
+       ── chat.md: EXPLICIT full grant (everything minus web/search) + λ tools policy clause
+            (read≻write · writes→working-tree ONLY · git commit/push FORBIDDEN · shell prefer read-only).
+            PURPOSE: exercise the system + cold-compiler compaction under real tool use.
+       ── ⚠ INVARIANT SHIFT (accepted, testing phase): :shell/run ⊃ git ⇒ "commit unreachable by
+            absence" no longer holds for shell-granted agents — for THOSE the human-gate is POLICY
+            (prompt + review), not capability. Roster report screams the escalation (audit surface
+            works). Revisit before any AUTONOMOUS agent gets shell.
+       ── VERIFIED: bb test 60/190 GREEN; live: "read idea.md and quote it" → :fs/read → VERBATIM match.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
