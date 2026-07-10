@@ -6,9 +6,10 @@
          ;; mw_extra_body: RC9 + the :extra-body passthrough (9e57f16) that
          ;; enables chat_template_kwargs/id_slot/cache_prompt injection.
          com.fulcrologic/escapement {:local/root "/Users/mwhitford/src/escapement"}
-         ;; guardrails MUST stay pinned 1.2.16 — Pathom 2's transitive 0.0.12
-         ;; breaks bb (escapement's documented constraint). Pin it BEFORE pathom.
-         com.fulcrologic/guardrails {:mvn/version "1.2.16"}
+         ;; guardrails MUST stay EXPLICITLY pinned (any modern version) —
+         ;; Pathom 2's transitive 0.0.12 breaks bb (escapement's documented
+         ;; constraint). Pin it BEFORE pathom. 1.2.16 → 1.3.3 verified green.
+         com.fulcrologic/guardrails {:mvn/version "1.3.3"}
          ;; Pathom 2 — the mementum EQL veneer (S1 λ interface). Same version
          ;; escapement runs for its /api, so one pathom on the bb classpath.
          com.wsscode/pathom         {:mvn/version "2.4.0"}}
