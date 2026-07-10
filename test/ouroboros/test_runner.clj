@@ -12,6 +12,7 @@
     [ouroboros.curator.core-test]
     [ouroboros.tools-test]
     [ouroboros.compact.core-test]
+    [ouroboros.cache-report-test]
     [ouroboros.agents-test]
     [ouroboros.models-test]
     [ouroboros.verdict-test]))
@@ -27,6 +28,7 @@
           'ouroboros.curator.core-test
           'ouroboros.tools-test
           'ouroboros.compact.core-test
+          'ouroboros.cache-report-test
           'ouroboros.agents-test
           'ouroboros.models-test
           'ouroboros.verdict-test)]

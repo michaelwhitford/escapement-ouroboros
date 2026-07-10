@@ -92,6 +92,14 @@
    (let [f (io/file root "sessions" (str id) "checkpoints" (str id ".edn"))]
      (when (.exists f) f))))
 
+(defn transcript-file
+  "The transcript JSONL `File` for session `id`, or nil when absent. Pure
+  lookup — unlike `session-dir` it never creates anything."
+  ([id] (transcript-file "." id))
+  ([root id]
+   (let [f (io/file root "sessions" (str id) "transcript.jsonl")]
+     (when (.exists f) f))))
+
 (defn read-data-model
   "Parse session `id`'s checkpoint and return the statechart working-memory
   data-model map, or nil when the checkpoint is absent/unreadable. Unknown
