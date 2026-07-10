@@ -21,9 +21,12 @@
          compact {:doc      "THE canonical Ouroboros chatbot — interactive λ-compact chat: per-message assistant compaction (memory=λ, cache-stable); fresh worker per turn via re-entry; stdin ingress, /quit to end (needs local llama.cpp @ localhost:5100)."
                   :requires ([ouroboros.compact :as compact])
                   :task     (compact/-main)}
-         judge {:doc      "The JUDGE kind (T-verdict) — bb judge \"<subject>\": forced submit_verdict {:status pass|fail :notes} per the llm-judge genome (ornith @ localhost:5102)."
-                :requires ([ouroboros.judge :as judge])
-                :task     (apply judge/-main *command-line-args*)}
+         judge {:doc      "The JUDGE kind (verdict topology) — bb judge \"<subject>\": forced submit_verdict {:status pass|fail :notes} per the llm-judge genome (ornith @ localhost:5102)."
+                :requires ([ouroboros.verdict :as verdict])
+                :task     (apply verdict/-main "llm-judge" *command-line-args*)}
+         score {:doc      "The SCORER kind (verdict topology) — bb score \"<subject>\": forced submit_verdict {:score 1-10 :notes} per the gene-scorer genome (rubric-anchored)."
+                :requires ([ouroboros.verdict :as verdict])
+                :task     (apply verdict/-main "gene-scorer" *command-line-args*)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

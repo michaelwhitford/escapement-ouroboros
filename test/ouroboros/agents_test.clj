@@ -156,6 +156,13 @@
         (is (= :chat (:kind c)))
         (is (= [] (:tools c)) "explicit empty grant — the resident chatbot holds no tools")
         (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))))
+    (testing "gene-scorer genome — the GA fitness function"
+      (let [s (:gene-scorer roster)]
+        (is (= :scorer (:kind s)))
+        (is (= :local (:model s)) "primary family; cross-family via verdict/run-across!")
+        (is (= [] (:tools s)))
+        (is (str/includes? (:prompt s) "λ rubric.")
+          "rubric anchors live in the BODY — the calibration lever")))
     (testing "llm-judge genome — first genome born in the convention"
       (let [j (:llm-judge roster)]
         (is (= :judge (:kind j)))

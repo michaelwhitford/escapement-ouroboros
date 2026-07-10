@@ -13,7 +13,8 @@
     [ouroboros.tools-test]
     [ouroboros.compact.core-test]
     [ouroboros.agents-test]
-    [ouroboros.models-test]))
+    [ouroboros.models-test]
+    [ouroboros.verdict-test]))
 
 (defn run! [& _]
   (let [{:keys [fail error]}
@@ -27,5 +28,6 @@
           'ouroboros.tools-test
           'ouroboros.compact.core-test
           'ouroboros.agents-test
-          'ouroboros.models-test)]
+          'ouroboros.models-test
+          'ouroboros.verdict-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))
