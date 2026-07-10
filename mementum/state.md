@@ -558,6 +558,17 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        ── GOTCHA BANKED: a "selected slot by LRU" 3k-token intruder request appeared mid-analysis — OTHER
             local clients share 5100; never assume sole tenancy when reading /slots or the log.
 
+  17. ✅ DONE (this session): bb cache-report — the cache OBSERVABILITY tool.
+       ── ouroboros.cache-report (pure kernel: response-entries → analyze → format-report; edges:
+            read-transcript, latest-session-id) + session/transcript-file (nil-safe lookup — session-dir
+            CREATES, don't use it for reads). BUST ≡ post-first hot turn with cached=0 (slot-eviction
+            signature). Reuse % computed post-start only (cold start ≡ physics).
+       ── PROVEN on real data: pre-fix session → busts 3,4,5 (retro-diagnoses the investigation);
+            the human's own live tool-heavy session (44k-token turn!) → ZERO busts under dedicated
+            slots, checkpoint restores scaling (10k restored at turn 8). Even cold-starts get the
+            2400-tok system prefix from the host cache ACROSS sessions.
+       ── bb test 70/227 GREEN. Usage: bb cache-report [session-id] (default latest-with-transcript).
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
