@@ -10,6 +10,7 @@
   builds a FRESH, isolated registry per call — no global/singleton mutation."
   (:require
     [clojure.string :as str]
+    [escapement.tools.builtin :as builtin]
     [escapement.tools.protocol :as tp]
     [ouroboros.curator.core :as metabolize]
     [ouroboros.mementum.store :as store]
@@ -111,11 +112,20 @@
 
 (defn all-tools
   "Every tool Ouroboros registers, rooted at `root`. This list IS the registry
-  CEILING (agent-model spec): a genome SELECTS from it, it cannot INVENT. No
-  commit/push/git-write tool exists here — the human-gate invariant is
-  unreachable-by-absence."
+  CEILING (agent-model spec): a genome SELECTS from it, it cannot INVENT.
+
+  mementum tools + escapement's built-ins (fs read/write/edit/multi-edit/
+  glob/grep, shell/run, web/fetch). :web/search is excluded explicitly
+  (deterministic — builtin-tools also env-gates it on GEMINI_API_KEY, but the
+  ceiling should not depend on the environment).
+
+  ⚠ :shell/run ⊃ git: with it in the ceiling, 'commit unreachable by absence'
+  no longer holds for shell-granted agents — for THOSE the human-gate is
+  POLICY (prompt + review), not capability (🎯 human decision, chat-testing
+  phase). Grants stay explicit + visible in the roster report."
   [root]
-  [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)])
+  (into [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)]
+    (remove #(= :web/search (tp/tool-name %)) (builtin/builtin-tools))))
 
 (def read-only-tools
   "The READ-ONLY floor (agent-model spec): the flat, kind-independent grant an

@@ -151,12 +151,12 @@
         (is (= [:mementum/context :mementum/sessions :mementum/propose-memory] (:tools c)))
         (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))
         (is (str/includes? (:prompt c) "λ terminate.") "full body extracted")))
-    (testing "chat genome"
+    (testing "chat genome — FULL grant minus web/search (testing phase)"
       (let [c (:chat roster)]
         (is (= :chat (:kind c)))
-        (is (= (vec (sort tools/read-only-tools)) (:tools c))
-          "no tools: key ⇒ the read-only floor — chat READS its own mementum")
-        (is (false? (:tools-explicit? c)))
+        (is (true? (:tools-explicit? c)))
+        (is (= (disj (tools/tool-names) :web/search) (set (:tools c)))
+          "everything in the ceiling except web/search — 🎯 human decision")
         (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))))
     (testing "gene-scorer genome — the GA fitness function"
       (let [s (:gene-scorer roster)]
