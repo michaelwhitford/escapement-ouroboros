@@ -522,6 +522,23 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             beating pathom's transitive 0.0.12, not the version); human_ideas.md → .gitignore (structural:
             a blind `git add` can never catch the human's scratch pad).
 
+  16. ⚙️ IN FLIGHT (this session): CACHE — slot pinning BUILT + PROVEN, but the real finding is deeper.
+       ── BUILT: hot → :extra-body {"id_slot" 0 "cache_prompt" true}, compact → {"id_slot" 1 …} (design's
+            Tier-2 lever applied to sequential Tier-1). Log-proven: "selected slot by id (0/1)". bb test
+            66/210 GREEN. Server: total_slots 4 (auto), unified KV, host prompt cache 8 GiB, /slots enabled.
+       ── FINDING (see mementum/knowledge/llama-cpp-prompt-cache.md — PROPOSED page, this session):
+            pinning routes but does NOT protect. Idle slots are saved→host-cache→CLEARED on EVERY task
+            launch (unified-KV default; the human's other local traffic guarantees it). Host-cache restore
+            ≈ append-only (checkpoint-granular; hybrid qwen3.5/3.6 can't truncate recurrent state) →
+            the per-turn λ-rewrite (k=1) busts the cache EVERY turn: full re-prefill ~1.5s@2.5k.
+            Append-only turns restore near-totally (61-token eval / 200ms — the good path).
+       ── MITIGATIONS on the table (undecided): A batch compactions (backlog ≥ B → (B-1)/B turns
+            append-only) · B compactor → small-model server (qwythos-9b @5105; A/B exemplar fidelity first
+            via scratch/ab_exemplar.clj) · C server flags (human's call: -np explicit, checkpoints denser,
+            --no-cache-idle-slots). A+B combined = the strong play.
+       ── GOTCHA BANKED: a "selected slot by LRU" 3k-token intruder request appeared mid-analysis — OTHER
+            local clients share 5100; never assume sole tenancy when reading /slots or the log.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
