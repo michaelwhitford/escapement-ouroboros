@@ -27,8 +27,10 @@ and the **application**. Never optimize one at the cost of the other.
   code        : mementum substrate (okf/store/eql) · ouroboros.compact (THE chat engine: λ-compaction,
                 shadow Tier 1, exemplar-gate no-think compactor) · ouroboros.curator (cross-session
                 metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
-                ouroboros.tools (context/sessions/propose-memory)
-  gate        : bb test ≡ deterministic (36 tests / 116 assertions GREEN) | bb compact ≡ live chat |
+                ouroboros.tools (context/sessions/propose-memory + registry ceiling/floor) ·
+                ouroboros.agents (+agents/core) — the GENOME COMPILER; first genomes
+                src/ouroboros/agents/{chat,curator}.md (+manifest.edn)
+  gate        : bb test ≡ deterministic (53 tests / 160 assertions GREEN) | bb compact ≡ live chat |
                 bb curate ≡ curator | bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam}
@@ -133,25 +135,22 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: agent-model BUILD STEP 1 (spec: mementum/knowledge/design/agent-model.md)
-  build : ouroboros.agents — the genome compiler/loader: fold over precedence sources
-          (base ⊂ src/ouroboros/agents via io/resource → custom ⊂ <repo>/agents, custom-wins-by-slug,
-          replace-whole), Malli-validate fail-loud, report roster + tool GRANTS
-  extract: the two inline prompts → src/ouroboros/agents/{curator.md, chat.md} (first genomes;
-          frontmatter = agent-invisible wiring, body = the λ prompt; proves the seam)
-  NOTE  : chat.md = the HOT prompt (instruction-λ, thinking ON). The COMPACTOR exemplar gate is
-          NOT a genome — it is engine data (pattern, not persona); leave it in compact.clj.
-  verify: bb test stays GREEN (36/116 baseline); bb compact + bb curate behave identically
-  then  : judge kind (:verdict-schema) → scorer → builder+author → editor  (page has the order)
+λ tomorrow. ONE ACTION: agent-model BUILD STEP 3 — the JUDGE kind (spec: design/agent-model.md §Build order)
+  build : T-verdict wiring — escapement :verdict-schema forces submit_verdict at turn end;
+          judge schema {:status [pass|fail] :notes [str]} lives with the KIND (uniform), semantics
+          in the genome BODY. First NEW genome born in the convention: src/ouroboros/agents/llm-judge.md.
+          Loader gains kind→verdict-schema dispatch (agents/core is where the kind table lives).
+  route : cross-family models via :llm/aliases (judge→ornith @5102 candidate) — first non-:local genome.
+  verify: bb test GREEN (53/160 baseline) + a deterministic verdict-schema test; live judge smoke optional.
+  then  : scorer kind ({score 1-10} + rubric anchors + 5103 embed-dedupe) → builder+author → editor.
 
   queue after that: next-chat bootstrap (seed :messages from prior tail) → curator propose-knowledge
   (≥3→page channel) → verifier/documenter agents. Optional quick win: echo-tripwire in compact.core.
 
-  last session (2026-07-10): fork dep verified (mw_extra_body in play) · 3-round prompt A/B →
-  exemplar-gate + no-think compactor SHIPPED (20× faster, echo dead, live-proven, 612a1f5) ·
-  memory prompt-topology-must-match-thinking (3af29a7) · AGENTS.md += λ heredoc (human-directed,
-  cb11af1) · architecture page refreshed (chart topology + compactor section). Commit with the
-  λ heredoc read-wrap — $(cat <<'EOF') breaks on apostrophes in this tool.
+  last session (2026-07-11): agent-model BUILD STEPS 1+2 SHIPPED (see λ next item 10) —
+  ouroboros.agents genome compiler live, chat.md+curator.md extracted byte-identical, charts wired
+  through the loader, bb test 53/160 GREEN, bb compact live-proven through the genome path.
+  Commit with the λ heredoc read-wrap — $(cat <<'EOF') breaks on apostrophes in this tool.
 ```
 
 ```
@@ -384,6 +383,39 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        reframed (roster + curator section). Pure rename — bb test GREEN 35/111 unchanged. :mementum/* tool
        names UNCHANGED (mementum-scoped, not agent-scoped).
 
+  10. ✅ DONE (this session): AGENT-MODEL BUILD STEPS 1+2 — the GENOME COMPILER is REAL; the first
+       two genomes are extracted files; the charts load their prompts through the seam.
+       ── ouroboros.agents.core (pure kernel, house <engine>/core convention): kinds set (9, per spec) ·
+            Malli frontmatter schema — CLOSED map (unlike mementum's open OKF envelope: genome frontmatter
+            is WIRING, unknown key ≈ typo → fail loud) · parse-genome (okf/parse is format-GENERIC → reused;
+            mementum's schema is NOT — agents has its own {type ouroboros/agent, description, kind, tools?,
+            model?, title?}) · normalization (kind/tools/model strings → keywords; a copy-pasted ":local"
+            literal also parses) · validate fail-loud AGGREGATING all errors {:agent :tier :source :errors} ·
+            merge-roster (fold, later-tier wins by slug, REPLACE-WHOLE, :overrides provenance) · report
+            (provenance + grants + ESCALATION flags beyond the read-only floor).
+       ── ouroboros.agents (impure edges): base tier via io/resource ouroboros/agents/ — ENUMERATION solved
+            with manifest.edn (a classpath DIRECTORY cannot be listed portably from a packaged dep; the
+            manifest is the portable index, loader fails loud on a listed-but-missing genome) · custom tier
+            <repo-root>/agents/*.md (plop-a-file; filename stem = slug) · compile-roster / genome / report.
+       ── ouroboros.tools grew the named surfaces the compiler validates against: all-tools (THE registry
+            CEILING — no commit/git tool exists → human-gate unreachable-by-absence) · read-only-tools
+            (THE floor: context+sessions; absent tools: key ⇒ floor) · tool-names.
+       ── GENOMES: src/ouroboros/agents/curator.md (kind proposer, tools [context sessions propose-memory]
+            → report shows ESCALATION:[propose-memory]) + chat.md (kind chat, tools [] EXPLICIT — absent
+            would grant the floor = behavior change; empty ≠ absent is load-bearing). Bodies extracted
+            BYTE-IDENTICAL (verified by = against the old defs before deletion; the curator body's indented
+            `---` OKF template lines don't confuse okf/parse — fence match is exact-line). Nucleus preamble
+            stays IN the body (loader-prepend deferred). The compact EXEMPLAR GATE stayed in compact.clj —
+            engine data (pattern, not persona), per spec.
+       ── WIRING: curator.clj def genome = (agents/genome :curator) → :system/:model/:real-tools all from
+            the genome; compact.clj chat-genome → hot-system-prompt (:hot AND :parked) + :hot's :model/
+            :real-tools. Parked/compact workers keep engine literals.
+       ── VERIFIED: bb test 53/160 GREEN (agents_test: normalize, floor-vs-empty, fail-loud ×6, aggregate,
+            merge, real-base roster, custom temp-dir add+override, report). LIVE: bb compact through the
+            genome path — genome prompt confirmed ON THE WIRE (transcript), greeting + correct answer, clean
+            exit. GOTCHA BANKED: a PIPED bb compact with instant /quit exits :done with ZERO llm responses
+            (:user/end races generation) — pipe with sleep gaps to prove a real turn.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
@@ -400,10 +432,10 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            unblocks editor+generator. LAYERING: editor targets Layer-2 agents/*.md (NEVER AGENTS.md = Layer-1
            designer harness, frozen, mine). Calibration hazards designed-IN: rubric-anchors + cross-family +
            pairwise-select + embed-dedupe(5103). Full build order + open questions in the page.
-           >>> BUILD STEP 1 (when moving design→code): ouroboros.agents (the compiler — fold over sources →
+           >>> BUILD STEP 1 ✅ DONE (see item 10): ouroboros.agents (the compiler — fold over sources →
            validated, reported roster; io/resource for base) + EXTRACT the two inline prompts →
            src/ouroboros/agents/{curator.md, chat.md} as the first genomes (proves the seam; bb test stays green).
-           THEN: judge kind (escapement :verdict-schema + agents/llm-judge.md) → scorer → builder+author → editor.
+           THEN (next): judge kind (escapement :verdict-schema + agents/llm-judge.md) → scorer → builder+author → editor.
        (⭐0-vsm) VSM ARCHITECTURE DESIGNED (this session) — mementum/knowledge/design/vsm-on-escapement.md.
            VSM ≅ statecharts (hierarchy⊗concurrency⊗events⊗recursion) → escapement charts ARE executable VSM.
            CHANNEL = event + SCOPE(=authority, via LCCA) + transduction + closed-loop(variety-matched); the 5 named
