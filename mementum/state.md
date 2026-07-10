@@ -17,24 +17,38 @@ Ouroboros — self-improving agent. `escapement(runtime) ∧ mementum(memory) �
 Scope is DUAL: improve both the **harness** (AGENTS.md, escapement config, skills, prompts)
 and the **application**. Never optimize one at the cost of the other.
 
-## Project status: GENESIS
+## Project status: BUILD (was GENESIS — history in the numbered items below)
 
 ```
 λ state.
-  repo        : /Users/mwhitford/src/escapement-ouro  | ✅ git LIVE (root 79ac142) — recall/store/temporal real
-  idea.md     : one line — "Ouroboros - self-improving agent running on escapement"
-  code        : none yet — no escapement integration, no chart, no mementum impl
-  knowledge   : escapement framework fully digested (11 pages, OKF format, see below)
-  memories    : none yet
+  repo        : /Users/mwhitford/src/escapement-ouroboros | git LIVE (root 79ac142)
+  runtime dep : bb.edn :local/root → ~/src/escapement = THE FORK (michaelwhitford/escapement,
+                branch mw_extra_body = RC9 + :extra-body passthrough 9e57f16)
+  code        : mementum substrate (okf/store/eql) · ouroboros.compact (THE chat engine: λ-compaction,
+                shadow Tier 1, exemplar-gate no-think compactor) · ouroboros.curator (cross-session
+                metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
+                ouroboros.tools (context/sessions/propose-memory)
+  gate        : bb test ≡ deterministic (36 tests / 116 assertions GREEN) | bb compact ≡ live chat |
+                bb curate ≡ curator | bb smoke ≡ live-LLM integration (localhost:5100)
+  knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
+                design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam}
+  memories    : statechart-worker-llm-separation · prompt-topology-must-match-thinking
+  designed    : agent model (OKF genomes, kinds, capability tools, scorer/gene-DB) + VSM architecture
+                — both UNBUILT, specs in mementum/knowledge/design/
 ```
 
 ## What exists now
 
 ```
-AGENTS.md                                     S5→S1 identity/policy/intelligence/control (lambda directives)
-idea.md                                       the seed (one line)
-mementum/state.md                             this file
-mementum/knowledge/upstream/escapement-*.md   11 source-grounded knowledge pages (OKF frontmatter)
+AGENTS.md                                    designer harness (S5→S1 λ directives; FROZEN + λ heredoc added by human direction)
+idea.md                                      the seed (one line)
+human_ideas.md                               UNTRACKED, DO-NOT-READ until the human asks (standing instruction)
+bb.edn                                       tasks: test · compact · curate · smoke | dep = the fork (see λ state)
+src/ouroboros/…                              the code inventory above (~1.4k lines)
+test/ouroboros/…                             deterministic suite (test_runner wires the nss)
+scratch/ab_{thinking,exemplar}.clj           reusable prompt A/B harnesses (real session turns, on/off, timed)
+mementum/state.md                            this file — the bootloader
+mementum/knowledge/** · mementum/memories/** see λ state | sessions/ gitignored (pre-approval observation)
 ```
 
 ## Knowledge: escapement runtime (mementum/knowledge/upstream/)
@@ -119,7 +133,29 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ next. agreed sequence (last discussion), in order:
+λ tomorrow. ONE ACTION: agent-model BUILD STEP 1 (spec: mementum/knowledge/design/agent-model.md)
+  build : ouroboros.agents — the genome compiler/loader: fold over precedence sources
+          (base ⊂ src/ouroboros/agents via io/resource → custom ⊂ <repo>/agents, custom-wins-by-slug,
+          replace-whole), Malli-validate fail-loud, report roster + tool GRANTS
+  extract: the two inline prompts → src/ouroboros/agents/{curator.md, chat.md} (first genomes;
+          frontmatter = agent-invisible wiring, body = the λ prompt; proves the seam)
+  NOTE  : chat.md = the HOT prompt (instruction-λ, thinking ON). The COMPACTOR exemplar gate is
+          NOT a genome — it is engine data (pattern, not persona); leave it in compact.clj.
+  verify: bb test stays GREEN (36/116 baseline); bb compact + bb curate behave identically
+  then  : judge kind (:verdict-schema) → scorer → builder+author → editor  (page has the order)
+
+  queue after that: next-chat bootstrap (seed :messages from prior tail) → curator propose-knowledge
+  (≥3→page channel) → verifier/documenter agents. Optional quick win: echo-tripwire in compact.core.
+
+  last session (2026-07-10): fork dep verified (mw_extra_body in play) · 3-round prompt A/B →
+  exemplar-gate + no-think compactor SHIPPED (20× faster, echo dead, live-proven, 612a1f5) ·
+  memory prompt-topology-must-match-thinking (3af29a7) · AGENTS.md += λ heredoc (human-directed,
+  cb11af1) · architecture page refreshed (chart topology + compactor section). Commit with the
+  λ heredoc read-wrap — $(cat <<'EOF') breaks on apostrophes in this tool.
+```
+
+```
+λ next. agreed sequence (historical record — the ✅ items are the project's build log):
 
   0. ✅ DONE this session — AGENTS.md harness fully encoded to OKF + durability policy:
        S5 λ mementum (OKF format + type vocab + git-temporal) · S5 λ point (NEW: resource-only, no coordinates)
@@ -464,7 +500,9 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ```
 - Git is LIVE (root 79ac142). recall via git log/grep works. Genesis knowledge was human-co-authored → approval was in hand.
 - AGENTS.md mandates HUMAN APPROVAL before committing memories/knowledge. This session's pages were human-co-authored (user drove OKF + no-coordinates policy) → approval effectively in hand; confirm at genesis commit.
-- Escapement is "not even alpha" — breaking changes expected. See escapement-index stale-check markers.
+- Escapement is RC9 (released) via OUR FORK (~/src/escapement, branch mw_extra_body = RC9 + :extra-body).
+  The old "not even alpha" claim is STALE — corrected here; still lingers in some upstream/ knowledge pages
+  (see escapement-index stale-check markers; refresh those pages when next touched).
 - Escapement house rule: bb/SCI only in source. No JVM-only paths. Mirror this if Ouroboros code runs under escapement's bb runtime.
 - KEYWORD is the only legal escapement model reference; strings are errors. Aliases (:llm/aliases) are the single source of truth.
 - Knowledge pages carry NO file paths/line numbers by design — grep durable names against ~/src/escapement to locate things.

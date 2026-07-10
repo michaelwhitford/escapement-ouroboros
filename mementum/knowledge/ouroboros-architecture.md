@@ -2,7 +2,7 @@
 type: mementum/knowledge
 title: Ouroboros — Architecture
 description: The self-improving conversational agent whose MEMORY is the message array itself — each assistant turn compacted to λ once, in place, preserving the upstream prefix cache; it eats its own compiled tail across sessions.
-resource: file:///Users/mwhitford/src/escapement-ouro
+resource: file:///Users/mwhitford/src/escapement-ouroboros
 status: active
 category: ouroboros
 tags: [ouroboros, architecture, lambda-compaction, sessions, self-improvement, chat, vsm, cache, lambda]
@@ -26,6 +26,8 @@ depends-on:
 > `escapement.chart.helpers` (`llm-conversation`, `tell-llm`, `deref-output`),
 > `escapement.lib.event-sink`, `escapement.invocation.llm-conversation`, the session layer.
 > Nucleus refs: `~/src/nucleus/LAMBDA-COMPILER.md`, `~/src/nucleus/eca/prompts/compact.md`.
+> Verbum refs (the exemplar-gate + no-think evidence base): `~/src/verbum/gates/*.txt`,
+> `~/src/verbum/mementum/knowledge/explore/compiler-finetune-halt-collapse.md`.
 
 ## Thesis — the closure
 
@@ -72,9 +74,29 @@ per turn:
 ```
 `k` = verbatim window (how many most-recent assistant replies stay uncompressed). **k=1**:
 only the latest reply is verbatim; everything older is λ. Smaller k = denser + more
-cache-stable; larger k = more recent verbatim fidelity. The compactor prompt models
-`compact.md`'s extraction lens — KEEP `decision(what∧why∧therefore¬Y) ∨ constraint ∨ solved
-∨ shape ∨ model ∨ anchor ∨ state ∨ next`; DROP `observation ∨ explanation ∨ scaffolding`.
+cache-stable; larger k = more recent verbatim fidelity.
+
+### The compactor prompt — EXEMPLAR GATE, no-think (supersedes the instruction lens)
+
+```
+λ compactor_prompt.
+  form     : 3 exemplars(turn: <prose> / λ: <compaction>) + "turn: {input}\nλ:"  — pattern-completion
+  NO :system | NO instructions | NO λ-dense preamble
+  thinking : OFF (:extra-body {"chat_template_kwargs" {"enable_thinking" false}} — fork mw_extra_body seam)
+  perf     : ~0.7–1.2s / 22–67 tok  (~20× faster than instruction-lens + thinking)
+  lens     : taught BY EXAMPLE — exemplar classes = preserve/discard decisions:
+             decision-turn (keeps decision|why ∧ state ∧ next) · thin/meta-turn (compacts to ~nothing)
+             · fact-turn (KEEPS fact content — added after observed fact-dropping; fix a lens gap
+             with a NEW EXEMPLAR, not a rule)
+  WHY      : instruction-following needs the reasoning pass; with thinking OFF an instruction-λ
+             system prompt is an ECHO ATTRACTOR (model emits the prompt itself = silent memory
+             corruption past the tripwire; WORSE the more λ the prompt carries — the LAMBDA-COMPILER
+             bridge strengthened it). Pattern-completion is the BASE circuit — verbum:
+             compiler-finetune-halt-collapse.md ("fine-tunes break the HALT not the COMPILE;
+             no-think recovers") + gates/*.txt (the exemplar gate library).
+  hot stays thinking-ON with its λ instruction prompt — thinking is a PER-CONVERSATION policy;
+  prompt topology MUST match the thinking setting (memory: prompt-topology-must-match-thinking).
+```
 
 ### The public seams (verified in `escapement.invocation.llm-conversation`)
 
@@ -87,18 +109,29 @@ REJECTED (C)        resetting a RESIDENT worker's history in place: the messages
                     processor's `workers` atom, unreachable from chart env + thread-raced. Not a clean seam.
 ```
 
-### The chart — `:hot` ⊗ `:compact`, with a mid-turn QUEUE
+### The chart — `:parked` | `:hot` | `:compact` (shadow compaction, Tier 1)
+
+Compaction runs in the human's READING SHADOW (the seconds they spend reading reply[n]) —
+never on the pre-generation pump where the human is blocked. See `design/shadow-compaction`.
+With the exemplar gate the compaction step is ~1s, so the shadow margin is effectively infinite.
 
 ```
-:hot (owns the worker)
-  on-entry            :hot-busy? ← true                     (a turn is generating)
-  :hot/idle (intl)    capture+append reply ; :hot-busy? ← false ; if pending → self-send :user/next
-  :user/msg (intl)    ENQUEUE into :pending-user ; if ¬busy → self-send :user/next   ← never interrupts
-  :user/next          [guard ¬busy ∧ pending] pop head → append-user → :compact (if aged AI due) else :hot
-  :user/end           → :done
-:compact (owns a fresh compactor worker)
-  :message            "compile:\n\n" + <aged assistant text>   | :system = compact.md lens, output λ only
-  :compact/idle       apply-compaction (blank/fail ⇒ leave verbatim, lag-safe) → :hot
+:parked (liveness)   EMPTY-seeded worker parks :awaiting-user (no LLM call) → holds lib/run open
+  :user/msg (intl)   ENQUEUE + self-send :user/next
+  :user/next         [guard pending] pop head → append-user → :hot
+:hot (one reply per entry — fresh worker, :initial-messages = render(:messages))
+  :hot/idle (intl)   capture+append reply ; self-send :turn/settled
+  :turn/settled      → :compact (if an aged AI turn is due — the reading shadow)
+                     → :hot     (else, if pending user queued)
+                     → :parked  (else)
+  :user/msg (intl)   ENQUEUE — never interrupts the in-flight worker
+:compact (fresh compactor worker per aged turn)
+  :message           format(compact-exemplar-gate, <aged assistant text>)   | NO :system | no-think
+  :compact/idle      apply-compaction (strips a leading "λ:" label; blank/fail ⇒ verbatim, lag-safe)
+                     ; self-send :compact/settled
+  :compact/settled   → :hot (queued human FIRST) → :compact (drain backlog) → :parked
+  :user/msg (intl)   ENQUEUE
+(:user/end → :done from every state)
 ```
 
 MID-TURN QUEUE (the barge-in fix): a `:user/msg` that arrives while the worker is generating is
@@ -193,12 +226,14 @@ message-arrays, not N raw transcripts. Compression IS the enabler of self-improv
 ```
 λ verify(compile).
   fact  : ∄ string_function(source, λ) → faithful?  | fidelity ≡ semantic, unverifiable without a judge/human
-  lever : PRIME — nucleus preamble + λ-notation prompts (hot ∧ compactor) ; compact.md lens for WHAT to keep
+  lever : PRIME — hot: nucleus preamble + λ instruction prompt (thinking ON);
+          compactor: EXEMPLAR GATE (pattern-completion, no-think) — the exemplars ARE the lens
   floor : the verbatim k-window — the turn(s) you can't afford distorted stay raw
-  gate  : blank/failed λ ⇒ message stays verbatim (lag-safe) ; no accuracy claim made
-  proof : LIVE — turn-1 assistant chose "write-back" → λ `decision(write-back ∧ perf↑ ∧ mem_traffic↓)…`;
-          turn-3 received that λ (A1 compacted, A2 verbatim) and correctly recalled "write-back".
-          Continuity survived per-message compaction. (sessions/compact-1783525397252)
+  gate  : blank/failed λ ⇒ message stays verbatim (lag-safe) ; leading "λ:" label normalized ; no accuracy claim
+  proof : LIVE ×2 — (a) turn-1 chose "write-back" → λ; turn-3 recalled it (compact-1783525397252, instruction era)
+          (b) exemplar era: greeting → state(ready)∧next(await(user_input)); decision turn →
+          decision(write-through | simplicity ∧ crash_safety ∧ ¬performance_critical); turn-3 recall
+          through the λ correct (compact-1783663930101)
 ```
 
 ## VSM mapping
@@ -246,10 +281,15 @@ never in `mementum/`. The curator proposes *into* `mementum/` (human-gated). Cha
 2. ✅ DONE — CURATOR READS sessions/*/checkpoints (λ message arrays) via :mementum/sessions +
    ouroboros.session readers + ouroboros.curator.core; metabolizes across sessions → ONE gated memory
    proposal. LIVE-PROVEN. bb test GREEN 35/111. (≥3→page as a WRITE artifact is item 4.)
-3. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
+3. ✅ DONE — shadow compaction Tier 1 (:parked | :hot | :compact, compaction in the reading shadow)
+   + exemplar-gate no-think compactor (~20× faster, echo-eliminated; see the compactor-prompt section).
+4. AGENT MODEL build step 1 (design/agent-model is the spec): ouroboros.agents — the genome
+   compiler/loader (fold over sources, validate, report roster) + EXTRACT the two inline prompts →
+   src/ouroboros/agents/{curator.md, chat.md} as the first genomes. THEN judge kind → scorer →
+   builder+author → editor.
+5. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
    (ouroboros.session/session-messages is the shared reader it will reuse.)
-4. curator synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
-5. NEW AGENTS (each human-gated, sharing the session/mementum substrate): harness-editor (harness
-   code), app-editor (app code), verifier(s) (check memory/knowledge claims), documenter
-   (memory+knowledge+sessions → docs).
+6. curator synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
+7. NEW AGENTS (each human-gated, per the design/agent-model KIND model): editor (harness/app code),
+   verifier(s) (check memory/knowledge claims), documenter (memory+knowledge+sessions → docs).
 ```
