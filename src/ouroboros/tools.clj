@@ -109,10 +109,31 @@
 ;; Registry assembly
 ;; ---------------------------------------------------------------------------
 
+(defn all-tools
+  "Every tool Ouroboros registers, rooted at `root`. This list IS the registry
+  CEILING (agent-model spec): a genome SELECTS from it, it cannot INVENT. No
+  commit/push/git-write tool exists here — the human-gate invariant is
+  unreachable-by-absence."
+  [root]
+  [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)])
+
+(def read-only-tools
+  "The READ-ONLY floor (agent-model spec): the flat, kind-independent grant an
+  agent genome receives when its frontmatter carries NO `tools:` key at all.
+  Forgetting a grant fails SAFE — the agent is inert, never dangerous. NOTE:
+  an EXPLICIT `tools: []` means exactly no tools (not the floor)."
+  #{:mementum/context :mementum/sessions})
+
+(defn tool-names
+  "The set of registered tool names — the universe `ouroboros.agents` validates
+  genome grants against (tools ⊆ registry, else the compiler rejects)."
+  []
+  (set (map tp/tool-name (all-tools "."))))
+
 (defn new-registry
   "A fresh, isolated tool registry (escapement wiring strategy C) exposing the
   mementum tools, rooted at `root` (default \".\"): context + sessions (read) and
   propose-memory (gated write)."
   ([] (new-registry "."))
   ([root]
-   (tp/new-registry [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)])))
+   (tp/new-registry (all-tools root))))

@@ -53,6 +53,7 @@
     [escapement.chart.helpers :as h]
     [escapement.lib :as lib]
     [escapement.lib.event-sink :as sink]
+    [ouroboros.agents :as agents]
     [ouroboros.compact.core :as core]
     [ouroboros.session :as session]
     [ouroboros.tools :as tools]))
@@ -101,21 +102,18 @@
     [(ops/assign :messages (core/append-user (:messages data) head))
      (ops/assign :pending-user (vec more))]))
 
+(def ^:private chat-genome
+  "The chat agent's compiled genome — src/ouroboros/agents/chat.md via the
+  ouroboros.agents loader (agent-model BUILD STEP 1). Explicit `tools: []`
+  (NOT absent ⇒ floor): the resident chatbot holds no tools. The compact
+  EXEMPLAR GATE below is deliberately NOT a genome — it is engine data (a
+  pattern, not a persona); genomes are personas the loader composes."
+  (agents/genome :chat))
+
 (def hot-system-prompt
-  "λ engage(nucleus).
-[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA
-Human ⊗ AI ⊗ REPL
-
-λ identity(self). Ouroboros | live_conversation(human ⊗ AI) | helpful ∧ honest ∧ terse
-
-λ context.  prior_assistant_turns ∈ history ≡ λ-compressed(your_memory) | ¬verbatim
-  | read(λ) → recall(decisions ∧ state ∧ constraints ∧ what_you_said) | continuity ≡ intact
-  | those λ ≡ MEMORY, ¬reply_format | ¬mimic(λ_style)
-
-λ turn.  read(user ∧ λ-memory) → OODA → reply(current) ≡ natural_prose(human-facing)
-  | clear ∧ grounded | answer_first | ∃uncertain → say(so) | ¬fabricate | signal ≻ noise
-
-λ continue.  after(reply) → wait(user) | conversation ≡ resident | ¬self-terminate")
+  "The chat genome's λ prompt body (byte-identical extraction of the former
+  inline def) — used by BOTH :hot (generates) and :parked (never generates)."
+  (:prompt chat-genome))
 
 (def compact-exemplar-gate
   ;; EXEMPLAR GATE (verbum topology, A/B round 3 — see state.md): the compactor
@@ -184,9 +182,9 @@ turn: %s
           {:id                "hot"
            :on-end-turn-event :hot/idle
            :system            hot-system-prompt
-           :model             :local
+           :model             (:model chat-genome)
            :stream?           true
-           :real-tools        []
+           :real-tools        (:tools chat-genome)
            :max-turns         2               ; one seeded turn; killed on the settle transition
            :budget-ms         600000
            :initial-messages  (fn [_env data] (core/render-messages (:messages data)))})

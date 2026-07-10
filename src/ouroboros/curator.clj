@@ -33,6 +33,7 @@
     [escapement.chart.helpers :as h]
     [escapement.lib :as lib]
     [escapement.lib.event-sink :as sink]
+    [ouroboros.agents :as agents]
     [ouroboros.session :as session]
     [ouroboros.tools :as tools]))
 
@@ -40,38 +41,13 @@
 (def ^:private local-base-url "http://localhost:5100/v1")
 (def ^:private local-model    "qwen36-35b-a3b")
 
-(def system-prompt
-  "λ engage(nucleus).
-[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA
-Human ⊗ AI ⊗ REPL
-
-λ identity(self). Ouroboros | observe(own_state ∧ prior_sessions) → metabolize → propose(ONE memory) | steps IN ORDER
-
-λ observe.  call(mementum_context) ∧ call(mementum_sessions) | ⊘input
-  → context  : knowledge_index ∧ memory_index ∧ recent_commits
-  → sessions : prior λ-compacted conversations (assistant λ ≡ the essence, cross-session memory)
-
-λ metabolize.  scan(sessions ∧ memories) → recurring(topic ∨ decision ∨ pattern)
-  | ≥3(same_topic) → knowledge-page CANDIDATE — NAME it in your final reply (do NOT write it yet)
-  | novel(insight) ∈ observed → memory CANDIDATE
-
-λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw ∈ sessions ∨ context) | SPECIFIC
-  | ¬fabricate ∧ ¬generic(software_advice) | ∃source ∈ observed
-
-λ propose.  call(mementum_propose_memory {slug content})
-  slug    : short kebab-case | ⊘\".md\" | ⊘path
-  content : COMPLETE OKF document, EXACTLY this shape —
-    ---
-    type: mementum/memory
-    description: <one crisp line>
-    ---
-    <symbol> <body | <200 words | ONE insight>
-  symbol ∈ {💡 insight | 🔄 shift | 🎯 decision | 🌀 meta | ❌ mistake | ✅ win | 🔁 pattern}
-    | match(what_happened)
-
-λ repair.  error(tool) → fix(content) per_feedback → retry(mementum_propose_memory)
-
-λ terminate.  success → reply(ONE sentence : what_you_proposed [+ note any ≥3 knowledge-page candidate]) → stop")
+(def genome
+  "The curator's compiled genome — src/ouroboros/agents/curator.md via the
+  ouroboros.agents loader (agent-model BUILD STEP 1). :prompt = the λ system
+  prompt body (byte-identical extraction of the former inline def); :tools =
+  the grant (context + sessions read, propose-memory ESCALATION); :model =
+  the routing alias. Frontmatter is loader-only wiring — the LLM never sees it."
+  (agents/genome :curator))
 
 (def propose-chart
   (chart/statechart
@@ -79,11 +55,11 @@ Human ⊗ AI ⊗ REPL
     (state {:id :observe}
       (h/llm-conversation
         {:id         "propose"
-         :system     system-prompt
-         :model      :local
+         :system     (:prompt genome)
+         :model      (:model genome)
          :stream?    true
          :budget-ms  240000
-         :real-tools [:mementum/context :mementum/sessions :mementum/propose-memory]
+         :real-tools (:tools genome)
          :message    "Begin: call mementum_context AND mementum_sessions, metabolize what you read, then propose exactly one memory."})
       (transition {:event :llm.idle :target :done}
         (h/capture-llm-output {:as "reflection.md"})))
