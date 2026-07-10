@@ -522,7 +522,12 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             beating pathom's transitive 0.0.12, not the version); human_ideas.md → .gitignore (structural:
             a blind `git add` can never catch the human's scratch pad).
 
-  16. ⚙️ IN FLIGHT (this session): CACHE — slot pinning BUILT + PROVEN, but the real finding is deeper.
+  16. ✅ DONE (this session): CACHE — slot pinning + dedicated-slot server config, END-TO-END VERIFIED.
+       ── OUTCOME: post-compaction hot turns cached=0/2472-tok/1.5s → cached=2400/67-tok/211ms.
+            "restored context checkpoint (pos_min=2399)" at the λ-rewrite boundary; no more
+            "clearing prompt" on idle slots; compact quarantined on slot 1; continuity intact.
+            Full prefill now paid ONCE per session. Reuse grows in ~128-tok checkpoint grains.
+            (history of the investigation below — kept for the reasoning trail)
        ── BUILT: hot → :extra-body {"id_slot" 0 "cache_prompt" true}, compact → {"id_slot" 1 …} (design's
             Tier-2 lever applied to sequential Tier-1). Log-proven: "selected slot by id (0/1)". bb test
             66/210 GREEN. Server: total_slots 4 (auto), unified KV, host prompt cache 8 GiB, /slots enabled.
