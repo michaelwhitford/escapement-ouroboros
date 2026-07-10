@@ -104,10 +104,11 @@
 
 (def ^:private chat-genome
   "The chat agent's compiled genome — src/ouroboros/agents/chat.md via the
-  ouroboros.agents loader (agent-model BUILD STEP 1). Explicit `tools: []`
-  (NOT absent ⇒ floor): the resident chatbot holds no tools. The compact
-  EXEMPLAR GATE below is deliberately NOT a genome — it is engine data (a
-  pattern, not a persona); genomes are personas the loader composes."
+  ouroboros.agents loader (agent-model BUILD STEP 1). NO `tools:` key ⇒ the
+  read-only FLOOR (mementum context + sessions) — the chatbot can answer
+  questions about its own memory/knowledge/history, and nothing else. The
+  compact EXEMPLAR GATE below is deliberately NOT a genome — it is engine
+  data (a pattern, not a persona); genomes are personas the loader composes."
   (agents/genome :chat))
 
 (def hot-system-prompt
@@ -185,7 +186,17 @@ turn: %s
            :model             (:model chat-genome)
            :stream?           true
            :real-tools        (:tools chat-genome)
-           :max-turns         2               ; one seeded turn; killed on the settle transition
+           ;; NO :max-turns — absent ⇒ unbounded round-trips (source-verified:
+           ;; the budget check is `(and max-turns …)`). A reply is open-ended
+           ;; work (tool calls are round-trips); an arbitrary integer is the
+           ;; wrong bound for it. The real bounds: :budget-ms (hard wall-clock,
+           ;; below) + the model's context window (262k local — unreachable
+           ;; within one reply before the wall). If a token-aware bound is ever
+           ;; wanted, escapement's :budget-extender receives :messages and can
+           ;; decide by estimated tokens vs the model window (models.clj is
+           ;; where per-model ctx sizes would live). NOTE this bounds ONE reply,
+           ;; not the conversation — conversation context is the λ-compaction's
+           ;; job, and each user turn spawns a FRESH worker.
            :budget-ms         600000
            :initial-messages  (fn [_env data] (core/render-messages (:messages data)))})
 
@@ -289,6 +300,9 @@ turn: %s
                   (contains? quit-lines (str/trim line)) (send-event! queue env sid :user/end)
                   (str/blank? line)                  (recur)
                   :else (do (send-event! queue env sid :user/msg {:text line})
+                            ;; Blank line after the user's enter — the streamed
+                            ;; reply starts visually separated from the input.
+                            (println)
                             (recur)))))))
     (.setDaemon true)
     (.setName "ouroboros-compact-stdin")

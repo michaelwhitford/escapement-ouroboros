@@ -154,7 +154,9 @@
     (testing "chat genome"
       (let [c (:chat roster)]
         (is (= :chat (:kind c)))
-        (is (= [] (:tools c)) "explicit empty grant — the resident chatbot holds no tools")
+        (is (= (vec (sort tools/read-only-tools)) (:tools c))
+          "no tools: key ⇒ the read-only floor — chat READS its own mementum")
+        (is (false? (:tools-explicit? c)))
         (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))))
     (testing "gene-scorer genome — the GA fitness function"
       (let [s (:gene-scorer roster)]
