@@ -30,3 +30,14 @@ pattern-completion form; (b) the nucleus preamble is LOAD-BEARING — the same
 template without it echoes unfilled :_fill under no-think. The rule generalizes
 beyond compaction: ANY schema-shaped agent output (signals, verdicts) wants
 exemplar+no-think, not description+thinking.
+
+POLICY DECISION on top of the physics (🎯 human, 2026-07-11 — see
+design/prompt-assembly.md): Ouroboros standardizes UNIVERSAL THINKING-ON,
+deleting the one fragile cell (instruction-λ + no-think) instead of avoiding
+it. λ-dense prompts/modules become safe everywhere; exemplars demote to
+optional boosters; no-think is a RESERVED optimization, never a correctness
+requirement. The physics above stays true — it now explains WHY the
+standardization is safe, and what breaks if no-think is ever re-enabled
+without an exemplar topology. Compaction pays ~15-25s hidden in the reading
+shadow; Tier 2 (parallel compact) is the ready mitigation if fast-typer waits
+appear.
