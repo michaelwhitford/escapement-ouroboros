@@ -1,14 +1,17 @@
 ---
 type: mementum/knowledge
 title: Agent Comms — channels on the escapement event substrate (no new bus)
-description: Ouroboros builds NO message bus — escapement's statechart event system (target-routed :llm.user-message, service regions, consult, verdicts, artifacts, multiplex, ws-push hub) already IS one, but only in-process; the design is RESIDENCY (one resident lib/run = the orchestrator chart hosting agents) plus a CHANNEL policy layer (named registry, Malli-gated payloads, genome frontmatter channel grants mirroring tool grants) that gives every message the three VSM channel properties (scope=authority, transduction, variety-match) instead of raw bus thrash; the human membrane is ui.server + ws-push outbound (every message ≡ transcript row ≡ free audit) and a thin host ingress route inbound.
+description: Ouroboros builds NO message bus — escapement's statechart event system (target-routed :llm.user-message, service regions, consult, verdicts, artifacts, multiplex, ws-push hub) already IS one, but only in-process; REVISED (same session, see design/signals) — the DATA plane comes first as pull-based durable SIGNALS (no residency needed; the geometry scheduled hermetic agents require), while THIS page's live-push CHANNEL layer (residency, orchestrator chart, named registry, Malli-gated payloads, genome channel grants, scope=authority) is the DEFERRED control plane for interactive multi-agent workflows; the human membrane is ui.server + ws-push outbound (every message ≡ transcript row ≡ free audit) and a thin host ingress route inbound.
 resource: file:///Users/mwhitford/src/escapement-ouroboros
 status: designing
 category: design
 tags: [ouroboros, design, comms, channels, message-bus, residency, orchestrator, escapement, vsm, capability, grants]
 related:
+  - design/signals
   - design/vsm-on-escapement
   - design/agent-model
+  - design/scheduled-maintenance
+  - design/harness-coder
   - upstream/escapement-multi-agent-and-services
   - upstream/escapement-web-ui
 depends-on:
@@ -57,7 +60,18 @@ What escapement does NOT have: **cross-process transport** (`InProcessQueue` onl
 network endpoint) and an **LLM-visible send tool** (`tell-other-llm!` is chart-side
 plumbing, never exposed to the model).
 
-## Decision 1 — build NO new bus; the design is RESIDENCY
+## REVISION (same session) — two planes; signals first
+
+The human's Anima prior art (signals: typed EDN results, pull-based, "the parser is the
+bus") exposed a flaw in this page's push-centric framing: the first communicating agents
+are the SCHEDULED maintenance roster — hermetic one-shots that don't exist between runs.
+Push cannot reach a process that isn't there. **design/signals is the DATA plane, built
+first, no residency.** This page's channels remain correct as the CONTROL plane —
+live push for interactive workflows — and everything below is DEFERRED until those exist.
+The channel registry's seed vocabulary and the grants mechanism migrate to the signal-type
+registry (one contract, three projections — see design/signals).
+
+## Decision 1 (deferred) — build NO new bus; the residency design
 
 ```
 λ residency.
