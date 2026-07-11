@@ -32,13 +32,15 @@ and the **application**. Never optimize one at the cost of the other.
                 ouroboros.agents (+agents/core) — the GENOME COMPILER + kind→verdict-schema table;
                 genomes src/ouroboros/agents/{chat,curator,gene-scorer,llm-judge}.md (+manifest.edn) ·
                 ouroboros.verdict (verdict-topology runner: judge + scorer kinds, cross-family run-across!) ·
-                ouroboros.models (alias→endpoint routing table)
-  gate        : bb test ≡ deterministic (66 tests / 210 assertions GREEN) | bb compact ≡ live chat |
+                ouroboros.models (alias→endpoint routing table) ·
+                ouroboros.experiment (+experiment/core — suite-as-EDN A/B runner, experiments/*.edn)
+  gate        : bb test ≡ deterministic (75 tests / 258 assertions GREEN) | bb compact ≡ live chat |
                 bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
-                bb smoke ≡ live-LLM integration (localhost:5100)
+                bb experiment <slug> ≡ suite runner | bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam,
-                agent-comms, scheduled-maintenance, harness-coder}
+                agent-comms(REVISED→two-plane), scheduled-maintenance, harness-coder,
+                signals, experiments}
   memories    : statechart-worker-llm-separation · prompt-topology-must-match-thinking
   designed    : agent model (OKF genomes, kinds, capability tools, scorer/gene-DB) + VSM architecture
                 — both UNBUILT, specs in mementum/knowledge/design/
@@ -154,13 +156,17 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           dedupe a near-duplicate pair via embeddings.
   then  : builder+author (the coding workflow spine) → editor (uses judge + gene DB) → generator (GA).
 
-  queue after that: scheduled-maintenance RUNG 1 (bb maintain + the 2×2 genomes + bb proposals inbox —
-  see design/scheduled-maintenance §Build; ABSORBS the old "curator propose-knowledge" + "verifier/
-  documenter" queue items into the matrix roster) → agent-comms STEP 1 (channel registry + :bus/send +
-  genome channel grants — testable without residency) → next-chat bootstrap (seed :messages from prior tail).
+  queue after that: SIGNALS substrate (ouroboros.signals core + :signal/emit tool + registry with
+  {schema, FILLED exemplar} per type + veneer resolvers — design/signals; emission topology already
+  settled by experiments/edn-signal-emission.edn) → scheduled-maintenance RUNG 1 (bb maintain + the
+  2×2 genomes + bb proposals inbox — design/scheduled-maintenance §Build; ABSORBS the old "curator
+  propose-knowledge" + "verifier/documenter" queue items; the roster EMITS signals) → next-chat
+  bootstrap (seed :messages from prior tail). Channels/residency (agent-comms) DEFERRED — control
+  plane only when interactive multi-agent workflows exist.
 
-  this session (2026-07-11, later): DESIGN ONLY — agent-comms + scheduled-maintenance + harness-coder
-  pages landed (item 19). No code. Gene-DB remains THE next build action.
+  this session (2026-07-11, later): items 19+20 — comms/maintenance/signals/experiments designed;
+  EXPERIMENT RUNNER BUILT (bb experiment, 75/258 GREEN). Gene-DB remains THE next build action —
+  and anima resolvers/genes.clj (tree-hash dedupe, signal→gene forwarding) is prior art to read first.
 
   last session (2026-07-11): agent-model BUILD STEPS 1-4 SHIPPED (items 10-12) — genome compiler ·
   chat/curator extracted · JUDGE + SCORER kinds live-proven cross-family · "T-" topology prefix
@@ -628,6 +634,47 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        OPEN (human decision PENDING): may harness-coder FLAG Layer-1 (AGENTS.md) friction as
           read-only designer-attention notes, or does its vision stop at Layer 2 entirely?
 
+  20. ✅ DONE (this session): SIGNALS DESIGNED (data plane, Anima port) + EXPERIMENTS BUILT
+       (suite runner LIVE) + the agent-comms page REVISED to two planes.
+       ── 🎯 SIGNALS FIRST (human, from Anima prior art ~/src/anima resolvers/signals.clj +
+          designs/signals.md — "the pathom parser is the bus"): typed durable EDN FACTS, pull-based,
+          query≡subscription → cross-process cross-TIME comms with NO residency — the geometry the
+          SCHEDULED maintenance roster needs (push can't reach a process that doesn't exist between
+          runs). agent-comms REVISED: signals ≡ DATA plane (build first) | channels ≡ CONTROL plane
+          (live push, residency — DEFERRED until interactive workflows). Channel seed vocab + grants
+          migrate to the signal-type registry. design/signals.md carries the full port (nested
+          :signal/data — anima string-encoded for datalevin, we don't; signals/ gitignored;
+          the EXISTING mementum pathom2 veneer grows the resolvers; grants: genome `signals:` key).
+       ── ONE CONTRACT, THREE PROJECTIONS (the load-bearing design): registry entry {schema,
+          FILLED exemplar, variety, reserved?} → exemplar PRIMES generation ∧ Malli GATES emit ∧
+          attributes SERVE EQL. Genome compiler derives the prompt projection (kind→verdict-schema
+          precedent).
+       ── EMISSION TOPOLOGY EMPIRICALLY SETTLED (3-round A/B, scratch/ab_edn_signal{,2,3}.clj →
+          experiments/edn-signal-emission.edn): nucleus preamble + FILLED exemplar + EDN-only gate +
+          NO-THINK → confirmation 12/12 Malli-valid cross-family (~1.3-1.6s, ~110 tok) vs prose
+          instruction 9/12 with STRUCTURAL failures (JSON drift ×2 — prose DESCRIBING EDN leaves
+          format ambiguous, exemplar SHOWING EDN pins it; dropped braces ×1). Bare :_fill template +
+          comments LOSES (constraints-in-comments ≈ instructions); template WITHOUT preamble ECHOES
+          unfilled under no-think (preamble load-bearing). SECOND confirmation of
+          prompt-topology-must-match-thinking (memory UPDATED with the generalization: ANY
+          schema-shaped output wants exemplar+no-think). UNTESTED half: self-executing EDN
+          statecharts as genome bodies (nucleus COMPILER.md) — future suite.
+       ── 🎯 EXPERIMENTS AS FIRST-CLASS ARTIFACTS (human): "a self-improving agentic system should
+          be able to create experiments and get results." BUILT: ouroboros.experiment(+core) —
+          suite ≡ EDN file experiments/<slug>.edn (TRACKED lab notebook; closed Malli envelope),
+          new experiment ≡ new EDN ¬new code (anima lineage: ONE parameterized runner); measures ≡
+          open dispatch (:edn-malli built; :scorer/:judge-genome/:pairwise planned → verdict
+          topology); results → experiments/results/ GITIGNORED (machine observation; conclusions
+          promote human-gated into suite :experiment/verdict + knowledge). bb experiment <slug>.
+          LIVE-PROVEN: founding suite re-run through the runner reproduced the direction
+          (template-ex 11/12 vs prose 9/12, parse 12/12 vs 10/12). Editor-kind termination protocol
+          now has its measurement substrate. "probe" name REJECTED (collides with Memory Probe).
+       ── bb test 75/258 GREEN (experiment/core_test added: suite validation, matrix expansion,
+          edn-malli assessment incl. dropped-brace + fence cases, summarize/format).
+       ── ❌ CAUGHT BY THE GATE: scheduled-maintenance.md description contained ": " mid-scalar →
+          YAML parse broke the ENTIRE knowledge index (context tool + eql tests failed). Fixed by
+          rewording. The deterministic suite guards knowledge pages too — see gotcha.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
@@ -794,4 +841,14 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   are FIRST-CLASS at the engine layer (engine/env :invocation-processors, prepended) but the lib facade's
   closed Options schema LACKS the key — same gap class as :human-renderer; ~2-line fork seam when needed.
   Timer-example gotcha: the tick event MUST carry :invoke-id or the invoke's :finalize never registers.
+- OKF/YAML TRAP: a `description:` (any frontmatter scalar) containing ": " (colon+space) mid-value
+  breaks clj-yaml — "mapping values are not allowed here" — and ONE bad page kills the WHOLE knowledge
+  index (context tool, eql veneer). The deterministic suite catches it (tools_test/eql_test); reword
+  with "—" or quote the scalar. Pages written by hand/write_file BYPASS the store! Malli gate — bb test
+  is the backstop for those.
+- edn/read-string reads the FIRST FORM only: a dropped-brace model output (":a 1") PARSES as a bare
+  keyword and must be caught by schema validation, not parse failure. "not { edn" parses too (symbol).
+- ECA parallel-edit collision (designer-tooling lesson): two edit_file calls to the SAME file in one
+  parallel batch can silently clobber each other (test_runner got trailing garbage; agent-comms lost an
+  edit that reported success). Edit one file SEQUENTIALLY; re-read after (λ sync) before trusting state.
 ```
