@@ -37,7 +37,8 @@ and the **application**. Never optimize one at the cost of the other.
                 bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
                 bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
-                design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam}
+                design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam,
+                agent-comms, scheduled-maintenance, harness-coder}
   memories    : statechart-worker-llm-separation · prompt-topology-must-match-thinking
   designed    : agent model (OKF genomes, kinds, capability tools, scorer/gene-DB) + VSM architecture
                 — both UNBUILT, specs in mementum/knowledge/design/
@@ -153,8 +154,13 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           dedupe a near-duplicate pair via embeddings.
   then  : builder+author (the coding workflow spine) → editor (uses judge + gene DB) → generator (GA).
 
-  queue after that: next-chat bootstrap (seed :messages from prior tail) → curator propose-knowledge
-  (≥3→page channel) → verifier/documenter agents. Optional quick win: echo-tripwire in compact.core.
+  queue after that: scheduled-maintenance RUNG 1 (bb maintain + the 2×2 genomes + bb proposals inbox —
+  see design/scheduled-maintenance §Build; ABSORBS the old "curator propose-knowledge" + "verifier/
+  documenter" queue items into the matrix roster) → agent-comms STEP 1 (channel registry + :bus/send +
+  genome channel grants — testable without residency) → next-chat bootstrap (seed :messages from prior tail).
+
+  this session (2026-07-11, later): DESIGN ONLY — agent-comms + scheduled-maintenance + harness-coder
+  pages landed (item 19). No code. Gene-DB remains THE next build action.
 
   last session (2026-07-11): agent-model BUILD STEPS 1-4 SHIPPED (items 10-12) — genome compiler ·
   chat/curator extracted · JUDGE + SCORER kinds live-proven cross-family · "T-" topology prefix
@@ -583,6 +589,45 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             (c) healthy compact stats: out ≈ 13-52 tok/call; out ≈ in ⇒ derail — cache-report makes this
             visible per session.
 
+  19. ✅ DONE (this session): AGENT COMMS + SCHEDULED MAINTENANCE DESIGNED — 3 pages in
+       mementum/knowledge/design/: agent-comms · scheduled-maintenance · harness-coder (drafted as
+       harness-scout, renamed same session). Genesis ask (human): an agent that reads past sessions →
+       recommends harness updates, human-gated; pivoted up-stack to inter-agent comms + scheduling.
+       🎯 NO NEW BUS: escapement's event system IS the bus (9-primitive inventory in the page:
+          :target/broadcast msgs · service regions · consult · verdicts · artifacts · multiplex ·
+          ws-push hub · sp/send! ingress) but IN-PROCESS ONLY → the design is RESIDENCY (one lib/run
+          = orchestrator chart hosting agents) + a CHANNELS policy layer (named registry
+          ouroboros.channels, Malli-gated payloads, variety classes) — the vsm page's "bus ≠ channel"
+          warning designed-in. ONE new agent-visible tool :bus/send; request/reply stays native
+          (service regions). Channel grants ride genome frontmatter EXACTLY like tool grants
+          (ceiling/floor/escalation-report machinery reused).
+       🎯 2×2 MAINTENANCE ROSTER (matrix slugs, human choice): {harness,app} × {coder,knowledge} —
+          harness-coder · app-coder · harness-knowledge · app-knowledge. ALL kind=proposer at stage 1
+          (observe→detect→propose ONE→human gate; curator's shape ×4 genomes — "new role ⇒ new genome
+          not new kind" paid off). CURATOR ≡ ROLE not agent: today's curator genome ≈ the
+          harness-knowledge facet; app-knowledge is new (fs corpus). Runner generalization = the
+          judge→verdict move again; rename ouroboros.curator when bb maintain forces it.
+       🎯 ROLE-AS-TAG (human): genome schema += tags (open vocab; kind stays CLOSED) — the loader
+          CONSUMES tags (schedule selects by tag, roster report groups by tag) → legitimately wired
+          per λ boundary. Discipline: tags select WHO runs, NEVER what-may (capability stays in
+          grants); tags ≡ identity (genome), cadence ≡ ops (schedule table OUTSIDE genomes).
+       🎯 SCHEDULE LADDER (each rung source-verified): rung 1 cron/launchd → bb maintain (sequential
+          hermetic sweep — sidesteps multi-model collision + GPU contention; works TODAY) → rung 2
+          resident + send-after (proven in escapement's supervisor example, zero patches) → rung 3
+          resident + :timer InvocationProcessor (Tony's custom-invocation example in ~/src/statecharts;
+          lifecycle-scoped: pause agent ≡ exit its state; gotcha: sent event MUST carry :invoke-id or
+          finalize never registers).
+       SEAM FINDING: escapement.engine/env ACCEPTS :invocation-processors (prepends caller's);
+          escapement.lib/Options (closed) LACKS the key — same gap class as :human-renderer, ~2-line
+          fork seam when rung 3 wanted (:extra-body precedent). PREREQ NAMED: the multi-model
+          collision goes LIVE under residency (chat@5100 + judge@5102 = two :openai creds, first-wins)
+          — hermetic child runs sidestep it meanwhile.
+       UNATTENDED DISCIPLINE (page): dedup (context tools digest PENDING proposals; ¬re-propose) ·
+          rate (ONE proposal/agent/run → review ceiling ≈4-8/day) · inbox (bb proposals) · budget-ms ·
+          audit (sweep summary lines) · lockfile (no overlapping sweeps).
+       OPEN (human decision PENDING): may harness-coder FLAG Layer-1 (AGENTS.md) friction as
+          read-only designer-attention notes, or does its vision stop at Layer 2 entirely?
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
@@ -743,4 +788,10 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   ouroboros.session/read-data-model + both test fixtures (session_test, tools_test) FIXED this session to read that
   path (no pre-RC compat — escapement was alpha, RC is the solidified baseline). Missing this ⇒ session-messages
   silently returns 0 → curator/bootstrap see EMPTY sessions. Verify readers after escapement bumps.
+- SCHEDULING SEAMS (verified this session): send-after (statecharts convenience ns) WORKS through the
+  supported escapement path (supervisor example — cancel-on-exit budget timer). Custom InvocationProcessors
+  (e.g. a :timer type — Tony's custom-invocation example in ~/src/statecharts, grep InvocationProcessor)
+  are FIRST-CLASS at the engine layer (engine/env :invocation-processors, prepended) but the lib facade's
+  closed Options schema LACKS the key — same gap class as :human-renderer; ~2-line fork seam when needed.
+  Timer-example gotcha: the tick event MUST carry :invoke-id or the invoke's :finalize never registers.
 ```
