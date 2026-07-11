@@ -1,0 +1,53 @@
+{:experiment/id :edn-signal-emission
+ :experiment/type :prompt-ab
+ :experiment/hypothesis
+ "Under the nucleus 3-line preamble, a FILLED EDN exemplar (pattern gate, verbum topology) beats a prose format instruction for first-pass Malli-valid signal emission, no-think, cross-family."
+
+ :experiment/verdict
+ "CONFIRMED (2026-07-11, scratch rounds 1-3 → this suite). Round 3 no-think n=6×2 families: template-ex 12/12 VALID (~1.3-1.6s, ~110 tok) vs prose 9/12. Prose failures are STRUCTURAL (JSON drift ×2 on qwen36, dropped braces ×1 on ornith — fatal for a bus); exemplar failures across all rounds are semantic slips only (enum value, extra keys — absorbed by Malli-gate + corrective retry). Round 1 extras: bare template WITHOUT preamble echoes unfilled :_fill no-think (preamble is load-bearing); comment-annotated :_fill template loses to prose (constraints-in-comments ≈ instructions; the FILLED exemplar is the strong form). Thinking unnecessary for the exemplar topology and 10-20× slower. Second confirmation of prompt-topology-must-match-thinking."
+
+ :experiment/measure :edn-malli
+ :measure/schema
+ [:map {:closed true}
+  [:signal/type :qualified-keyword]
+  [:signal/data [:map {:closed true}
+                 [:summary :string]
+                 [:evidence [:vector :string]]
+                 [:severity [:enum :low :medium :high]]]]
+  [:signal/lambda :string]]
+ :measure/echo-substrings ["engage(nucleus)" "docker-compose"]
+
+ :matrix {:models [:local :ornith]
+          :thinking [false]
+          :repeats 1}
+
+ :conditions
+ {:template-ex
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\n⟨SOURCE⟩\nuser: why did the deploy fail?\nassistant: The deploy script calls docker-compose but the runner image only ships docker compose v2 — the hyphenated v1 binary is missing. I'll update the script to the v2 syntax.\n⟨/SOURCE⟩\n{:signal/type :ops/finding\n :signal/data {:summary  \"Deploy fails because the script invokes the removed docker-compose v1 binary while the runner ships only compose v2.\"\n               :evidence [\"the runner image only ships docker compose v2\"]\n               :severity :medium}\n :signal/lambda \"λ deploy_fail(v1_binary_missing) → fix(script → v2_syntax)\"}\n\nOutput EDN only. No prose. No code fences."}
+
+  :prose
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\nYou emit one typed signal describing your analysis of the source material. A signal is an EDN map with key :signal/type (a qualified keyword naming what kind of result this is), key :signal/data (a map with :summary — a one-sentence string, :evidence — a vector of short verbatim quotes from the source, and :severity — one of :low, :medium, or :high), and key :signal/lambda (a string containing a λ-notation form of the finding).\n\nOutput EDN only. No prose. No code fences."}}
+
+ :subjects
+ {:tool-error
+  "user: list the knowledge pages\nassistant: [called :mementum/context] → ERROR: EOF while reading — the index file mementum/knowledge/index.md has an unterminated code fence at the end.\nassistant: The context tool failed on a malformed index file; the last fence in index.md is never closed."
+
+  :repeat-correction
+  "user: summarize the last session\nassistant: Here's a detailed 900-word summary...\nuser: too long. one paragraph max, like I said before.\nassistant: Sorry — here's the short version.\n--- (two sessions later) ---\nuser: again way too long. I keep asking for one paragraph.\nassistant: Understood."
+
+  :stale-knowledge
+  "assistant: [read mementum/knowledge/upstream/escapement-overview.md] The page claims escapement is \"not even alpha\" but the dep resolves RC9 — the maturity claim is stale.\nuser: good catch, flag it."
+
+  :perf-win
+  "user: how did the cache change go?\nassistant: Post-compaction hot turns went from cached=0, 2472 tokens re-prefilled in 1.5s to cached=2400, 67 tokens in 211ms. The dedicated-slot config eliminated every bust in the live session.\nuser: excellent."
+
+  :flaky-test
+  "assistant: bb test passed this run, but session_test.test-recency intermittently fails when two sessions share the same epoch millisecond — the sort is unstable on ties.\nuser: so it's a real bug in the test fixture?\nassistant: Yes — the fixture generates ids from the same clock read; ties are possible in CI."
+
+  :grant-gap
+  "assistant: I can't answer how many proposals are pending — my tools don't include a proposals reader.\nuser: you should be able to see those.\nassistant: Currently :harness/context doesn't include the proposals/ digest, so I have no visibility into pending proposals."}
+
+ :prompt-template
+ "Analyze this source material and emit the signal.\n\n⟨SOURCE⟩\n%s\n⟨/SOURCE⟩"}

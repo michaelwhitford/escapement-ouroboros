@@ -10,6 +10,11 @@
 # out of git hardens that boundary (git ≡ approved memory/knowledge only).
 sessions/
 
+# Experiment RESULTS are machine observation (suites in experiments/ are
+# TRACKED — the lab notebook; results promote to the suite's :experiment/verdict
+# + knowledge pages through the human gate, like sessions/ → mementum/).
+experiments/results/
+
 # The human's private scratch pad — standing instruction: NEVER commit,
 # never read unless asked. Ignored so a blind `git add` can't catch it.
 human_ideas.md
