@@ -633,6 +633,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           audit (sweep summary lines) · lockfile (no overlapping sweeps).
        OPEN (human decision PENDING): may harness-coder FLAG Layer-1 (AGENTS.md) friction as
           read-only designer-attention notes, or does its vision stop at Layer 2 entirely?
+          → RESOLVED, item 21: flag-only APPROVED, bootstrap-scoped.
 
   20. ✅ DONE (this session): SIGNALS DESIGNED (data plane, Anima port) + EXPERIMENTS BUILT
        (suite runner LIVE) + the agent-comms page REVISED to two planes.
@@ -674,6 +675,20 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        ── ❌ CAUGHT BY THE GATE: scheduled-maintenance.md description contained ": " mid-scalar →
           YAML parse broke the ENTIRE knowledge index (context tool + eql tests failed). Fixed by
           rewording. The deterministic suite guards knowledge pages too — see gotcha.
+
+  21. 🎯 DONE (this session, human decision): LAYER-1 FLAG RESOLVED + the SELF-HOSTING
+       TRAJECTORY made explicit (sharpens the genesis 🎯 S5-identity framing and the
+       AGENTS.md-freeze WHY):
+       · Ouroboros runs ONLY from Layer 2. Layer 1 (AGENTS.md + eca designer) ≡ the BOOTSTRAP
+         scaffold — active now because we're building, not because it's part of the artifact.
+       · UNTIL self-hosting: harness-coder MAY surface Layer-1 friction as read-only
+         "designer-attention" notes (DISTINCT proposal type, NEVER an edit sketch) — purpose:
+         keep Layer 1 IN SYNC with Layer 2 while both evolve.
+       · END STATE: AGENTS.md shrinks to directing the designer to START Ouroboros and FEED it
+         prompts instead of directly editing code — designer becomes OPERATOR/conduit; the
+         deferred post-chart AGENTS.md rewrite (the genesis 🎯 FROZEN block's PLAN) now has its
+         concrete target shape; the flag channel SUNSETS with self-hosting.
+       harness-coder.md §Layering + scheduled-maintenance.md open-questions updated.
 
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
