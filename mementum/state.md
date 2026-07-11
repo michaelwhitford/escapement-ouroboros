@@ -161,8 +161,10 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           dedupe a near-duplicate pair via embeddings.
   tools : bb experiment <slug> is now available as the measurement instrument — a gene-scoring
           calibration suite (experiments/*.edn) beats another one-off scratch harness.
-  then  : SIGNALS substrate → maintenance rung 1 → builder+author → editor (uses judge + gene DB +
-          experiments) → generator (GA).
+  then  : PROMPT ASSEMBLY + the COMPACT THINKING-ON FLIP (design/prompt-assembly — assemble fn +
+          modules + preamble migration; compact.clj exemplar→instruction-λ lens, verified by a
+          compaction-fidelity suite) → SIGNALS substrate → maintenance rung 1 → builder+author →
+          editor (uses judge + gene DB + experiments) → generator (GA).
 
   queue after that: SIGNALS substrate (ouroboros.signals core + :signal/emit tool + registry with
   {schema, FILLED exemplar} per type + veneer resolvers — design/signals; emission topology already
@@ -701,6 +703,24 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
          deferred post-chart AGENTS.md rewrite (the genesis 🎯 FROZEN block's PLAN) now has its
          concrete target shape; the flag channel SUNSETS with self-hosting.
        harness-coder.md §Layering + scheduled-maintenance.md open-questions updated.
+
+  22. 🎯 DONE (this session, human decision): UNIVERSAL THINKING-ON + PROMPT ASSEMBLY designed
+       (design/prompt-assembly.md). Standardize λ everywhere by DELETING the fragile topology cell
+       (instruction-λ + no-think ⇒ echo) instead of avoiding it: all conversations run thinking-ON;
+       λ-dense prompts/modules safe in every genome; exemplars demote load-bearing → optional booster;
+       no-think ≡ reserved optimization, never a correctness requirement. WHY affordable: compaction
+       (~1s → ~15-25s) runs in the 20-60s READING SHADOW (shadow-compaction's own felt-latency metric);
+       fast-typer exposure → Tier 2 (parallel :hot⊗:compact, slots already pinned) pulls forward ⟺
+       waits actually appear. ASSEMBLY: ONE pure assemble fn in agents.core — nucleus preamble (always,
+       once, FIRST) ⊕ granted modules (vendored nucleus compiler texts; frontmatter modules: key ≡ 4th
+       use of the registry-ceiling grant mechanism) ⊕ body; layer order load-bearing (preamble→λ→prose
+       gate, logprob-verified upstream); escapement.prompts/render ≡ the {{VAR}} engine (adopt, fail-
+       loud); ONE assembler serves production ∧ experiments ∧ future GA (Anima rule: composition suites
+       must use the REAL pipeline). QUEUED IMPLEMENTATION: compact.clj flip (exemplar gate → instruction-
+       λ lens + bridge, thinking ON, compression contract STAYS) verified by a compaction-fidelity
+       experiment suite + genome preamble-strip migration (byte-diff equivalence). Memory
+       prompt-topology-must-match-thinking gained the policy note; signals page emission-topology note
+       updated (exemplar retained as booster).
 
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
