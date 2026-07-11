@@ -87,6 +87,10 @@ LOSERS  prose instruction 9/12 — failures STRUCTURAL: JSON drift ×2 (prose de
         template WITHOUT preamble, no-think — ECHOES unfilled :_fill (preamble load-bearing)
 THINKING unnecessary for the exemplar topology ∧ 10-20× slower
         → SECOND confirmation of prompt-topology-must-match-thinking (compactor was first)
+POLICY  superseding note (🎯 universal thinking-ON, design/prompt-assembly): Ouroboros
+        standardizes thinking-ON — the no-think constraint VANISHES; the exemplar
+        projection is RETAINED as a first-pass-validity booster (think-compatible),
+        and emitters simply run ON like everything else (unattended — nobody waits)
 UNTESTED the self-executing EDN-statechart half of the nucleus intuition (behavioral
         routing via EDN in prompts) — separate experiment when a genome wants an EDN body
 ```

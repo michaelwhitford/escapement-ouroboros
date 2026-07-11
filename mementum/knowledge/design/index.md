@@ -16,6 +16,7 @@ related:
   - design/experiments
   - design/scheduled-maintenance
   - design/harness-coder
+  - design/prompt-assembly
 depends-on: []
 ---
 
@@ -50,6 +51,9 @@ scheduled-maintenance  2×2 proposer roster ({harness,app}×{coder,knowledge}), 
 harness-coder          sessions → ONE evidence-cited harness recommendation →           DESIGNED (needs
                        proposals/ → human gate; Layer-2 only, Layer-1 flag              2 new tools)
                        bootstrap-scoped
+prompt-assembly        preamble ⊕ modules ⊕ body (ONE pure assembler, grants ≡ 4th      DESIGNED (compact
+                       ceiling use) under 🎯 UNIVERSAL THINKING-ON — deletes the         flip queued w/
+                       fragile topology cell; exemplars demote to boosters              verification suite)
 ```
 
 ## Reading paths
