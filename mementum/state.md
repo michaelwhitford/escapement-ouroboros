@@ -878,4 +878,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 - ECA parallel-edit collision (designer-tooling lesson): two edit_file calls to the SAME file in one
   parallel batch can silently clobber each other (test_runner got trailing garbage; agent-comms lost an
   edit that reported success). Edit one file SEQUENTIALLY; re-read after (λ sync) before trusting state.
+- DESIGNER SESSIONS ARE OUTSIDE THE LOOP (human, 2026-07-11): eca/designer transcripts do NOT land in
+  sessions/ — Ouroboros agents (curator, future harness-coder) can only metabolize the ARTIFACT's own
+  escapement sessions. Until self-hosting, a designer-session insight survives ONLY via explicit
+  mementum encoding — "the transcript will teach the curator" is FALSE for these sessions. Encode or lose.
 ```
