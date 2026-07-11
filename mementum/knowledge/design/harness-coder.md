@@ -74,14 +74,19 @@ proposals/<slug>.md — OKF, type ouroboros/proposal (okf/parse is format-generi
 Tool enforcement mirrors propose-memory: Malli-gate the frontmatter at the tool boundary;
 rejection → corrective {:is-error true} tool_result, model retries (λ emerge).
 
-## Layering — hard boundary, one open question
+## Layering — hard boundary, flag channel RESOLVED (🎯 human, 2026-07-11)
 
 ```
 targets  Layer 2 ONLY: agents/*.md genomes · engine prompts · tool/channel grants ·
          bb.edn tasks · models/channels/schedule tables
 NEVER    AGENTS.md ∧ nucleus ≡ Layer 1, the DESIGNER's harness, frozen, human-maintained
-OPEN     may the agent FLAG Layer-1 friction as a read-only "designer-attention" note
-         (distinct proposal type, never an edit sketch)? — human decision PENDING
+FLAG     APPROVED, bootstrap-scoped: Ouroboros runs ONLY from Layer 2; Layer 1 is the
+         BOOTSTRAP scaffold. Until self-hosting, Layer-1 friction IS surfaced — a
+         read-only "designer-attention" note (DISTINCT proposal type, never an edit
+         sketch) whose purpose is keeping Layer 1 in sync with Layer 2.
+SUNSET   end state: AGENTS.md shrinks to directing the designer to START Ouroboros and
+         FEED it prompts instead of editing code directly (designer → operator). The
+         flag channel retires with self-hosting.
 ```
 
 ## Stage 2 — harness-editor (spec'd, later)
@@ -118,7 +123,6 @@ the human membrane; until then, `bb proposals` is the delivery.
 ## Open questions
 
 ```
-· Layer-1 flag-only channel — human decision pending (see Layering)
 · proposal RESOLUTION tracking: when acted on, does the commit-message citation suffice,
   or does the proposal file get a status flip before deletion? (lean: citation suffices)
 · integrating-S4 head (vsm page): when multiple maintenance agents recommend, who fuses?

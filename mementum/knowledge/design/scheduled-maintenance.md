@@ -180,5 +180,6 @@ verify: bb test GREEN (schema/tags/table deterministic) | live: one full sweep p
   tags as the drift-visibility surface
 · cadence encoding — rung 1 wants cron-side truth (table stores intent only); rung 2/3 want
   intervals in the table. Keep the table authoritative and let rungs interpret.
-· Layer-1 flag-only channel for harness-coder — human decision PENDING (see design/harness-coder)
+· ~~Layer-1 flag-only channel~~ RESOLVED (🎯 human) — approved, bootstrap-scoped; sunsets
+  with self-hosting (see design/harness-coder §Layering)
 ```
