@@ -147,14 +147,22 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ```
 λ tomorrow. ONE ACTION: the GENE-DB SUBSTRATE (spec: design/agent-model.md §Genes) — the scorer is live,
   now give its measurements somewhere durable to accumulate.
+  read  : anima PRIOR ART FIRST — ~/src/anima resolvers/genes.clj (tree-hash content dedupe,
+          signal→gene auto-forwarding, :gene/dirty? flag) + resolvers/signals.clj (the forwarding
+          contract: :signal/data carries :gene/candidates). 30 min that shapes the whole build.
   build : gene decomposition (genome body → λ-clauses; a gene ≡ one λ-clause, SOURCE stored VERBATIM
           alongside — the fidelity floor) + the DB shape {gene → {:lambda :source :scores {use-case →
           {alias n}} :embedding}} + embed-dedupe via 5103 qwen3-embedding-8b (near-identical genes
           collapse) + pairwise-select design (LLMs rank A-vs-B ⋙ absolute; store absolute, CHOOSE
           pairwise). Storage: filesystem-side pre-approval (like sessions/), human-promoted.
-  verify: bb test GREEN (60/189 baseline); live: decompose a real genome, score 2-3 genes cross-family,
+          DESIGN AHEAD: signals will forward :signal/lambda genes here (design/signals §gene-DB) —
+          leave the intake seam open.
+  verify: bb test GREEN (75/258 baseline); live: decompose a real genome, score 2-3 genes cross-family,
           dedupe a near-duplicate pair via embeddings.
-  then  : builder+author (the coding workflow spine) → editor (uses judge + gene DB) → generator (GA).
+  tools : bb experiment <slug> is now available as the measurement instrument — a gene-scoring
+          calibration suite (experiments/*.edn) beats another one-off scratch harness.
+  then  : SIGNALS substrate → maintenance rung 1 → builder+author → editor (uses judge + gene DB +
+          experiments) → generator (GA).
 
   queue after that: SIGNALS substrate (ouroboros.signals core + :signal/emit tool + registry with
   {schema, FILLED exemplar} per type + veneer resolvers — design/signals; emission topology already
@@ -164,9 +172,13 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   bootstrap (seed :messages from prior tail). Channels/residency (agent-comms) DEFERRED — control
   plane only when interactive multi-agent workflows exist.
 
-  this session (2026-07-11, later): items 19+20 — comms/maintenance/signals/experiments designed;
-  EXPERIMENT RUNNER BUILT (bb experiment, 75/258 GREEN). Gene-DB remains THE next build action —
-  and anima resolvers/genes.clj (tree-hash dedupe, signal→gene forwarding) is prior art to read first.
+  this session (2026-07-11, later — items 19/20/21): the COMMS+MAINTENANCE DESIGN ARC. One human ask
+  ("an agent that reads sessions → recommends harness updates") pulled out: 2×2 maintenance roster +
+  role-as-tag + timer ladder (19) → Anima signals prior art REVISED comms to two planes, EXPERIMENT
+  RUNNER BUILT + emission topology settled empirically (20) → Layer-1 flag resolved, self-hosting
+  trajectory explicit (21). 6 design pages touched/created; design/index.md NOW EXISTS (start there).
+  bb test 75/258 GREEN. Anima (~/src/anima) ≡ recurring prior-art mine: signals, experiments, genes,
+  scheduler, VSM coordinators — grep it BEFORE designing anything agent-infra-shaped.
 
   last session (2026-07-11): agent-model BUILD STEPS 1-4 SHIPPED (items 10-12) — genome compiler ·
   chat/curator extracted · JUDGE + SCORER kinds live-proven cross-family · "T-" topology prefix
