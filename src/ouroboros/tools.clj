@@ -22,7 +22,10 @@
 
 (defn- summary-lines [summaries empty-label]
   (if (seq summaries)
-    (str/join "\n" (map #(str "- " (:slug %) " :: " (:description %)) summaries))
+    ;; Lead with the repo-relative PATH (the exact fs-read argument), not the
+    ;; bare slug — feed forward: attention reads the address it will open with,
+    ;; never re-deriving mementum/<dir>/…/<slug>.md from a slug and guessing.
+    (str/join "\n" (map #(str "- " (:path %) " :: " (:description %)) summaries))
     empty-label))
 
 (defn digest

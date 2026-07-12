@@ -67,11 +67,17 @@
 
 (defn list-summaries
   "Disclosure map for a `kind` (AGENTS.md λ disclose: description_first):
-  `[{:slug :type :description}]`. Reads frontmatter only — no bodies loaded."
+  `[{:slug :path :type :description}]`. Reads frontmatter only — no bodies loaded.
+  `:path` is the repo-relative address (`mementum/<dir>/<slug>.md`) a reader
+  opens with — feed forward: the actionable path travels WITH the description so
+  a consumer never re-derives it from the slug."
   [root kind]
   (mapv (fn [slug]
-          (let [{:keys [frontmatter]} (read-doc root kind slug)]
-            {:slug slug :type (:type frontmatter) :description (:description frontmatter)}))
+          (let [{:keys [frontmatter path]} (read-doc root kind slug)]
+            {:slug        slug
+             :path        path
+             :type        (:type frontmatter)
+             :description (:description frontmatter)}))
     (list-slugs root kind)))
 
 ;; ---------------------------------------------------------------------------

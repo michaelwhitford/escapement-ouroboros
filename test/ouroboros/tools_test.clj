@@ -20,6 +20,9 @@
     (is (false? (:is-error r)))
     (is (str/includes? (:result r) "KNOWLEDGE ("))
     (is (str/includes? (:result r) "escapement-index") "names a known knowledge page")
+    (is (str/includes? (:result r)
+          "mementum/knowledge/upstream/escapement-index.md")
+      "emits the repo-relative path (the fs-read argument), not a bare slug")
     (is (str/includes? (:result r) "RECENT COMMITS"))))
 
 (defn- write-checkpoint! [root id messages]
