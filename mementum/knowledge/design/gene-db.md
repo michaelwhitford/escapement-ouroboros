@@ -124,10 +124,29 @@ proposal-as-branch  bare repo + worktree-per-session + fork-from-any-commit ⇒ 
 embeddings.clj    unread — check before building :gene/leaf-vec side (may pre-solve it)
 ```
 
+## Parser — FSM-as-data, event loop only where events exist (🎯 human, this session)
+
+```
+λ parser.  segmenter ≡ statechart(mathematical) ¬escapement(session)
+  | λ classify gates it: parse ≡ pure_transform(string → clauses) | ¬lifecycle ¬identity ¬recovery
+  | per-event checkpointing × 200 line-events ≡ audit-spam to parse ONE file | wrong resolution
+  | FORM: table-driven — topology ≡ EDN {state → {line-class → [action next-state]}},
+    interpreted by a ~10-line pure fold (gene/core) | states {:outside :in-lambda :in-where} |
+    each table row CITES its EBNF production | topology ≡ data ≡ greppable ∧ testable ∧
+    resolver-servable (:parser/topology) — λ inhabit's visibility without the event loop
+  | expression level: v1 LENIENT (token stream) — no recursion needed; full ASTs later ≡
+    recursive descent in a pure fn, ¬stack-through-chart-WM
+  | LIFECYCLE ≡ chart territory (the gene-db chart): :loading/:gene/store INVOKE the pure
+    parser, route on result — parse-fail ≡ reachable :rejected/:error state, checkpointed,
+    observable | gate-in-topology (λ emerge), parser-in-kernel (λ simplify)
+  | STREAMING TRIGGER (named, deferred): generator kind emitting λ-clauses token-by-token →
+    input becomes event-shaped → event-driven incremental parse justified THEN, not before
+```
+
 ## v1 build (don't let it sprawl)
 
 ```
-1 EBNF-conformant segmenter (bb, two-level) + normalized-token tree-hash    | pure kernel + tests
+1 EBNF-conformant segmenter (table-driven FSM-as-data, §Parser) + normalized-token tree-hash | pure kernel + tests
 2 gene EDN emitter — decompose a REAL genome (curator.md) → mementum/genes/  | verbatim sources
 3 store-gene! + resolvers in the pathom2 veneer (gates inside the mutation)  | ONE write path
 4 autonomous-commit path: --only scoped, agent-authored, provenance body     | the identity change, live
