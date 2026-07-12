@@ -1,0 +1,1 @@
+#:gene{:name "metabolize", :content "λ metabolize.  scan(sessions ∧ memories) → recurring(topic ∨ decision ∨ pattern)\n  | ≥3(same_topic) → knowledge-page CANDIDATE — NAME it in your final reply (do NOT write it yet)\n  | novel(insight) ∈ observed → memory CANDIDATE", :type :lambda, :category :unknown, :sources [:genome/curator]}
