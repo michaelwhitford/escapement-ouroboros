@@ -22,6 +22,7 @@
   an unknown key ≈ typo, fail loud."
   [:map {:closed true}
    [:experiment/id :keyword]
+   [:experiment/kind {:optional true} [:= :chat]]
    [:experiment/type :keyword]
    [:experiment/hypothesis :string]
    [:experiment/verdict {:optional true} :string]
@@ -37,11 +38,35 @@
    [:subjects [:map-of :keyword :string]]
    [:prompt-template :string]])
 
+(def embedding-suite-schema
+  "The :embedding suite variant (λ extend: a new experiment KIND is a new
+  schema + cell executor, same runner). Pairs of REAL texts with an :expect
+  label; the measure is cosine separation between the :near and :distinct
+  populations — the dedupe threshold is DERIVED from the gap, not guessed
+  (design/gene-db.md: anima's HNSW threshold was UNSET everywhere)."
+  [:map {:closed true}
+   [:experiment/id :keyword]
+   [:experiment/kind [:= :embedding]]
+   [:experiment/type :keyword]
+   [:experiment/hypothesis :string]
+   [:experiment/verdict {:optional true} :string]
+   [:embed/endpoint :string]
+   [:embed/model :string]
+   [:pairs [:map-of :keyword
+            [:map {:closed true}
+             [:a :string]
+             [:b :string]
+             [:expect [:enum :near :distinct]]]]]])
+
 (defn validate-suite
-  "nil when valid, humanized errors otherwise."
+  "nil when valid, humanized errors otherwise. Dispatches on
+  :experiment/kind (absent ⇒ :chat, the original suite shape)."
   [suite]
-  (when-not (m/validate suite-schema suite)
-    (me/humanize (m/explain suite-schema suite))))
+  (let [schema (case (:experiment/kind suite :chat)
+                 :embedding embedding-suite-schema
+                 suite-schema)]
+    (when-not (m/validate schema suite)
+      (me/humanize (m/explain schema suite)))))
 
 ;; ── matrix expansion ─────────────────────────────────────────────────────────
 
@@ -111,6 +136,40 @@
                                      raw))
    :edn-expected (fn [suite cell raw]
                    (assess-edn-expected suite cell raw))})
+
+;; ── embedding calibration (kind :embedding) ─────────────────────────────────
+
+(defn cosine
+  "Cosine similarity of two equal-length vectors (doubles)."
+  [a b]
+  (let [dot   (reduce + (map * a b))
+        norm  (fn [v] (Math/sqrt (reduce + (map * v v))))
+        denom (* (norm a) (norm b))]
+    (if (zero? denom) 0.0 (double (/ dot denom)))))
+
+(defn- stats [xs]
+  (when (seq xs)
+    {:n (count xs) :min (apply min xs) :max (apply max xs)
+     :mean (double (/ (reduce + xs) (count xs)))}))
+
+(defn calibrate
+  "Rows [{:pair :expect :cos}] → threshold calibration:
+  {:near <stats> :distinct <stats> :gap <min-near − max-distinct>
+   :threshold <midpoint when populations separate> :separated? <bool>}.
+  :near cosines should sit HIGH, :distinct LOW; a positive gap means ANY
+  threshold inside (max-distinct, min-near) cleanly splits — we take the
+  midpoint. Overlap (gap ≤ 0) ⇒ :threshold nil: SURFACE, don't guess."
+  [rows]
+  (let [near (mapv :cos (filter #(= :near (:expect %)) rows))
+        dist (mapv :cos (filter #(= :distinct (:expect %)) rows))
+        gap  (when (and (seq near) (seq dist))
+               (- (apply min near) (apply max dist)))]
+    {:near       (stats near)
+     :distinct   (stats dist)
+     :gap        gap
+     :separated? (boolean (and gap (pos? gap)))
+     :threshold  (when (and gap (pos? gap))
+                   (/ (+ (apply min near) (apply max dist)) 2.0))}))
 
 ;; ── aggregation ──────────────────────────────────────────────────────────────
 

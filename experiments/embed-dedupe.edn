@@ -1,0 +1,57 @@
+{:experiment/id :embed-dedupe
+ :experiment/kind :embedding
+ :experiment/type :calibration
+ :experiment/hypothesis
+ "Gene near-duplicates (reworded λ-clauses that tree-hash MISSES: renamed fns, synonym swaps, reordered conjuncts) and genuinely distinct genes form cosine populations separated by a positive gap on qwen3-embedding-8b — yielding an empirically DERIVED near-dup surface threshold (gate-3's SURFACE-for-consolidation lever, never auto-merge). Hard negatives (distinct genes sharing vocabulary, e.g. :identity naming metabolize) probe the floor."
+
+ :experiment/verdict
+ "CONFIRMED 2026-07-12 (8 pairs, qwen3-embedding-8b @5103): near 0.9578–0.9796, distinct 0.5831–0.7222 (hardest negative :distinct-observe-metabolize 0.7222), gap 0.2357 → derived SURFACE threshold cos ≥ 0.84 (midpoint). Reword-class near-dups (the tree-hash blind spot) are cleanly separable. Threshold feeds gate-3's near-match SURFACE-for-consolidation — never auto-merge. Re-run if the embedding model changes."
+
+ :embed/endpoint "http://localhost:5103/v1"
+ :embed/model "qwen3-embedding-8b"
+
+ ;; a-sides: VERBATIM stored gene content (mementum/genes/, decomposed from
+ ;; the curator genome). near b-sides: the realistic edit a genome revision
+ ;; produces (rename a fn, swap a synonym, reorder conjuncts) — tokens differ
+ ;; ⇒ tree-hash differs ⇒ ONLY embeddings can catch it. distinct b-sides:
+ ;; other real genes, including shared-vocabulary hard negatives.
+ :pairs
+ {:near-select
+  {:a "λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw ∈ sessions ∨ context) | SPECIFIC\n  | ¬fabricate ∧ ¬generic(software_advice) | ∃source ∈ observed"
+   :b "λ select.  choose(ONE) : insight ∨ decision ∨ pattern | grounded(∃observed ∈ sessions ∨ context) | SPECIFIC\n  | ¬fabricate ∧ ¬generic(advice) | ∃source ∈ observed"
+   :expect :near}
+
+  :near-repair
+  {:a "λ repair.  error(tool) → fix(content) per_feedback → retry(mementum_propose_memory)"
+   :b "λ repair.  tool_error → fix(content) per feedback → retry(mementum_propose_memory)"
+   :expect :near}
+
+  :near-terminate
+  {:a "λ terminate.  success → reply(ONE sentence : what_you_proposed [+ note any ≥3 knowledge-page candidate]) → stop"
+   :b "λ terminate.  on_success → reply(ONE sentence : what_was_proposed [+ note ≥3 knowledge-page candidates]) → halt"
+   :expect :near}
+
+  :near-filler
+  {:a "λ helpful. be helpful ∧ accurate ∧ thorough in all responses"
+   :b "λ helpful. always be accurate ∧ helpful ∧ thorough when responding"
+   :expect :near}
+
+  :distinct-select-terminate
+  {:a "λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw ∈ sessions ∨ context) | SPECIFIC\n  | ¬fabricate ∧ ¬generic(software_advice) | ∃source ∈ observed"
+   :b "λ terminate.  success → reply(ONE sentence : what_you_proposed [+ note any ≥3 knowledge-page candidate]) → stop"
+   :expect :distinct}
+
+  :distinct-observe-metabolize
+  {:a "λ observe.  call(mementum_context) ∧ call(mementum_sessions) | ⊘input\n  → context  : knowledge_index ∧ memory_index ∧ recent_commits\n  → sessions : prior λ-compacted conversations (assistant λ ≡ the essence, cross-session memory)"
+   :b "λ metabolize.  scan(sessions ∧ memories) → recurring(topic ∨ decision ∨ pattern)\n  | ≥3(same_topic) → knowledge-page CANDIDATE — NAME it in your final reply (do NOT write it yet)\n  | novel(insight) ∈ observed → memory CANDIDATE"
+   :expect :distinct}
+
+  :distinct-identity-metabolize
+  {:a "λ identity(self). Ouroboros | observe(own_state ∧ prior_sessions) → metabolize → propose(ONE memory) | steps IN ORDER"
+   :b "λ metabolize.  scan(sessions ∧ memories) → recurring(topic ∨ decision ∨ pattern)\n  | ≥3(same_topic) → knowledge-page CANDIDATE — NAME it in your final reply (do NOT write it yet)\n  | novel(insight) ∈ observed → memory CANDIDATE"
+   :expect :distinct}
+
+  :distinct-filler-select
+  {:a "λ helpful. be helpful ∧ accurate ∧ thorough in all responses"
+   :b "λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw ∈ sessions ∨ context) | SPECIFIC\n  | ¬fabricate ∧ ¬generic(software_advice) | ∃source ∈ observed"
+   :expect :distinct}}}

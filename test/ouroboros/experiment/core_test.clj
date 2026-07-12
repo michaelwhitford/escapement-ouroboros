@@ -1,5 +1,6 @@
 (ns ouroboros.experiment.core-test
-  "Deterministic tests for the experiment kernel — no LLM, no network."
+  "Deterministic tests for the experiment kernel — no LLM, no network.
+  Includes the :embedding kind (cosine, calibrate, schema dispatch)."
   (:require
     [clojure.edn :as edn]
     [clojure.test :refer [deftest is testing]]
@@ -98,3 +99,48 @@
     (testing "unparseable → nothing passes"
       (let [r (assess suite {:subject :s1} "not { edn")]
         (is (not (:valid? r))) (is (not (:correct? r)))))))
+
+;; ── kind :embedding ──────────────────────────────────────────────────────────
+
+(deftest embedding-suite-validation
+  (testing "the embed-dedupe suite file is valid"
+    (let [suite (edn/read-string (slurp "experiments/embed-dedupe.edn"))]
+      (is (nil? (core/validate-suite suite)))
+      (is (= 8 (count (:pairs suite))))))
+  (testing "kind dispatch: embedding shape rejected under chat schema rules"
+    (let [suite {:experiment/id :e :experiment/kind :embedding
+                 :experiment/type :calibration :experiment/hypothesis "h"
+                 :embed/endpoint "http://x/v1" :embed/model "m"
+                 :pairs {:p {:a "a" :b "b" :expect :near}}}]
+      (is (nil? (core/validate-suite suite)))
+      (is (some? (core/validate-suite (assoc suite :experiment/oops 1)))
+        "closed envelope")
+      (is (some? (core/validate-suite
+                   (assoc-in suite [:pairs :p :expect] :maybe)))
+        ":expect ∈ {near, distinct} only"))))
+
+(deftest cosine-and-calibrate
+  (testing "cosine basics"
+    (is (= 1.0 (core/cosine [1.0 0.0] [1.0 0.0])))
+    (is (= 0.0 (core/cosine [1.0 0.0] [0.0 1.0])))
+    (is (> 0.001 (Math/abs (- 1.0 (core/cosine [1.0 2.0 3.0] [2.0 4.0 6.0])))
+      ) "scale-invariant"))
+  (testing "separated populations → positive gap + midpoint threshold"
+    (let [cal (core/calibrate [{:pair :n1 :expect :near :cos 0.95}
+                               {:pair :n2 :expect :near :cos 0.90}
+                               {:pair :d1 :expect :distinct :cos 0.60}
+                               {:pair :d2 :expect :distinct :cos 0.70}])]
+      (is (:separated? cal))
+      (is (< 0.19 (:gap cal) 0.21))
+      (is (< 0.79 (:threshold cal) 0.81))
+      (is (= 2 (:n (:near cal))))
+      (is (= 2 (:n (:distinct cal))))))
+  (testing "overlap → no threshold, surface don't guess"
+    (let [cal (core/calibrate [{:pair :n :expect :near :cos 0.7}
+                               {:pair :d :expect :distinct :cos 0.8}])]
+      (is (not (:separated? cal)))
+      (is (nil? (:threshold cal)))))
+  (testing "empty/one-sided rows are quiet"
+    (let [cal (core/calibrate [])]
+      (is (nil? (:gap cal)))
+      (is (not (:separated? cal))))))
