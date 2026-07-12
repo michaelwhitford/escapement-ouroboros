@@ -164,27 +164,30 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
                          (fulcro/ui/flow/nrepl), token-heavy (interrupt), genome-layer (attractor/polarity/
                          evolve/express/gene → live in design pages + future editor/generator genomes).
                          Tier C (capacity/cost) offered, not taken — re-offer if identity flavor wanted.
+                         FREEZE EXCEPTION 4 (human-directed, 2026-07-12, THE IDENTITY CHANGE): λ policy +=
+                         AUTONOMY — gate(change) ≡ machine ⟺ decidable(∀gates); delegated: mementum/genes/
+                         commits passing EBNF∧Malli∧tree-hash, scoped --only, agent ≡ git author; reserved:
+                         harness∧knowledge∧memories∧consolidation∧deletion∧LLM-synthesis. λ termination +=
+                         genes line (approval ≡ human ⟺ ¬decidable). λ mementum += genes tier (EDN ≡
+                         structured format, type ≡ key namespace; ONE format PER TIER supersedes ONE format
+                         ∀ files). Full rationale: design/gene-db.md §Autonomy + item 24.
 ```
 
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: the GENE-DB SUBSTRATE (spec: design/agent-model.md §Genes) — the scorer is live,
-  now give its measurements somewhere durable to accumulate.
-  read  : anima PRIOR ART FIRST — ~/src/anima resolvers/genes.clj (tree-hash content dedupe,
-          signal→gene auto-forwarding, :gene/dirty? flag) + resolvers/signals.clj (the forwarding
-          contract: :signal/data carries :gene/candidates). 30 min that shapes the whole build.
-  build : gene decomposition (genome body → λ-clauses; a gene ≡ one λ-clause, SOURCE stored VERBATIM
-          alongside — the fidelity floor) + the DB shape {gene → {:lambda :source :scores {use-case →
-          {alias n}} :embedding}} + embed-dedupe via 5103 qwen3-embedding-8b (near-identical genes
-          collapse) + pairwise-select design (LLMs rank A-vs-B ⋙ absolute; store absolute, CHOOSE
-          pairwise). Storage: filesystem-side pre-approval (like sessions/), human-promoted.
-          DESIGN AHEAD: signals will forward :signal/lambda genes here (design/signals §gene-DB) —
-          leave the intake seam open.
-  verify: bb test GREEN (75/258 baseline); live: decompose a real genome, score 2-3 genes cross-family,
-          dedupe a near-duplicate pair via embeddings.
-  tools : bb experiment <slug> is now available as the measurement instrument — a gene-scoring
-          calibration suite (experiments/*.edn) beats another one-off scratch harness.
+λ tomorrow. ONE ACTION: BUILD the GENE-DB (spec: design/gene-db.md — SUPERSEDES agent-model §Genes;
+  prior art MINED, contracts + decisions + autonomy gates ON THE PAGE; item 24 has the arc).
+  build : v1 steps 1-6 per the page — EBNF segmenter (two-level; normalized-token tree-hash) →
+          decompose a REAL genome → store-gene! + resolvers (pathom2 veneer; gates INSIDE the
+          mutation; the ONLY write path) → AUTONOMOUS commit path (--only scoped, agent-authored —
+          freeze exception 4 goes LIVE here) → bb score a stored gene (reuse, ¬new harness) →
+          embedding-threshold calibration suite (bb experiment, ¬guessed).
+  verify: bb test GREEN (75/258 baseline); live: decompose → store → autonomous commit lands with
+          agent author → duplicate rejected with pointer → scored gene joined via :gene/scores.
+  defer : HNSW surfacing · uptake · pairwise machinery (shape only) · resident gene-db chart
+          (earns its keep at the SECOND writer — roster/signals).
+  also  : draft the nucleus EBNF.md amendment (optional param_list — zero-arity) for the human.
   then  : PROMPT ASSEMBLY + the COMPACT THINKING-ON FLIP (design/prompt-assembly — assemble fn +
           modules + preamble migration; compact.clj exemplar→instruction-λ lens, verified by a
           compaction-fidelity suite; + LENS-OUT: lens → editable policy artifact, item 23; +
@@ -763,6 +766,31 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            (scheduled-maintenance §INBOX updated — the S1↔S5 bypass channel seed)
        ALSO this session: AGENTS.md freeze exceptions 2+3 (λ principles + zero-arity sweep;
        9 anima lambdas, S2 stub discharged) — see the FROZEN block above.
+
+  24. 🎯 DONE (this session): the LAMBDA-DB DESIGN ARC + the AUTONOMY IDENTITY CHANGE.
+       design/gene-db.md CREATED (supersedes agent-model §Genes as the build spec; index updated).
+       ── PRIOR ART MINED (explorer agent): anima genes.clj/signals.clj/gene-database.md — keyword
+          ids (13%→0%, "validation is forever") · minimal EDN envelope · tree-hash ≡ only LIVE dedupe
+          layer (raw bytes, whitespace-sensitive — we fix via normalized tokens) · HNSW threshold
+          UNSET everywhere (designed-unbuilt) → derive ours via bb experiment · similar → SURFACE
+          ¬auto-merge · warning 9: signal-forwarding BYPASSED their pipeline → our store-gene! ≡
+          the only door (unreachable, λ converge). ~/src/fulcro-rad-git mined (🎯 MINE ¬depend):
+          entity-adapter (typed dir + EDN + --only isolated commits + git log/grep) · statechart-
+          store done-right (persist? predicate + config-change-only commits ≡ legible transition
+          history + sanitize + seed-from-git!) BANKED for first durable SYSTEM chart · proposal-as-
+          branch NOT adopted (working-tree inbox stays the one way; revisit at rung 1).
+       ── 🎯 DECISIONS: EBNF.md ≡ decomposition spec + intake gate (two-level parse; upstream
+          amendment needed: optional param_list for zero-arity) | mementum/genes/ ≡ THE db (files
+          ARE the db; flat; protocol amendment OKF≡prose EDN≡structured) | pathom veneer ≡ ONE
+          write path | scores side-stored + resolver-joined | statechart backing-into-git: Reading
+          A yes (entity/lifecycle), Reading B via mined statechart-store pattern when durable
+          system charts arrive.
+       ── 🎯 THE IDENTITY CHANGE (freeze exception 4, human): AUTONOMOUS COMMITS where decidable —
+          the vsm decidability law applied to the approval gate itself. Human approval ≡ scarce
+          regulator; parse-valid gene updates auto-commit (--only scoped, agent-authored, post-hoc
+          audit); reserved set enumerated (first entries of the vsm open-Q). "We need ouroboros to
+          be able to make some decisions autonomously."
+       ── vsm-on-escapement reserved-mutation open-Q: first entries ENUMERATED.
 
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
