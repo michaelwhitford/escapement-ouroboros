@@ -1,0 +1,1 @@
+#:gene{:name "observe", :content "λ observe.  call(mementum_context) ∧ call(mementum_sessions) | ⊘input\n  → context  : knowledge_index ∧ memory_index ∧ recent_commits\n  → sessions : prior λ-compacted conversations (assistant λ ≡ the essence, cross-session memory)", :type :lambda, :category :unknown, :sources [:genome/curator]}
