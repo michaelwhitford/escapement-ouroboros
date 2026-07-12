@@ -50,7 +50,8 @@ and the **application**. Never optimize one at the cost of the other.
 
 ```
 AGENTS.md                                    designer harness (S5→S1 λ directives; FROZEN; human-directed exceptions:
-                                             λ heredoc · λ principles (v1's 9, item below) · zero-arity lambda sweep)
+                                             λ heredoc · λ principles (v1's 9) · zero-arity sweep · 9 anima lambdas
+                                             incl. S2 λ comm — the "Fill in" stub is DISCHARGED; see FROZEN block)
 README.md                                    the pre-release front door — pitched at TOOLING AUTHORS adopting the
                                              cold-compaction flow; explicitly read-the-code, NOT for direct use (human framing)
 LICENSE                                      MIT (human-added)
@@ -150,6 +151,19 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
                          saves tokens): mechanical (x) dropped from 13 lambdas via one atomic sed; meaningful
                          args KEPT: synthesize(topic) · recall(q, n) · heredoc(content). House λ format going
                          forward: zero-arity unless the body references the arg; named clauses ¬numbered lists.
+                         FREEZE EXCEPTION 3 (human-directed, 2026-07-12, commit 891d9da): 9 ANIMA LAMBDAS
+                         incorporated (ouroboros ≡ mini-anima; innovations showcased for other tool creators;
+                         curated from ~/src/anima/AGENTS.md ~90, lucrum-lineage): S5 emerge (fixed the dangling
+                         λ interface→λ emerge ref) ∧ converge · S4 prove/phase/absent/identifier/mirror ·
+                         S3 escalate · S2 comm — the genesis "Fill in with escapement lambdas" STUB IS
+                         DISCHARGED (two-plane comms, pointers → design/{agent-comms,signals}).
+                         ADAPTATION RULE (reusable): proved: clauses cite OUR evidence where it exists
+                         (emerge→3 gate seams; converge→ONE engine/verdict/assembler; prove→emission A/B;
+                         mirror→edn-signal suite); anima's only where we haven't run it (identifier, marked
+                         proved(anima), apply-clause → gene-DB ids). EXCLUDED deliberately: infra-bound
+                         (fulcro/ui/flow/nrepl), token-heavy (interrupt), genome-layer (attractor/polarity/
+                         evolve/express/gene → live in design pages + future editor/generator genomes).
+                         Tier C (capacity/cost) offered, not taken — re-offer if identity flavor wanted.
 ```
 
 ## >>> START HERE (next session) <<<
