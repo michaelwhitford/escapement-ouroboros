@@ -35,6 +35,9 @@
          experiment {:doc      "Run an experiment suite — bb experiment <slug> (experiments/<slug>.edn): sweeps model×thinking×condition×subject, assesses via the suite's measure, persists results to experiments/results/ (gitignored)."
                      :requires ([ouroboros.experiment :as experiment])
                      :task     (apply experiment/-main *command-line-args*)}
+         genes {:doc      "Gene-DB intake — bb genes [genome-slug]: decompose an APPROVED genome into mementum/genes/ (3 gates: EBNF parse · Malli envelope · tree-hash dedupe), then AUTONOMOUS scoped commits (--only, gene-db author) for every gate-passing dirty gene."
+                :requires ([ouroboros.gene :as gene])
+                :task     (apply gene/-main *command-line-args*)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

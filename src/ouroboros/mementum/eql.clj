@@ -20,6 +20,8 @@
   (:require
     [com.wsscode.pathom.core :as p]
     [com.wsscode.pathom.connect :as pc]
+    [ouroboros.gene :as gene]
+    [ouroboros.gene.core :as gene.core]
     [ouroboros.mementum.store :as store]))
 
 (defn- root [env] (get env :mementum/root "."))
@@ -71,6 +73,48 @@
                        :log  (store/recall-log (root env) (or n 5))}}))
 
 ;; ---------------------------------------------------------------------------
+;; Gene resolvers (design/gene-db.md §3 — the veneer over the ONE write path).
+;; Idents are :gene/id KEYWORDS (λ identifier — LLM-safe handles, never uuid).
+;; ---------------------------------------------------------------------------
+
+(pc/defresolver gene-resolver
+  "Resolve one gene by ident `[:gene/id :converge]` → envelope + derived
+  tree-hash. `:gene/exists?` false when absent."
+  [env {:gene/keys [id]}]
+  {::pc/input  #{:gene/id}
+   ::pc/output [:gene/exists? :gene/name :gene/content :gene/type
+                :gene/category :gene/sources :gene/tree-hash]}
+  (if-let [g (gene/read-gene (root env) id)]
+    (assoc g :gene/exists? true)
+    {:gene/exists? false
+     :gene/name nil :gene/content nil :gene/type nil
+     :gene/category nil :gene/sources nil :gene/tree-hash nil}))
+
+(pc/defresolver genes-index
+  "Global: the gene corpus as id-keyed summaries (content via ident read —
+  disclosure discipline, load bodies on demand)."
+  [env _]
+  {::pc/output [{:mementum/genes [:gene/id :gene/name :gene/type :gene/category]}]}
+  {:mementum/genes
+   (mapv #(select-keys % [:gene/id :gene/name :gene/type :gene/category])
+     (gene/all-genes (root env)))})
+
+(pc/defresolver gene-scores
+  "Side-store join: `:gene/scores` for a gene id — [] when never scored
+  (the side-store is gitignored machine observation, absent ⇒ empty)."
+  [env {:gene/keys [id]}]
+  {::pc/input  #{:gene/id}
+   ::pc/output [:gene/scores]}
+  {:gene/scores (gene/read-scores (root env) id)})
+
+(pc/defresolver parser-topology
+  "The segmenter FSM served as data (design/gene-db.md §Parser:
+  topology ≡ greppable ∧ testable ∧ resolver-servable)."
+  [_ _]
+  {::pc/output [:parser/topology]}
+  {:parser/topology gene.core/topology})
+
+;; ---------------------------------------------------------------------------
 ;; Mutations (writes) — all funnel through the OKF-gated core.
 ;; ---------------------------------------------------------------------------
 
@@ -118,13 +162,35 @@
    ::pc/output [:mementum/deleted]}
   {:mementum/deleted (:deleted (store/delete! (root env) (or kind :memory) slug))})
 
+;; gene/store! — THE gene write path via EQL. Params ARE the gene envelope:
+;;   [(gene/store! #:gene{:name "n" :content "λ n. …" :type :lambda
+;;                        :category :constraint :sources [:chat]})]
+;; The three intake gates run INSIDE ouroboros.gene/store-gene! (core throws
+;; → veneer catches → structured rejection, the mementum precedent):
+;;   gate-1 parse → :gene/error :parse   · gate-2 envelope → :envelope
+;;   gate-3 dedupe → :duplicate | :name-collision (+ :gene/existing pointer)
+(pc/defmutation gene-store!-mut [env params]
+  {::pc/sym    'gene/store!
+   ::pc/output [:gene/id :gene/path :gene/written
+                :gene/error :gene/errors :gene/existing]}
+  (try
+    (assoc (gene/store-gene! (root env) (select-keys params gene.core/envelope-keys))
+      :gene/error nil)
+    (catch clojure.lang.ExceptionInfo e
+      (let [d (ex-data e)]
+        (cond-> {:gene/written false
+                 :gene/error   (or (:gene/error d) :error)}
+          (:errors d)        (assoc :gene/errors (:errors d))
+          (:gene/existing d) (assoc :gene/existing (:gene/existing d)))))))
+
 ;; ---------------------------------------------------------------------------
 ;; Parser — mirrors escapement.ui.resolvers (proven under bb).
 ;; ---------------------------------------------------------------------------
 
 (def registry
   [page-resolver knowledge-index memories-index recall-resolver
-   store!-mut synthesize!-mut update!-mut delete!-mut])
+   gene-resolver genes-index gene-scores parser-topology
+   store!-mut synthesize!-mut update!-mut delete!-mut gene-store!-mut])
 
 (def parser
   (delay

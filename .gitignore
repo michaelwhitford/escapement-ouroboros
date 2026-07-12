@@ -15,6 +15,11 @@ sessions/
 # + knowledge pages through the human gate, like sessions/ → mementum/).
 experiments/results/
 
+# Gene score side-store — high-churn machine observation keyed by gene name
+# (design/gene-db.md: scores side-stored, joined at query via :gene/scores;
+# settled summaries PROMOTE into the tracked gene file through the human gate).
+scores/
+
 # The human's private scratch pad — standing instruction: NEVER commit,
 # never read unless asked. Ignored so a blind `git add` can't catch it.
 human_ideas.md
