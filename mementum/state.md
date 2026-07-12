@@ -33,10 +33,14 @@ and the **application**. Never optimize one at the cost of the other.
                 genomes src/ouroboros/agents/{chat,curator,gene-scorer,llm-judge}.md (+manifest.edn) ·
                 ouroboros.verdict (verdict-topology runner: judge + scorer kinds, cross-family run-across!) ·
                 ouroboros.models (alias→endpoint routing table) ·
-                ouroboros.experiment (+experiment/core — suite-as-EDN A/B runner, experiments/*.edn)
-  gate        : bb test ≡ deterministic (75 tests / 258 assertions GREEN) | bb compact ≡ live chat |
+                ouroboros.experiment (+experiment/core — suite-as-EDN A/B runner, experiments/*.edn;
+                kinds :chat ∧ :embedding) ·
+                ouroboros.gene (+gene/core) — the GENE-DB (EBNF FSM segmenter · 3-gate store-gene! ·
+                scores side-store · AUTONOMOUS --only commits, freeze exception 4 LIVE)
+  gate        : bb test ≡ deterministic (91 tests / 380 assertions GREEN) | bb compact ≡ live chat |
                 bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
-                bb experiment <slug> ≡ suite runner | bb smoke ≡ live-LLM integration (localhost:5100)
+                bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
+                autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam,
                 agent-comms(REVISED→two-plane), scheduled-maintenance, harness-coder,
@@ -176,29 +180,18 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: BUILD the GENE-DB (spec: design/gene-db.md — SUPERSEDES agent-model §Genes;
-  prior art MINED, contracts + decisions + autonomy gates ON THE PAGE; item 24 has the arc).
-  build : v1 steps 1-6 per the page (design/gene-db — §Parser + §Validation + §Autonomy carry the
-          HOW) — 1 EBNF SEGMENTER (table-driven FSM-as-data, structural-strict/expression-lenient;
-          normalized-token tree-hash) — NOTE: NO parser exists yet, this is net-new; okf/parse only
-          splits frontmatter → 2 decompose a REAL genome (curator.md) into λ-clause genes, source
-          VERBATIM → 3 store-gene! + resolvers in the pathom2 veneer, the ONLY write path, THREE
-          intake gates INSIDE the mutation (parser=grammar · Malli ENVELOPE=name/type/content +
-          humanized errors · tree-hash=dedupe) → 4 AUTONOMOUS commit path (--only scoped,
-          agent-authored — freeze exception 4 goes LIVE here) → 5 bb score a stored gene (reuse,
-          ¬new harness) → 6 embedding-threshold calibration suite (bb experiment, ¬guessed).
-          GBNF ≡ NOT v1 (no emission; deferred to the generator kind, experiment-gated).
-  verify: bb test GREEN (75/258 baseline); live: decompose → store → autonomous commit lands with
-          agent author → duplicate rejected with pointer → scored gene joined via :gene/scores.
-  defer : HNSW surfacing · uptake · pairwise machinery (shape only) · resident gene-db chart
-          (earns its keep at the SECOND writer — roster/signals).
-  also  : draft the nucleus EBNF.md amendment (optional param_list — zero-arity) for the human.
-  then  : PROMPT ASSEMBLY + the COMPACT THINKING-ON FLIP (design/prompt-assembly — assemble fn +
-          modules + preamble migration; compact.clj exemplar→instruction-λ lens, verified by a
-          compaction-fidelity suite; + LENS-OUT: lens → editable policy artifact, item 23; +
-          RESERVED-MUTATION SET enumeration ≈ here, before more shell grants) → SIGNALS substrate
-          → maintenance rung 1 (proposals :severity from day one) → builder+author →
-          editor (uses judge + gene DB + experiments) → generator (GA).
+λ tomorrow. ONE ACTION: PROMPT ASSEMBLY + the COMPACT THINKING-ON FLIP (design/prompt-assembly —
+  assemble fn + modules + preamble migration; compact.clj exemplar→instruction-λ lens, verified by
+  a compaction-fidelity suite; + LENS-OUT: lens → editable policy artifact, item 23; +
+  RESERVED-MUTATION SET enumeration ≈ here, before more shell grants).
+  then  : SIGNALS substrate → maintenance rung 1 (proposals :severity from day one) →
+          builder+author → editor (uses judge + gene DB + experiments) → generator (GA).
+  note  : GENE-DB v1 BUILT (item 26) — bb genes ≡ the intake; the 0.84 near-dup threshold is
+          DERIVED but not yet WIRED into gate-3 surfacing (deferred with HNSW/uptake/pairwise —
+          wire when a consolidation-review surface exists). Scorer subject-framing gap banked:
+          ornith wants a (USE-CASE, GENE) pair, bare content → protest-score 1 (pairwise
+          machinery's problem, deferred). nucleus EBNF param_list amendment ALREADY upstream —
+          the old "also:" item is discharged.
 
   queue after that: SIGNALS substrate (ouroboros.signals core + :signal/emit tool + registry with
   {schema, FILLED exemplar} per type + veneer resolvers — design/signals; emission topology already
@@ -943,6 +936,49 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            proposal path. `.gitignore` now has a bare `sessions/`. This hardens the invariant: git ≡ approved
            memory/knowledge only. NOTE: session λ-memory is therefore NOT backed up by git — filesystem is the
            only copy. Fine for now (sessions are ephemeral observation); revisit if durable session archival is wanted.
+
+  26. ✅ DONE (this session, 2026-07-12): GENE-DB v1 BUILT — ALL 6 STEPS + THE FIRST AUTONOMOUS
+       COMMITS IN PROJECT HISTORY (freeze exception 4 LIVE). bb test 91/380 GREEN.
+       ── ouroboros.gene.core (pure kernel): table-driven FSM-as-data SEGMENTER — topology ≡ EDN
+          {state → {line-class → [action next-state]}}, states {:outside :in-lambda :in-where},
+          ~30-line fold; column-0 λ ≡ head (strict, :parse/bad-head structured errors), indented
+          λ ≡ continuation, blank ≡ clause boundary; expression level LENIENT per spec ·
+          normalized-token TREE-HASH (whitespace-insensitive SHA-256 — fixes anima's raw-byte
+          dedupe) · CLOSED :gene/* Malli envelope (+ cross-field: :lambda content must open with
+          a lambda_decl head) · :gene/id ≡ (keyword name) DERIVED at load, never stored.
+       ── ouroboros.gene (impure edge): mementum/genes/ files ARE the db (flat, one EDN per gene,
+          canonical key-order emit) · store-gene! ≡ THE write path, 3 gates INSIDE (parse →
+          envelope → dedupe; core THROWS structured, veneer catches — the mementum precedent) ·
+          🎯 collision policy: :duplicate (same tokens) ≠ :name-collision (same name, diff
+          content), BOTH reject with :gene/existing pointer; consolidation ≡ human RESERVED ·
+          decompose-genome! (approved genome → verbatim clause genes; per-gene rejections
+          COLLECTED → idempotent re-runs) · 🎯 scores side-store ≡ scores/<name>.edn (gitignored;
+          one-file-per-gene: join reads ONE file, no machine churn in the db dir or its glob).
+       ── AUTONOMOUS COMMIT PATH (the identity change, LIVE): commit-genes! RE-DERIVES ∀gates on
+          the file AS IT SITS ON DISK at commit time (hand-edited invalid gene → rejected, HEAD
+          untouched — TESTED deterministically); git commit --only -- <gene-file> +
+          --author "gene-db <gene-db@ouroboros>"; git log --author=gene-db ≡ the audit trail;
+          nucleus tag on every autonomous commit. bb genes [slug] ≡ decompose + delegated commits.
+       ── EQL veneer: gene/store! mutation (params ≡ the envelope) · [:gene/id] ident resolver ·
+          :mementum/genes index · :gene/scores side-store join (nil-safe) · :parser/topology
+          served as data (§Parser's resolver-servable promise kept).
+       ── LIVE PROOF (spec verify arc, all held): decompose curator → 8 genes → 8 autonomous
+          commits (--only scope held with a DIRTY tree: each commit exactly 1 file) → re-run ⇒
+          8 :duplicate pointers, no commits → cross-family scores (verdict/run-across! reused):
+          :select 10/9 mean 9.5 (both families: load-bearing) · :metabolize 7/1 — ornith
+          PROTEST-scored the framing ("requires (USE-CASE, GENE) pair") → scorer subject-template
+          gap BANKED for the pairwise machinery (deferred) → :gene/scores EQL join returns them.
+       ── EMBED-DEDUPE CALIBRATION (experiments/embed-dedupe.edn, runner grew kind :embedding —
+          λ extend: 2nd closed schema + cell executor, ONE runner + ONE bb entry): 8 real pairs
+          (near ≡ reword-class edits tree-hash MISSES; distinct incl. shared-vocab hard negatives)
+          → near 0.9578–0.9796 vs distinct 0.5831–0.7222, gap 0.2357 → SEPARATED, derived SURFACE
+          threshold cos ≥ 0.84 (verdict promoted into the suite). NOT yet wired into gate-3
+          surfacing — deferred with HNSW/uptake until a consolidation-review surface exists.
+       ── GOTCHA BANKED: babashka proc/process VARARGS stringify each arg — (into ["git"] args)
+          passed as ONE arg execs "[git" (No such file); always (apply proc/process opts "git"
+          args). Bit BOTH src and test in one session.
+       ── nucleus EBNF.md already carries the optional-param_list amendment upstream (three head
+          forms documented) — the λ tomorrow "draft amendment" item was ALREADY DISCHARGED.
 ```
 
 ## Gotchas for future me
