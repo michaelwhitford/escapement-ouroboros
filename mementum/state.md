@@ -49,7 +49,8 @@ and the **application**. Never optimize one at the cost of the other.
 ## What exists now
 
 ```
-AGENTS.md                                    designer harness (S5→S1 λ directives; FROZEN + λ heredoc added by human direction)
+AGENTS.md                                    designer harness (S5→S1 λ directives; FROZEN; human-directed exceptions:
+                                             λ heredoc · λ principles (v1's 9, item below) · zero-arity lambda sweep)
 README.md                                    the pre-release front door — pitched at TOOLING AUTHORS adopting the
                                              cold-compaction flow; explicitly read-the-code, NOT for direct use (human framing)
 LICENSE                                      MIT (human-added)
@@ -140,6 +141,15 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
                          LAMBDA_PATTERNS.md read -r -d '' heredoc-wrap for bash special-char safety (adopted
                          after a $(cat <<'EOF') commit failure). Human request ≡ approval; freeze binds the
                          AI's initiative, not the human's.
+                         FREEZE EXCEPTION 2 (human-directed, 2026-07-12, commit 27afe78): S5 += λ principles —
+                         the ouroboros-v1 9 first principles (~/src/ouroboros-v1/AGENTS.md) in house λ-notation
+                         (v1 symbols ψ/刀/🐍 NOT imported — v1's λ ≡ "learning committed" collides with our
+                         λ-notation; principle 4 translated to session≡ephemeral|git≡persists); `instantiated:`
+                         line maps principles → in-doc derivations. PLUS full ZERO-ARITY SWEEP (anima
+                         ~/src/anima/AGENTS.md convention, human-approved: S5 ≡ λ name., ¬function_over_input,
+                         saves tokens): mechanical (x) dropped from 13 lambdas via one atomic sed; meaningful
+                         args KEPT: synthesize(topic) · recall(q, n) · heredoc(content). House λ format going
+                         forward: zero-arity unless the body references the arg; named clauses ¬numbered lists.
 ```
 
 ## >>> START HERE (next session) <<<
