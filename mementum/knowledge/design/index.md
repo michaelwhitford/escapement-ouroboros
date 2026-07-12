@@ -7,6 +7,7 @@ tags: [ouroboros, design, index, map]
 status: active
 category: design
 related:
+  - design/gene-db
   - design/agent-model
   - design/vsm-on-escapement
   - design/shadow-compaction
@@ -30,6 +31,9 @@ the when.
 ## The map (essence + status)
 
 ```
+gene-db                mementum/genes ≡ EDN corpus; EBNF+Malli+tree-hash gates in      DESIGNED (build
+                       ONE pathom write path; AUTONOMOUS scoped commits (decidable);    NEXT — v1 spec
+                       scores side-stored; anima + fulcro-rad-git mined                 on the page)
 agent-model            OKF genome files; kind ≡ shape, tools ≡ capability grant,       BUILT (compiler,
                        registry ≡ ceiling; scorer ≡ the GA fitness function             4 genomes, judge+scorer)
 vsm-on-escapement      charts ARE executable VSM; channel ≡ event+scope+transduction+   FRAME (guides all

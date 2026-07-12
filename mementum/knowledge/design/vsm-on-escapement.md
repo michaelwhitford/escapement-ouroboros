@@ -321,6 +321,11 @@ adopted (state.md item 23): lens → editable policy artifact (folded into the c
   → PRIORITIZED (viability diagnostic): do this design task BEFORE more shell-granted agents exist;
     item 14's invariant shift (shell ⊃ git → human-gate ≡ policy not capability for chat) makes the
     enumeration the re-hardening of the recursion boundary
+  → FIRST ENTRIES ENUMERATED (gene-db autonomy decision, state.md item 24 — the decidability law
+    applied to the approval gate itself): DELEGATED ≡ gene commits passing decidable gates
+    (EBNF parse ∧ Malli ∧ tree-hash), scoped by git commit --only, agent as git author (audit trail);
+    RESERVED ≡ harness ∧ knowledge ∧ memories ∧ near-dup consolidation ∧ deletion ∧ LLM-synthesized
+    genes. gate(change) ≡ human ⟺ ¬decidable(machine). See design/gene-db §Autonomy.
 · algedonic escalation to the human: a DISTINCT channel from the approval gate, or the same human-input seam?
 · homeostat residual: does ANY explicit S3↔S4 feedback remain after feedforward, or is ≥3 + shadow enough?
 · S4 recursion: when (if) to split the single integrating S4 agent into curator/analyst/generator sub-viability
