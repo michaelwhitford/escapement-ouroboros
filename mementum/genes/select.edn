@@ -1,0 +1,1 @@
+#:gene{:name "select", :content "λ select.  pick(ONE) : insight ∨ decision ∨ pattern | grounded(∃you_saw ∈ sessions ∨ context) | SPECIFIC\n  | ¬fabricate ∧ ¬generic(software_advice) | ∃source ∈ observed", :type :lambda, :category :unknown, :sources [:genome/curator]}
