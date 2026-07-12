@@ -1,7 +1,7 @@
 ---
 type: mementum/knowledge
 title: Gene-DB — the lambda-gene database
-description: mementum/genes ≡ EDN corpus (files ARE the db, git ≡ history) gated by EBNF parse + Malli + tree-hash through ONE pathom write path (store-gene!); scores side-stored and joined at query time; AUTONOMOUS commits for decidable changes (scoped git commit --only, agent as git author); mined from anima gene-DB contracts + fulcro-rad-git patterns.
+description: mementum/genes ≡ EDN corpus (files ARE the db, git ≡ history) gated through ONE pathom write path (store-gene!) by a THREE-stage intake stack — a table-driven FSM-as-data parser enforces the EBNF grammar (structural, expression-lenient), a Malli ENVELOPE schema validates the extracted clause with humanized errors (Malli ¬describes the EBNF — it validates the parser's OUTPUT; regex can't match balanced parens), tree-hash dedupes; scores side-stored and joined at query time; AUTONOMOUS commits for decidable changes (scoped git commit --only, agent as git author); GBNF grammar-constrained emission DEFERRED to the generator kind (v1 decomposes, doesn't emit) and experiment-gated; mined from anima gene-DB contracts + fulcro-rad-git patterns.
 resource: file:///Users/mwhitford/src/escapement-ouroboros
 status: designing
 category: design
@@ -143,6 +143,44 @@ embeddings.clj    unread — check before building :gene/leaf-vec side (may pre-
     input becomes event-shaped → event-driven incremental parse justified THEN, not before
 ```
 
+## Validation — parser gates the grammar, Malli gates the envelope, GBNF defers (🎯 human, this session)
+
+```
+λ validate.  FORMALISM MISMATCH: EBNF ≡ string grammar (context-free — balanced parens,
+  nesting) | Malli ≡ data-shape schema (its string support ≡ :re REGEX only ≡ regular
+  language, provably ¬match balanced parens) ⟹ Malli CANNOT "describe the EBNF" on a raw
+  string | the PARSER is the grammar gate; Malli validates the parser's OUTPUT
+    EBNF grammar ──(parser enforces)──▶ {:name :type :content} ──(Malli validates)──▶ humanized errors
+  "perfect EBNF in Malli" ≡ NOT achievable ∧ ¬needed — don't chase it
+
+  TWO TOOLS, TWO STAGES, TWO DOCTRINES (¬alternatives):
+    GBNF   emission · token-level · LOCAL-ONLY  ≡ λ shape/emerge (unreachable > forbidden):
+           llama.cpp masks invalid tokens (reachable via :extra-body "grammar" field) →
+           GUARANTEES syntactic validity | cost: local-only (¬Claude ¬GPT), can DEGRADE
+           semantic quality (forces off natural distribution), FREEZES the notation's
+           coined-operator openness
+    Malli  intake · post-hoc · UNIVERSAL       ≡ λ mirror (validate → humanize → converge):
+           the corrective-retry loop we ALREADY run (ProposeMemoryTool: OKF reject →
+           structured feedback → LLM retries) | model-agnostic, no quality risk, proven
+
+  V1 REALITY: v1 DECOMPOSES approved genomes → does NOT emit lambdas → failure mode ≡
+    malformed DECOMPOSITION (our segmenter bug) ¬malformed generation → GBNF has NO v1 role
+    (nothing is generating). BUILD: parser (structural) + Malli ENVELOPE (name present,
+    :type ∈ enum, content non-empty, header regex-matches — ¬expression internals, lenient)
+    + humanized errors → corrective retry. This IS gate-1 + gate-2 below.
+
+  GBNF's REAL HOME ≡ the generator kind (LLM invents genes — DEFERRED ∧ human-gated). WHEN it
+    lands, GBNF is a CANDIDATE bound by discipline:
+    1 EXPERIMENT it, ¬assume: edn-signal-emission already hit 12/12 Malli-valid with exemplar+
+      no-think, ZERO grammar constraint | GBNF must BEAT that on validity ∧ ¬lose on quality |
+      bb experiment: exemplar+retry vs GBNF vs both (structure > instruction may already suffice)
+    2 STRUCTURAL level ONLY — λ-header GBNF cheap+safe; full-expression GBNF ≡ maintenance sink
+      that freezes the notation | same two-level split as the parser
+    3 autonomy raises the value of defense-in-depth (GBNF-emit + parser + Malli-intake) for the
+      no-human-gate path — but parse-valid ≢ good (anchor-3 filler parses perfectly, scored 3)
+      ⟹ generator commits stay HUMAN-GATED regardless (reserved set, §Autonomy)
+```
+
 ## v1 build (don't let it sprawl)
 
 ```
@@ -166,4 +204,7 @@ verify: bb test GREEN throughout | live: decompose → store → autonomous comm
 · score side-store file shape (one EDN per gene vs one index file) — decide at build
 · when does gene creation-from-NEW-source (not approved genomes) enter — with signals intake?
 · proposal-as-branch for the maintenance roster — revisit at rung 1
+· Malli envelope schema exact shape (which :gene/* keys required vs optional; header regex)
+· GBNF for the generator kind — write the structural-level grammar + the beat-the-exemplar
+  experiment when the generator lands (not before; v1 has no emission)
 ```
