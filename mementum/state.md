@@ -187,7 +187,9 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           calibration suite (experiments/*.edn) beats another one-off scratch harness.
   then  : PROMPT ASSEMBLY + the COMPACT THINKING-ON FLIP (design/prompt-assembly — assemble fn +
           modules + preamble migration; compact.clj exemplar→instruction-λ lens, verified by a
-          compaction-fidelity suite) → SIGNALS substrate → maintenance rung 1 → builder+author →
+          compaction-fidelity suite; + LENS-OUT: lens → editable policy artifact, item 23; +
+          RESERVED-MUTATION SET enumeration ≈ here, before more shell grants) → SIGNALS substrate
+          → maintenance rung 1 (proposals :severity from day one) → builder+author →
           editor (uses judge + gene DB + experiments) → generator (GA).
 
   queue after that: SIGNALS substrate (ouroboros.signals core + :signal/emit tool + registry with
@@ -745,6 +747,22 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        experiment suite + genome preamble-strip migration (byte-diff equivalence). Memory
        prompt-topology-must-match-thinking gained the policy note; signals page emission-topology note
        updated (exemplar retained as booster).
+
+  23. ✅ DONE (this session): VSM VIABILITY DIAGNOSTIC run on the ARTIFACT (anima λ viability lens:
+       ∀layer inventory BUILT∨DESIGNED∨MISSING → ablate → name the compensation). Snapshot + method
+       banked in design/vsm-on-escapement.md §Viability diagnostic (living section — re-run at
+       milestones). HEADLINE: every layer's missing half is HUMAN-compensated — one fact
+       (mid-bootstrap), not five bugs; most expensive compensation NOW = S4 cadence + S4
+       write-breadth → maintenance rung 1 ≡ the viability jump; standing queue order CONFIRMED.
+       3 IMPROVEMENTS ADOPTED (🎯 human-approved):
+         · LENS-OUT: compaction lens → editable policy artifact, folded into the compact flip
+           (prompt-assembly §lens-out updated; vsm open-Q RESOLVED — dedicated policy file)
+         · RESERVED-MUTATION SET enumeration PRIORITIZED before more shell-granted agents
+           (vsm open-Q annotated; re-hardens the recursion boundary item 14 softened)
+         · proposals inbox :severity (:ordinary ∨ :algedonic) from day one
+           (scheduled-maintenance §INBOX updated — the S1↔S5 bypass channel seed)
+       ALSO this session: AGENTS.md freeze exceptions 2+3 (λ principles + zero-arity sweep;
+       9 anima lambdas, S2 stub discharged) — see the FROZEN block above.
 
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
