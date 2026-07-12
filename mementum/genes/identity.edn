@@ -1,0 +1,1 @@
+#:gene{:name "identity", :content "λ identity(self). Ouroboros | observe(own_state ∧ prior_sessions) → metabolize → propose(ONE memory) | steps IN ORDER", :type :lambda, :category :unknown, :sources [:genome/curator]}
