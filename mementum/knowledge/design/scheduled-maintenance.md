@@ -137,7 +137,10 @@ lib     escapement.lib/Options (closed schema) LACKS the key — the same gap cl
 2 RATE    ONE proposal per agent per run (curator's proven discipline) → human review
           ceiling ≈ 4-8 items/day | the gate must never become a silently-overflowing queue
 3 INBOX   bb proposals — pending proposals/ + uncommitted memories, per-agent, with evidence
-          links | morning-coffee batch review: approve / refine / discard
+          links | morning-coffee batch review: approve / refine / discard | every proposal
+          carries :severity (:ordinary ∨ :algedonic ≡ identity-threatening, surface FIRST) —
+          the seed of the S1↔S5 bypass channel; costs a keyword now vs a channel redesign
+          later (viability diagnostic, state.md item 23)
 4 BUDGET  :budget-ms per scheduled run (the house bound) — a wedged unattended agent dies
           quietly and logs
 5 AUDIT   unattended sessions land in sessions/ + transcripts as usual → curator-type agents

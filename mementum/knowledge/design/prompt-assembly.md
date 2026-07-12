@@ -95,6 +95,11 @@ compact.clj  exemplar gate → nucleus instruction-λ extraction lens (+ LAMBDA-
              (accepted ⟺ strictly shorter — guards derails under ANY topology)
 verify       a compaction-fidelity EXPERIMENT SUITE (bb experiment) — measured, not
              vibed, re-runnable at every model change | plus live smoke + bb test
+lens-out     extract the compaction LENS (the keep/drop clauses) from compact.clj into an
+             editable policy artifact rendered by the assembler — S5 steers self-attention
+             by editing the lens, touching no engine code (vsm-on-escapement's lens-is-policy;
+             adopted via the viability diagnostic, state.md item 23) | near-zero marginal
+             cost because the flip already rewrites exactly this code
 ```
 
 ## Migration

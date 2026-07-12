@@ -283,15 +283,51 @@ S+1  the HUMAN (reserved: approval of durable memory/knowledge/harness/code + id
 · synthesis ≡ AI | approval ≡ human | AI commits after approval  (the recursion boundary, restated)
 ```
 
+## Viability diagnostic (living — re-run at build milestones; git commit ≡ the when)
+
+```
+method: ∀layer: inventory(BUILT ∨ DESIGNED ∨ MISSING) → ablate(what breaks?) → name(compensation)
+        | channels: score the five | temporal: check cadence per level | anima λ viability lineage
+
+snapshot (agent-model+experiments build stage — state.md item 23):
+  S1  ✓ healthy-sparse    compact · curator · verdict · experiment all RUN
+  S3* ✓ healthiest        checkpoints · event-sink · cache-report · roster report · bb test
+                          — but every audit CONSUMER is human; nothing machine-reads the stream yet
+  S2  ~ engine law + anti-barge-in | hermetic one-at-a-time runs ≡ coordination-by-isolation
+                          (deliberate attenuation; caps concurrent agents at ZERO; first-wins collision waits behind it)
+  S3  ~ spawn-time parameterization REAL (grants·routing·budget·slots) | the LOOP half absent:
+                          no report-adjust, no scheduler | human ≡ S3
+  S4  ~ feedforward ✓ curator ✓ experiments ✓ | NO CADENCE (human-triggered — temporal separation
+                          by habit not structure) | write channel = memory only | designer ≡ S4 beyond that
+  S5  ~ genomes ≡ per-agent policy artifacts ✓ | orchestrator ABSENT (staged, build-order step 5) |
+                          the lens still engine-inline | human+designer ≡ S5 (bootstrap, by design)
+  channels: S1→S4 ✓ (shadow compaction) | S4→S5 half (memory-only, no orchestrator middle) |
+            S1↔S3 down-half | algedonic proto (:error.llm.* · tripwire) | S2↔S3 moot (hermetic)
+
+  THE PATTERN: every layer's missing half ≡ HUMAN-compensated — ONE fact (mid-bootstrap), not five
+  bugs; the scaffold unwinds piece by piece. Most expensive compensation NOW: S4 cadence + S4
+  write-breadth → maintenance rung 1 ≡ the viability jump. Queue order CONFIRMED (gene-DB has
+  momentum; signals + rung 1 are where viability moves — don't let gene-DB sprawl).
+
+adopted (state.md item 23): lens → editable policy artifact (folded into the compact flip,
+  design/prompt-assembly §lens-out) · reserved-mutation set enumeration QUEUED before more
+  shell-granted agents · proposals inbox carries :severity from day one (design/scheduled-maintenance)
+```
+
 ## Open questions (NOT finalized)
 
 ```
 · the exact RESERVED-mutation set (what only the human can authorize) — enumerate precisely
+  → PRIORITIZED (viability diagnostic): do this design task BEFORE more shell-granted agents exist;
+    item 14's invariant shift (shell ⊃ git → human-gate ≡ policy not capability for chat) makes the
+    enumeration the re-hardening of the recursion boundary
 · algedonic escalation to the human: a DISTINCT channel from the approval gate, or the same human-input seam?
 · homeostat residual: does ANY explicit S3↔S4 feedback remain after feedforward, or is ≥3 + shadow enough?
 · S4 recursion: when (if) to split the single integrating S4 agent into curator/analyst/generator sub-viability
 · the champion/challenger K (patience) + the regression-set composition for NON-decidable agents
 · whether the compaction lens becomes a first-class genome (agents/… or a dedicated policy file) so S5 can edit it
+  → RESOLVED (viability diagnostic): dedicated policy file, extracted during the compact flip
+    (design/prompt-assembly §lens-out) — genome ≡ persona, lens ≡ policy; the assembler renders it
 · requisite variety is NOT auto-enforced by statecharts — how/whether to measure it (Ashby) per channel
 ```
 
