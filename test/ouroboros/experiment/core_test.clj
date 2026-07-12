@@ -76,3 +76,25 @@
         (is (= 20 (:avg-tok c)))))
     (testing "format renders one line per aggregate"
       (is (= 2 (count (clojure.string/split-lines (core/format-summary summary))))))))
+
+(deftest edn-expected-assessment
+  (let [suite {:measure/schema [:map {:closed true}
+                                [:decision [:enum :extend-existing :create-new]]
+                                [:rationale :string]]
+               :measure/expected {:s1 {:decision :extend-existing}}}
+        assess (get core/measures :edn-expected)]
+    (testing "correct decision → valid+correct"
+      (let [r (assess suite {:subject :s1}
+                      "{:decision :extend-existing :rationale \"one path\"}")]
+        (is (:parse? r)) (is (:correct? r)) (is (:valid? r))))
+    (testing "schema-valid but WRONG decision → ¬valid (oracle bites)"
+      (let [r (assess suite {:subject :s1}
+                      "{:decision :create-new :rationale \"shiny\"}")]
+        (is (:parse? r)) (is (not (:correct? r))) (is (not (:valid? r)))))
+    (testing "no expectation for subject → falls back to schema validity"
+      (let [r (assess suite {:subject :s2}
+                      "{:decision :create-new :rationale \"ok\"}")]
+        (is (:valid? r)) (is (not (:correct? r)))))
+    (testing "unparseable → nothing passes"
+      (let [r (assess suite {:subject :s1} "not { edn")]
+        (is (not (:valid? r))) (is (not (:correct? r)))))))

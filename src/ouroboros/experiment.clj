@@ -67,7 +67,7 @@
            {:status (:status res) :ms ms
             :tok (get-in res [:usage :output-tokens])
             :text out}
-           (if (= :ok (:status res)) (assess suite out) {}))))
+           (if (= :ok (:status res)) (assess suite cell out) {}))))
 
 (defn- persist-results!
   [slug rows]

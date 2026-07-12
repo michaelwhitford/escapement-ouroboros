@@ -28,6 +28,7 @@
    [:experiment/measure :keyword]
    [:measure/schema {:optional true} :any]
    [:measure/echo-substrings {:optional true} [:vector :string]]
+   [:measure/expected {:optional true} [:map-of :keyword [:map-of :keyword :any]]]
    [:matrix [:map
              [:models [:vector :keyword]]
              [:thinking [:vector :boolean]]
@@ -80,14 +81,36 @@
                    (me/humanize (m/explain schema parsed)))]
     {:fence? fenced? :echo? echo? :parse? parse? :valid? valid? :errors errors}))
 
+(defn assess-edn-expected
+  "assess-edn-malli PLUS a per-subject correctness oracle: the suite's
+  :measure/expected maps subject → kv pairs the parsed EDN must contain
+  (schema stays answer-neutral — wrong options live in the enum so the shape
+  doesn't leak the answer; expectation checks correctness).
+  :valid? ⟺ schema-valid ∧ expected-satisfied — summarize's VALID column
+  then reads as CORRECT with no aggregation changes."
+  [suite {:keys [subject]} raw]
+  (let [base     (assess-edn-malli (:measure/schema suite)
+                                   (:measure/echo-substrings suite) raw)
+        expected (get-in suite [:measure/expected subject])
+        parsed   (when (:parse? base)
+                   (try (edn/read-string (strip-fences (str raw)))
+                        (catch Exception _ nil)))
+        correct? (boolean (and (map? parsed) expected
+                               (= (select-keys parsed (keys expected)) expected)))]
+    (assoc base
+           :correct? correct?
+           :valid? (boolean (and (:valid? base) (or (nil? expected) correct?))))))
+
 (def measures
-  "measure keyword → assess fn (suite, raw-text → assessment map).
+  "measure keyword → assess fn (suite, cell, raw-text → assessment map).
   Open slot (λ extend): future measures dispatch here — e.g. :scorer-genome /
   :judge-genome route the output through the verdict topology instead."
-  {:edn-malli (fn [suite raw]
-                (assess-edn-malli (:measure/schema suite)
-                                  (:measure/echo-substrings suite)
-                                  raw))})
+  {:edn-malli    (fn [suite _cell raw]
+                   (assess-edn-malli (:measure/schema suite)
+                                     (:measure/echo-substrings suite)
+                                     raw))
+   :edn-expected (fn [suite cell raw]
+                   (assess-edn-expected suite cell raw))})
 
 ;; ── aggregation ──────────────────────────────────────────────────────────────
 
