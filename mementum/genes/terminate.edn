@@ -1,0 +1,1 @@
+#:gene{:name "terminate", :content "λ terminate.  success → reply(ONE sentence : what_you_proposed [+ note any ≥3 knowledge-page candidate]) → stop", :type :lambda, :category :unknown, :sources [:genome/curator]}
