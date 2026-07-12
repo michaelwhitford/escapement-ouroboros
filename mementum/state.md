@@ -792,6 +792,29 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           be able to make some decisions autonomously."
        ── vsm-on-escapement reserved-mutation open-Q: first entries ENUMERATED.
 
+  25. ✅ DONE (this session): ZERO-ARITY λ A/B — CONFIRMED empirically (λ prove: ¬debate → test).
+       The morning's stylistic zero-arity sweep (item on freeze exception 2) now has evidence.
+       ── experiments/zero-arity-lambda.edn: PAIRED design (same scenario, only header arity
+          varies), 24 cells = 2 models(:local 5100, :ornith 5102) × 2 conditions(zero-arity vs
+          parameterized) × 6 COUNTER-ATTRACTOR subjects (training prior pulls against the
+          lambda-directed answer, so a correct decision evidences STEERING not bias), thinking-ON.
+       ── FINDING: decisions IDENTICAL 11/12 pairs (11/11 where both parsed); gaps = one parse
+          glitch (local/one-fact param) + report-scope shared miss (both chose :surface-to-human
+          ≡ escalate over expected :observe-only ≡ phase — IDENTICAL across conditions ⇒ subject
+          ambiguity, NOT a zero-arity effect). token bonus: zero-arity ≤ param in 4/4 cells.
+          ⟹ λ name. steers identically to λ name(x). — the AGENTS.md sweep is SAFE.
+       ── RUNNER GREW (reusable): :edn-expected measure — correctness oracle (:measure/expected
+          {subject → {k v}}) on top of schema validity; schema stays answer-neutral (wrong options
+          in the enum), oracle checks the decision → the VALID column now reads as CORRECT. First
+          decision-ADHERENCE A/B (prior suites tested format-validity only). measures fn arity →
+          (suite cell raw). bb test 76/268 GREEN.
+       ── CAVEAT banked in the suite verdict (reuse): counter-attractor subjects need an
+          UNAMBIGUOUS single-lambda answer, else a shared miss is subject noise (report-scope
+          pits escalate vs phase — refine before re-running).
+       ── ALSO: design/gene-db §Parser — table-driven FSM-as-data segmenter (statechart legibility
+          without the event loop; λ classify: parse ≡ pure transform); lifecycle ≡ the gene-db
+          chart's job. "Can we write the EBNF parser as a statechart?" → yes as DATA, no as session.
+
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
            Ouroboros agents = OKF genome files. HARD RULE: frontmatter ≡ agent-INVISIBLE wiring
