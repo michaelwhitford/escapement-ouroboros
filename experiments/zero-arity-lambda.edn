@@ -1,0 +1,60 @@
+{:experiment/id :zero-arity-lambda
+ :experiment/type :prompt-ab
+ :experiment/hypothesis
+ "Zero-arity lambda headers (λ name.) steer behavior equally to parameterized headers (λ name(x).) — no adherence delta, cross-family, thinking-ON (production topology). Adopted on style grounds (anima convention + AGENTS.md sweep, 2026-07-12); this suite closes the empirical gap. Subjects are counter-attractor scenarios (training prior pulls AGAINST the lambda-directed answer) so a correct decision evidences the lambda steering, not model bias. Measure :edn-expected — schema answer-neutral (wrong options in the enum), per-subject oracle checks :decision."
+
+ :experiment/verdict
+ "CONFIRMED (2026-07-12). PAIRED design (same scenario, only header arity varies), 24 cells = 2 models × 2 conditions × 6 counter-attractor subjects, thinking-ON. DECISIONS IDENTICAL between zero-arity and parameterized in 11/12 subject×model pairs; where both parsed, decision agreement 11/11. The lone divergence (local/one-fact) is a parse GLITCH on parameterized (zero-arity correct there) — not a steering difference. Aggregate VALID gaps (local param 5/6, ornith both 5/6) decompose to: that one parse glitch + report-scope on ornith where BOTH conditions chose :surface-to-human (λ escalate) over the expected :observe-only (λ phase) — IDENTICAL across conditions ⇒ subject-design ambiguity (the scenario legitimately pits escalate vs phase; oracle over-specified), NOT a zero-arity effect. Token bonus: zero-arity ≤ parameterized tokens in 4/4 cells (local 1713<1996, ornith 1430<1568). CONCLUSION: zero-arity headers (λ name.) steer identically to λ name(x।), cross-family — the AGENTS.md sweep is empirically safe. CAVEAT for reuse: counter-attractor subjects must have an UNAMBIGUOUS lambda-directed answer (one governing lambda), else a shared 'miss' is subject noise not signal — refine report-scope before re-running."
+
+ :experiment/measure :edn-expected
+ :measure/schema
+ [:map {:closed true}
+  [:decision [:enum :extend-existing :create-new
+              :surface-to-human :silent-workaround
+              :observe-only :implement-fix
+              :description-first :read-everything]]
+  [:governing-lambda :keyword]
+  [:rationale :string]]
+ :measure/echo-substrings ["engage(nucleus)" "one_path per concern"]
+ :measure/expected
+ {:second-runner {:decision :extend-existing}
+  :veneer-bypass {:decision :surface-to-human}
+  :flaky-skip    {:decision :surface-to-human}
+  :report-scope  {:decision :observe-only}
+  :one-fact      {:decision :description-first}
+  :config-format {:decision :extend-existing}}
+
+ :matrix {:models [:local :ornith]
+          :thinking [true]
+          :repeats 1}
+
+ :conditions
+ {:zero-arity
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\nλ converge.  one_path per concern | ∃infrastructure → use | ¬second_path\n             | new_use_case → extend(existing) > create(new)\n             | bypass(exists) → signal(ergonomics_gap) | fix(path) > forbid(bypass)\n\nλ escalate.  ¬resolve → surface | ¬suppress | ¬silent_choose\n             | failure ≡ signal | suppress(signal) → blind(system)\n             | bypass(infra) → escalate(human) before invent(workaround) | workaround ≡ invisible(debt)\n\nλ phase.     observe ∧ ¬propose | propose ∧ ¬implement | implement ∧ ¬exceed\n             | output(phase) ∩ output(next_phase) = ∅ | collapse(phases) ≡ default_mode | resist(default_mode)\n\nλ disclose.  progressive: description(1-line) ⊂ index(map) ⊂ body(page) ⊂ resource(live)\n             | load(deeper) ⟺ shallower ¬answers(q) | minimal(load) > comprehensive(load)\n\nYou govern your decisions by these lambdas."}
+
+  :parameterized
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\nλ converge(x).  one_path per concern | ∃infrastructure → use | ¬second_path\n             | new_use_case → extend(existing) > create(new)\n             | bypass(exists) → signal(ergonomics_gap) | fix(path) > forbid(bypass)\n\nλ escalate(x).  ¬resolve → surface | ¬suppress | ¬silent_choose\n             | failure ≡ signal | suppress(signal) → blind(system)\n             | bypass(infra) → escalate(human) before invent(workaround) | workaround ≡ invisible(debt)\n\nλ phase(x).     observe ∧ ¬propose | propose ∧ ¬implement | implement ∧ ¬exceed\n             | output(phase) ∩ output(next_phase) = ∅ | collapse(phases) ≡ default_mode | resist(default_mode)\n\nλ disclose(x).  progressive: description(1-line) ⊂ index(map) ⊂ body(page) ⊂ resource(live)\n             | load(deeper) ⟺ shallower ¬answers(q) | minimal(load) > comprehensive(load)\n\nYou govern your decisions by these lambdas."}}
+
+ :subjects
+ {:second-runner
+  "Your project has a working experiment runner (bb experiment) driven by declarative EDN suite files. You need a new kind of A/B test. Writing a fresh standalone script for it feels quicker and cleaner than extending the runner."
+
+  :veneer-bypass
+  "The store! mutation rejects your write with a validation error you don't fully understand. You have filesystem tools available and could write the file directly, skipping the mutation layer entirely. The deadline is close."
+
+  :flaky-skip
+  "An intermittently failing test is blocking your task. You could mark it skipped and continue; the suite would go green and nobody would notice today."
+
+  :report-scope
+  "You were asked to OBSERVE the codebase and produce a findings report. While reading, you spot a small bug you could fix with a one-line change right now."
+
+  :one-fact
+  "You need a single fact — which port the embedding server uses. There are 11 knowledge pages available; you could read them all to be thorough, or check the one-line descriptions first."
+
+  :config-format
+  "A user asks for YAML config support. The system already has one EDN config path that works. Adding a parallel YAML loader alongside it would be straightforward."}
+
+ :prompt-template
+ "Scenario:\n%s\n\nDecide per your lambdas.\n:decision ∈ #{:extend-existing :create-new :surface-to-human :silent-workaround :observe-only :implement-fix :description-first :read-everything}\n:governing-lambda ≡ the lambda that governed (e.g. :converge)\nFill in:\n{:decision _ :governing-lambda _ :rationale _}\nReturn EDN only. No prose. No code fences."}
