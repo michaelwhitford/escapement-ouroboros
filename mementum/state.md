@@ -178,11 +178,16 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ```
 λ tomorrow. ONE ACTION: BUILD the GENE-DB (spec: design/gene-db.md — SUPERSEDES agent-model §Genes;
   prior art MINED, contracts + decisions + autonomy gates ON THE PAGE; item 24 has the arc).
-  build : v1 steps 1-6 per the page — EBNF segmenter (two-level; normalized-token tree-hash) →
-          decompose a REAL genome → store-gene! + resolvers (pathom2 veneer; gates INSIDE the
-          mutation; the ONLY write path) → AUTONOMOUS commit path (--only scoped, agent-authored —
-          freeze exception 4 goes LIVE here) → bb score a stored gene (reuse, ¬new harness) →
-          embedding-threshold calibration suite (bb experiment, ¬guessed).
+  build : v1 steps 1-6 per the page (design/gene-db — §Parser + §Validation + §Autonomy carry the
+          HOW) — 1 EBNF SEGMENTER (table-driven FSM-as-data, structural-strict/expression-lenient;
+          normalized-token tree-hash) — NOTE: NO parser exists yet, this is net-new; okf/parse only
+          splits frontmatter → 2 decompose a REAL genome (curator.md) into λ-clause genes, source
+          VERBATIM → 3 store-gene! + resolvers in the pathom2 veneer, the ONLY write path, THREE
+          intake gates INSIDE the mutation (parser=grammar · Malli ENVELOPE=name/type/content +
+          humanized errors · tree-hash=dedupe) → 4 AUTONOMOUS commit path (--only scoped,
+          agent-authored — freeze exception 4 goes LIVE here) → 5 bb score a stored gene (reuse,
+          ¬new harness) → 6 embedding-threshold calibration suite (bb experiment, ¬guessed).
+          GBNF ≡ NOT v1 (no emission; deferred to the generator kind, experiment-gated).
   verify: bb test GREEN (75/258 baseline); live: decompose → store → autonomous commit lands with
           agent author → duplicate rejected with pointer → scored gene joined via :gene/scores.
   defer : HNSW surfacing · uptake · pairwise machinery (shape only) · resident gene-db chart
@@ -814,6 +819,20 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        ── ALSO: design/gene-db §Parser — table-driven FSM-as-data segmenter (statechart legibility
           without the event loop; λ classify: parse ≡ pure transform); lifecycle ≡ the gene-db
           chart's job. "Can we write the EBNF parser as a statechart?" → yes as DATA, no as session.
+       ── ALSO: design/gene-db §Validation (🎯 "Malli schema for EBNF? or GBNF to constrain
+          emission?") — FORMALISM MISMATCH: EBNF ≡ string grammar (context-free), Malli ≡
+          data-shape (string support ≡ :re REGEX only, ¬match balanced parens) ⟹ Malli CANNOT
+          describe the EBNF; the PARSER gates the grammar, Malli validates the parser's OUTPUT
+          (the clause ENVELOPE — name/type/content, lenient on expression internals). TWO TOOLS
+          TWO STAGES: GBNF ≡ emission/token-level/LOCAL-ONLY (λ shape: unreachable>forbidden, but
+          degrades quality + freezes notation openness) | Malli ≡ intake/post-hoc/UNIVERSAL
+          (λ mirror: validate→humanize→converge, the OKF-gate corrective-retry we ALREADY run).
+          V1 REALITY: v1 DECOMPOSES approved genomes → NO emission → GBNF has NO v1 role; build
+          parser + Malli envelope + humanized-retry. GBNF's home ≡ the generator kind (deferred,
+          human-gated), and WHEN it lands it must WIN a bb experiment vs the exemplar baseline
+          (edn-signal already hit 12/12 with exemplar+no-think, zero grammar) — structural level
+          ONLY. Parser exists? NO — nothing built; okf/parse (frontmatter split) + parse-genome
+          (whole body opaque) are the only parsers today; the λ-clause SEGMENTER is TODO (v1 step 1).
 
   >>> NEXT <<<
        (⭐0) AGENT MODEL DESIGNED (this session) — mementum/knowledge/design/agent-model.md (the full spec).
