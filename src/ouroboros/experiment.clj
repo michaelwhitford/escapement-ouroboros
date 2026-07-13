@@ -20,8 +20,10 @@
     [clojure.string :as str]
     [escapement.llm :as ellm]
     [escapement.llm.providers :as providers]
+    [ouroboros.agents.core :as acore]
     [ouroboros.experiment.core :as core]
-    [ouroboros.models :as models]))
+    [ouroboros.models :as models]
+    [ouroboros.prompts :as prompts]))
 
 (def experiments-dir "experiments")
 
@@ -49,11 +51,25 @@
                  {:slug slug :errors errors})))
       suite)))
 
+(defn condition-system
+  "Resolve a condition's system prompt: literal :system, or :assemble through
+  the REAL production assembler (ouroboros.agents.core/assemble — the ONE
+  assembler; a suite that composed prompts its own way would validate
+  nothing). :body-policy names a prompt POLICY artifact slug
+  (ouroboros.prompts/policy-text)."
+  [{:keys [system assemble]}]
+  (or system
+      (when assemble
+        (acore/assemble
+          {:preamble (prompts/preamble)
+           :modules  (mapv prompts/module-text (:modules assemble))
+           :body     (prompts/policy-text (:body-policy assemble))}))))
+
 (defn run-cell
   "Execute ONE matrix cell → row map (cell ⊕ status/timing ⊕ assessment)."
   [suite ctx-cache {:keys [model thinking cond subject] :as cell}]
   (let [ctx     (get ctx-cache model)
-        system  (get-in suite [:conditions cond :system])
+        system  (condition-system (get-in suite [:conditions cond]))
         text    (get-in suite [:subjects subject])
         assess  (get core/measures (:experiment/measure suite))
         opts    (clojure.core/cond-> {:model  :local

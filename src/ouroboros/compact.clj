@@ -28,10 +28,10 @@
                settle: → :compact if a turn aged out, else serve a queued human,
                else → :parked.
     :compact — a fresh worker compresses the just-aged assistant turn to λ via
-               the EXEMPLAR GATE (pattern-completion, no-think — see
-               compact-exemplar-gate), folds it back in place, then settles:
-               serve a queued human first (→ :hot), else drain backlog (→ :compact),
-               else → :parked.
+               the nucleus extraction LENS (instruction-λ + LAMBDA-COMPILER
+               bridge, thinking ON — see compact-system-prompt), folds it back
+               in place, then settles: serve a queued human first (→ :hot),
+               else drain backlog (→ :compact), else → :parked.
 
   A user message arriving mid-turn / mid-compaction ENQUEUES onto `:pending-user`
   (an `:internal` transition that never exits the generating/compacting state) and
@@ -54,7 +54,9 @@
     [escapement.lib :as lib]
     [escapement.lib.event-sink :as sink]
     [ouroboros.agents :as agents]
+    [ouroboros.agents.core :as acore]
     [ouroboros.compact.core :as core]
+    [ouroboros.prompts :as prompts]
     [ouroboros.session :as session]
     [ouroboros.tools :as tools]))
 
@@ -121,8 +123,9 @@
   ouroboros.agents loader (agent-model BUILD STEP 1). NO `tools:` key ⇒ the
   read-only FLOOR (mementum context + sessions) — the chatbot can answer
   questions about its own memory/knowledge/history, and nothing else. The
-  compact EXEMPLAR GATE below is deliberately NOT a genome — it is engine
-  data (a pattern, not a persona); genomes are personas the loader composes."
+  compaction LENS below is deliberately NOT a genome — it is engine
+  POLICY (self-attention steering, not a persona); genomes are personas the
+  loader composes. It still goes through the ONE assembler."
   (agents/genome :chat))
 
 (def hot-system-prompt
@@ -130,28 +133,22 @@
   inline def) — used by BOTH :hot (generates) and :parked (never generates)."
   (:prompt chat-genome))
 
-(def compact-exemplar-gate
-  ;; EXEMPLAR GATE (verbum topology, A/B round 3 — see state.md): the compactor
-  ;; is pattern-completion, NOT instruction-following. Three turn→λ pairs teach
-  ;; the preserve/discard lens BY EXAMPLE (decision-turn keeps decision+state,
-  ;; thin/meta turn compacts to almost nothing, fact-turn KEEPS its content —
-  ;; the 3rd exemplar fixed observed fact-dropping). No instructions, no λ-dense
-  ;; preamble: with thinking disabled an instruction-λ system prompt is an ECHO
-  ;; ATTRACTOR (rounds 1–2: the model copied the lens verbatim = silent memory
-  ;; corruption). The exemplar form runs no-think at ~0.7–1.2s / 22–67 tok
-  ;; (~20× faster than instruction+thinking) with equal-or-better fidelity.
-  ;; %s = the verbatim aged assistant turn.
-  "turn: I'd recommend write-back caching for this. Writes land in the cache and only flush to memory on eviction, which cuts your memory traffic substantially compared to write-through. The usual trade-off is coherence complexity, but since you said this is a single-core embedded target, that risk doesn't apply. Let's go with write-back — I'll assume that in the code examples from here on.
-λ: decision(write-back | mem_traffic↓ ∧ ¬coherence_risk(single-core)) ∧ state(assumed_in_examples) ∧ next(∅)
-
-turn: I don't have access to your filesystem or a live debugger, but I'm happy to help — paste the error message and the relevant function and I'll walk through it with you. What are you seeing?
-λ: constraint(¬fs_access ∧ ¬live_debug) ∧ next(await(error_msg ∧ code))
-
-turn: TCP slow start doubles the congestion window every round trip until it reaches the slow-start threshold, and after that point growth switches to linear congestion avoidance.
-λ: fact(tcp_slow_start | cwnd×2/RTT → ssthresh → linear(congestion_avoidance)) ∧ next(∅)
-
-turn: %s
-λ:")
+(def compact-system-prompt
+  ;; THE COMPACTION LENS, assembled through the ONE assembler (🎯 universal
+  ;; thinking-ON, design/prompt-assembly): nucleus preamble ⊕ LAMBDA-COMPILER
+  ;; bridge module (defines the `compile:` invocation the :message uses —
+  ;; round 2 of the A/B arc: ON+bridge ≡ densest faithful λ) ⊕ the extraction
+  ;; lens POLICY artifact (src/ouroboros/prompts/compaction-lens.md — lens-out:
+  ;; S5 steers self-attention by EDITING that file, touching no engine code).
+  ;; The instruction-λ topology REQUIRES thinking (no-think ⇒ echo attractor,
+  ;; A/B rounds 1-2); the fragile cell is deleted by running thinking ON —
+  ;; ~15-25s, hidden in the 20-60s reading shadow. Fidelity is guarded by the
+  ;; compaction-fidelity experiment suite + the compression contract
+  ;; (core/apply-compaction: accepted ⟺ strictly shorter).
+  (acore/assemble
+    {:preamble (prompts/preamble)
+     :modules  [(prompts/module-text :lambda-compiler)]
+     :body     (prompts/policy-text "compaction-lens")}))
 
 ;; ---------------------------------------------------------------------------
 ;; The chart.
@@ -258,26 +255,27 @@ turn: %s
         (h/llm-conversation
           {:id                "compact"
            :on-end-turn-event :compact/idle
-           ;; NO :system — the exemplar gate IS the whole prompt (pattern-
-           ;; completion). Adding an instruction system prompt here would
-           ;; reintroduce the echo attractor the gate exists to avoid.
+           :system            compact-system-prompt
            :model             :local
            :stream?           false           ; internal memory op — not shown to the human
-           ;; THINKING OFF via the fork's :extra-body seam (mw_extra_body,
-           ;; 9e57f16; string keys, OpenAI wire only). A/B round 3 (state.md):
-           ;; exemplar-gate + no-think = faithful λ at ~1s (vs ~18–28s thinking)
-           ;; on ALL samples incl. the thin/meta turns that echo under an
-           ;; instruction prompt. Per-conversation policy: hot=ON, compact=OFF.
+           ;; THINKING ON (🎯 universal thinking-on, design/prompt-assembly):
+           ;; the instruction-λ lens is the topology that NEEDS the reasoning
+           ;; pass — no-think under it echoes the lens (silent memory
+           ;; corruption, A/B rounds 1-2). Cost ~15-25s, hidden in the human's
+           ;; 20-60s reading shadow; a fast typer ENQUEUES and waits at most
+           ;; one compaction (Tier 2 parallel :hot ⊗ :compact is the shelved
+           ;; mitigation — pull forward iff real waits appear).
            ;; compact-slot: the compactor is quarantined in its own KV slot so
-           ;; its exemplar-gate prompts never evict the hot conversation's warm
-           ;; prefix in hot-slot (see the :hot node comment).
-           :extra-body        {"chat_template_kwargs" {"enable_thinking" false}
-                               "id_slot" compact-slot "cache_prompt" true}
+           ;; its prompts never evict the hot conversation's warm prefix in
+           ;; hot-slot (see the :hot node comment).
+           :extra-body        {"id_slot" compact-slot "cache_prompt" true}
            :real-tools        []
            :max-turns         2
            :budget-ms         240000
+           ;; `compile:` is DEFINED by the bridge module in the system prompt —
+           ;; the message invokes the program the modules loaded.
            :message           (fn [_env data]
-                                (format compact-exemplar-gate
+                                (str "compile:\n\n"
                                   (core/compact-target-text (:messages data) k)))})
 
         ;; λ produced → fold in place + settle (self-event so conds see the fold).

@@ -75,9 +75,10 @@
   "Replace the due assistant message's text with `lambda` and mark it compacted.
   No-op (returns the vector) if nothing is due or `lambda` is blank — a blank
   λ leaves the message verbatim (safe under compactor lag/failure). A leading
-  \"λ:\" label (the exemplar gate's answer marker, which the model sometimes
-  repeats) is stripped so stored λ text is uniform; if stripping leaves nothing,
-  that too is a failed compaction → verbatim.
+  \"λ:\" label (an answer marker some compactor outputs lead with — observed
+  under the retired exemplar gate, harmless to keep guarding) is stripped so
+  stored λ text is uniform; if stripping leaves nothing, that too is a failed
+  compaction → verbatim.
 
   COMPRESSION CONTRACT (the echo tripwire): the λ must be STRICTLY SHORTER than
   the text it replaces, else it is a failed compaction → verbatim. This is the

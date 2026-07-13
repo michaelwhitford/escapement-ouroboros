@@ -34,7 +34,23 @@
              [:models [:vector :keyword]]
              [:thinking [:vector :boolean]]
              [:repeats {:optional true} pos-int?]]]
-   [:conditions [:map-of :keyword [:map [:system :string]]]]
+   [:conditions [:map-of :keyword
+                 [:and
+                  [:map
+                   [:system   {:optional true} :string]
+                   ;; :assemble — the condition's system prompt is built by the
+                   ;; REAL production pipeline (ouroboros.agents.core/assemble,
+                   ;; resolved at the impure edge): granted modules ⊕ a policy
+                   ;; artifact body. The Anima rule made mechanical: a suite
+                   ;; that assembles differently than production validates
+                   ;; nothing — this is how `bb experiment` A/Bs module
+                   ;; inclusion HONESTLY.
+                   [:assemble {:optional true}
+                    [:map {:closed true}
+                     [:modules [:vector :keyword]]
+                     [:body-policy :string]]]]
+                  [:fn {:error/message "condition needs :system or :assemble"}
+                   (fn [c] (boolean (or (:system c) (:assemble c))))]]]]
    [:subjects [:map-of :keyword :string]]
    [:prompt-template :string]])
 
@@ -126,16 +142,48 @@
            :correct? correct?
            :valid? (boolean (and (:valid? base) (or (nil? expected) correct?))))))
 
+(defn assess-lambda-compaction
+  "Decidable fidelity FLOOR for a λ-compaction output (semantic fidelity is
+  unverifiable without a judge — this measures what a string fn can):
+
+    echo?    — output contains any :measure/echo-substrings (lens/bridge
+               text leaking = the round-1/2 failure mode)
+    shorter? — STRICTLY shorter than the subject turn (the compression
+               contract, same law as compact.core/apply-compaction — a
+               'compaction' that answers/derails instead expands)
+    keeps?   — contains every (:keeps expected) substring, case-insensitive
+               (load-bearing content names must SURVIVE the compression)
+
+  :valid? ⟺ ¬echo ∧ shorter ∧ keeps. :parse? = non-blank output (so the
+  summary's parse column reads 'produced anything')."
+  [suite {:keys [subject]} raw]
+  (let [out      (str/trim (str raw))
+        out-lc   (str/lower-case out)
+        text     (str (get-in suite [:subjects subject]))
+        echo?    (boolean (some #(str/includes? out %)
+                                (or (:measure/echo-substrings suite) [])))
+        shorter? (and (not (str/blank? out)) (< (count out) (count text)))
+        keeps    (get-in suite [:measure/expected subject :keeps])
+        missing  (vec (remove #(str/includes? out-lc (str/lower-case %)) keeps))]
+    {:parse?   (not (str/blank? out))
+     :echo?    echo?
+     :shorter? shorter?
+     :keeps?   (empty? missing)
+     :missing  missing
+     :valid?   (boolean (and (not echo?) shorter? (empty? missing)))}))
+
 (def measures
   "measure keyword → assess fn (suite, cell, raw-text → assessment map).
   Open slot (λ extend): future measures dispatch here — e.g. :scorer-genome /
   :judge-genome route the output through the verdict topology instead."
-  {:edn-malli    (fn [suite _cell raw]
-                   (assess-edn-malli (:measure/schema suite)
-                                     (:measure/echo-substrings suite)
-                                     raw))
-   :edn-expected (fn [suite cell raw]
-                   (assess-edn-expected suite cell raw))})
+  {:edn-malli         (fn [suite _cell raw]
+                        (assess-edn-malli (:measure/schema suite)
+                                          (:measure/echo-substrings suite)
+                                          raw))
+   :edn-expected      (fn [suite cell raw]
+                        (assess-edn-expected suite cell raw))
+   :lambda-compaction (fn [suite cell raw]
+                        (assess-lambda-compaction suite cell raw))})
 
 ;; ── embedding calibration (kind :embedding) ─────────────────────────────────
 

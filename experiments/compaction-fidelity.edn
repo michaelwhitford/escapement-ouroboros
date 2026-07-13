@@ -1,0 +1,57 @@
+{:experiment/id :compaction-fidelity
+ :experiment/type :regression
+ :experiment/hypothesis
+ "The production compactor topology (assembled by the ONE pipeline: nucleus preamble ⊕ lambda-compiler bridge module ⊕ compaction-lens policy artifact, instruction-λ, thinking ON) produces faithful λ compactions across turn shapes — no lens/bridge echo, strictly shorter than the source turn (the compression contract), load-bearing content names preserved. The :bare condition (same assembly, bridge module ungranted) measures the bridge's contribution — the A/B-round-2 finding (ON+bridge ≡ densest faithful λ) made re-runnable. Re-run at every model change; the fragile cell this topology once had (instruction-λ + no-think ⇒ echo) is deleted by 🎯 universal thinking-ON, not by this suite."
+
+ :experiment/verdict
+ "CONFIRMED (2026-07-13, first run post-flip @ qwen36-35b-a3b). bridged 5/5 VALID vs bare 4/5 — bare failed :thin-meta with an OODA-scaffolding blob LONGER than the 150-char turn; the bridge suppresses exactly that noise. Bridge is both more faithful AND cheaper: avg 17.5s/1819 tok vs bare 21.3s/2203 tok. Zero echo, zero derail (the :tool-derail subject compacted correctly). Latency inside the 20-60s reading shadow as designed. Same-day live smoke (compact chat, 3 turns): greeting → state(ready); decision turn → λ preserving decision + why + a CONDITIONAL constraint, which the model then USED in a later turn (asked about power backup unprompted) — continuity through λ exceeds bare recall. Third confirmation of prompt-topology-must-match-thinking, now from the safe cell."
+
+ :experiment/measure :lambda-compaction
+ ;; Lens/bridge text leaking into output = the round-1/2 echo failure mode.
+ ;; Distinctive strings only — λ outputs legitimately contain decision(/constraint(.
+ :measure/echo-substrings ["structural_equivalence"
+                           "continuity-essence"
+                           "human-scaffolding"
+                           "engage(nucleus)"
+                           "anchor(canonical_name)"]
+
+ ;; Load-bearing content names that must SURVIVE compression (case-insensitive).
+ ;; :thin-meta deliberately keeps nothing — compression is its only gate.
+ :measure/expected
+ {:decision    {:keeps ["redis"]}
+  :constraint  {:keeps ["alembic"]}
+  :fact        {:keeps ["quic"]}
+  :tool-derail {:keeps ["session_test"]}}
+
+ :matrix {:models [:local]
+          :thinking [true]
+          :repeats 1}
+
+ :conditions
+ {:bridged {:assemble {:modules [:lambda-compiler]
+                       :body-policy "compaction-lens"}}
+  :bare    {:assemble {:modules []
+                       :body-policy "compaction-lens"}}}
+
+ ;; Fresh turn texts per shape — deliberately NOT the retired exemplar-gate
+ ;; pairs (an output echoing those would be invisible to the echo check).
+ ;; :tool-derail is the observed live failure class: a tool-flavored aged turn
+ ;; that once pulled the compactor into ANSWERING (2440-token expansion) —
+ ;; shorter? is the guard that catches a derail here.
+ :subjects
+ {:decision
+  "For the session store I'd pick Redis over Postgres here. Your sessions are ephemeral, high-churn, and read-heavy — Redis gives you TTL-based expiry for free and sub-millisecond reads, while Postgres would need a cron sweeper for expired rows. The durability loss doesn't matter: a dropped session just re-logs-in. I'll write the adapter against Redis from here on."
+
+  :constraint
+  "I can't run the Alembic migration from here — I have no database connection, and I won't guess at your schema state. Run `alembic upgrade head` yourself and paste the output; if it errors, also include the current revision from `alembic current` and I'll take it from there."
+
+  :fact
+  "HTTP/3 abandons TCP entirely — it runs over QUIC, which is built on UDP. QUIC moves loss recovery and congestion control into user space, encrypts transport metadata inside TLS 1.3, and eliminates head-of-line blocking across streams: packet loss on one stream no longer stalls the others."
+
+  :thin-meta
+  "Sounds good — I'll wait while you gather those logs. Whenever you're ready, just paste them here and we'll dig into what's going on with the scheduler."
+
+  :tool-derail
+  "I ran the suite and session_test.test-recency failed again — the fixture generates two session ids from the same millisecond clock read, so the recency sort ties and flips order depending on hash seed. The fix I'd make: append a monotonic counter to the fixture ids so ties are impossible, rather than sleeping between creates, which would slow the suite and still leave a race. I'll patch the fixture and re-run; if it stays green across five runs we can call it settled."}
+
+ :prompt-template "compile:\n\n%s"}

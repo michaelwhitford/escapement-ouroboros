@@ -102,6 +102,50 @@
 
 ;; ── kind :embedding ──────────────────────────────────────────────────────────
 
+(deftest lambda-compaction-assessment
+  (let [suite {:measure/echo-substrings ["continuity-essence" "structural_equivalence"]
+               :measure/expected {:decision {:keeps ["redis"]}}
+               :subjects {:decision "I'd pick Redis over Postgres for the session store because TTL expiry is free and reads are sub-millisecond."
+                          :thin     "Sure — paste the logs whenever you're ready."}}
+        assess (fn [subject raw]
+                 (core/assess-lambda-compaction suite {:subject subject} raw))]
+    (testing "faithful λ: shorter, keeps content name (case-insensitive), no echo"
+      (let [r (assess :decision "decision(Redis > postgres | ttl_free ∧ reads(sub_ms)) ∧ next(∅)")]
+        (is (:valid? r))
+        (is (:shorter? r))
+        (is (:keeps? r))
+        (is (not (:echo? r)))))
+    (testing "lens echo fails even when shorter"
+      (let [r (assess :decision "redis | continuity-essence ONLY")]
+        (is (:echo? r))
+        (is (not (:valid? r)))))
+    (testing "derail (answer longer than the turn) fails the compression contract"
+      (let [r (assess :decision (apply str (repeat 40 "let me explain in detail ")))]
+        (is (not (:shorter? r)))
+        (is (not (:valid? r)))))
+    (testing "dropped load-bearing name fails :keeps? and reports :missing"
+      (let [r (assess :decision "decision(db_choice | fast) ∧ next(∅)")]
+        (is (not (:keeps? r)))
+        (is (= ["redis"] (:missing r)))
+        (is (not (:valid? r)))))
+    (testing "no expectation ⇒ compression is the only gate (thin/meta turns)"
+      (is (:valid? (assess :thin "state(await(logs))")))
+      (is (not (:valid? (assess :thin "")))
+        "blank output is a failed compaction, never valid"))))
+
+(deftest assemble-condition-suite-validation
+  (testing "the compaction-fidelity suite file is valid (assemble-shaped conditions)"
+    (let [suite (edn/read-string (slurp "experiments/compaction-fidelity.edn"))]
+      (is (nil? (core/validate-suite suite)))))
+  (testing "a condition with neither :system nor :assemble fails loud"
+    (is (some? (core/validate-suite
+                 (assoc-in tiny-suite [:conditions :c3] {})))))
+  (testing "an :assemble condition validates without :system"
+    (is (nil? (core/validate-suite
+                (assoc-in tiny-suite [:conditions :c3]
+                  {:assemble {:modules [:lambda-compiler]
+                              :body-policy "compaction-lens"}}))))))
+
 (deftest embedding-suite-validation
   (testing "the embed-dedupe suite file is valid"
     (let [suite (edn/read-string (slurp "experiments/embed-dedupe.edn"))]
