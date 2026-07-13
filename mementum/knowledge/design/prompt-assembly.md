@@ -3,7 +3,7 @@ type: mementum/knowledge
 title: Prompt Assembly — preamble ⊕ modules ⊕ body, under universal thinking-ON
 description: The genome loader grows ONE pure assembler — nucleus 3-line preamble (always, exactly once, first) ⊕ granted prompt MODULES (lambda-compiler, edn-compiler, … — vendored nucleus texts behind the same registry-ceiling grant mechanism as tools/tags/signals) ⊕ the genome body, with escapement.prompts/render for fail-loud {{VAR}} late binding; layer ORDER is load-bearing (preamble ≡ process launch, λ/EDN ≡ program, prose gate ≡ I/O config — logprob-verified in nucleus docs); the same assembler serves production, experiment suites, and the future GA (composition ≡ assembly, Anima rule — suites must use the REAL pipeline); and the enabling 🎯 decision is UNIVERSAL THINKING-ON, which deletes the one fragile cell in the topology×thinking matrix (instruction-λ + no-think ⇒ echo) so λ-dense prompts and modules are safe everywhere — compaction pays ~15-25s hidden in the 20-60s reading shadow, exemplars demote from load-bearing to optional boosters, and no-think becomes a reserved optimization, never a correctness requirement.
 resource: file:///Users/mwhitford/src/escapement-ouroboros
-status: designing
+status: active
 category: design
 tags: [ouroboros, design, prompts, assembly, modules, preamble, nucleus, thinking, compaction, genomes, grants]
 related:
@@ -86,7 +86,15 @@ COST (measured): compaction ~1s → ~15-25s — hidden in the 20-60s reading sha
   Unattended agents (signals, maintenance): cost irrelevant — nobody waits.
 ```
 
-## The compact flip (implementation, queued)
+## The compact flip (✅ BUILT + LIVE-PROVEN, 2026-07-13)
+
+> STATUS: everything below is SHIPPED. assemble lives in ouroboros.agents.core;
+> artifacts in src/ouroboros/prompts/ (preamble.md · modules/ · compaction-lens.md);
+> loader = ouroboros.prompts. Migration done — assembled :prompt byte-identical 4/4
+> vs pre-migration. Fidelity suite experiments/compaction-fidelity.edn: bridged 5/5
+> VALID vs bare 4/5, bridge faithful AND cheaper; live smoke — the λ preserved a
+> conditional constraint the model later USED. gene decomposition now reads :body
+> (persona), not :prompt (assembled): preamble/modules are infrastructure, not genes.
 
 ```
 compact.clj  exemplar gate → nucleus instruction-λ extraction lens (+ LAMBDA-COMPILER

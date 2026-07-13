@@ -314,18 +314,63 @@ adopted (state.md item 23): lens → editable policy artifact (folded into the c
   shell-granted agents · proposals inbox carries :severity from day one (design/scheduled-maintenance)
 ```
 
+## Reserved vs delegated mutations — THE ENUMERATION (2026-07-13)
+
+The precise capability boundary the recursion runs inside. Law first, list second:
+
+```
+λ mutation_gate.
+  gate(change) ≡ machine ⟺ decidable(∀gates)      | gate(change) ≡ human ⟺ ¬decidable
+  | the unit ≡ PERSISTENCE (git commit ∨ push) — working-tree writes are PROPOSALS,
+    cheap and revertible; history is what the gate guards
+  | enforcement ≡ capability (unreachable, λ shape) ≻ policy (prompt + review)
+  | meta-reserved: CHANGING THIS ENUMERATION is itself reserved — the gate that
+    changes gates never self-authorizes (λ policy ¬self_authorize)
+
+RESERVED (human authorizes every instance):
+  r1  AGENTS.md                       Layer-1 designer harness — FROZEN + human-directed exceptions
+  r2  src/ ∧ test/ ∧ bb.edn ∧ config  harness/application code, deps, .gitignore — all code commits
+  r3  genomes                         src/ouroboros/agents/*.md + manifest + <repo>/agents/ custom tier
+                                      (personas ≡ S5 policy per agent; the future editor kind EARNS
+                                      delegation here via champion/challenger + regression, not before)
+  r4  prompt infrastructure           src/ouroboros/prompts/** — preamble, module registry + vendored
+                                      texts, POLICY artifacts (compaction-lens): these steer every
+                                      agent's cognition; one line here reshapes the whole roster
+  r5  mementum/knowledge ∧ memories   create ∧ update ∧ delete (AI proposes, human approves, AI commits)
+  r6  gene consolidation ∧ deletion   near-dup merge (0.84 SURFACE ≠ auto-merge) ∧ any git rm
+  r7  LLM-SYNTHESIZED genes           generator-kind output — parse-valid ≢ good (the anchor-3
+                                      filler gene parses perfectly)
+  r8  registries ∧ routing            tools ceiling/floor (ouroboros.tools) · module registry ·
+                                      models table — subsumed by r2, named because they are the
+                                      capability boundary ITSELF
+  r9  remotes ∧ history               push · branch surgery · rebase/rewrite — always human
+  r10 autonomy-scope expansion        any change to the DELEGATED list below (meta-reserved)
+
+DELEGATED (machine commits autonomously, decidable gates, post-hoc audit):
+  d1  mementum/genes/                 decomposition of APPROVED genomes passing EBNF ∧ Malli ∧
+                                      tree-hash | git commit --only (capability-scoped) |
+                                      agent ≡ git author (audit: git log --author=gene-db)
+  d2  gitignored observation          sessions/ · experiments/results/ · scores side-store —
+                                      never history; no gate needed
+  d3  working-tree proposals          uncommitted memory/knowledge drafts (the inbox) ∧
+                                      state.md during-work edits — persistence rides a
+                                      human-gated commit (λ termination)
+
+ENFORCEMENT REALITY (item 14 honesty): agents WITHOUT :shell/run — reserved commits are
+UNREACHABLE (no commit tool in the ceiling; capability). Agents WITH :shell/run (chat,
+testing phase) — the gate is POLICY (prompt + human review of an interactive session).
+THE RE-HARDENING RULE: autonomy × shell ≡ DISJOINT — an UNATTENDED agent never holds
+:shell/run; delegated write paths must be capability-scoped functions (commit-genes!
+shape), never open shell. Grant shell only where a human is watching the transcript.
+```
+
 ## Open questions (NOT finalized)
 
 ```
 · the exact RESERVED-mutation set (what only the human can authorize) — enumerate precisely
-  → PRIORITIZED (viability diagnostic): do this design task BEFORE more shell-granted agents exist;
-    item 14's invariant shift (shell ⊃ git → human-gate ≡ policy not capability for chat) makes the
-    enumeration the re-hardening of the recursion boundary
-  → FIRST ENTRIES ENUMERATED (gene-db autonomy decision, state.md item 24 — the decidability law
-    applied to the approval gate itself): DELEGATED ≡ gene commits passing decidable gates
-    (EBNF parse ∧ Malli ∧ tree-hash), scoped by git commit --only, agent as git author (audit trail);
-    RESERVED ≡ harness ∧ knowledge ∧ memories ∧ near-dup consolidation ∧ deletion ∧ LLM-synthesized
-    genes. gate(change) ≡ human ⟺ ¬decidable(machine). See design/gene-db §Autonomy.
+  → RESOLVED (2026-07-13): see §Reserved vs delegated mutations above — r1-r10 / d1-d3 +
+    the autonomy×shell disjointness rule. Supersedes the first-entries note (gene-db §Autonomy
+    remains the d1 deep-dive). Re-open only via r10 (meta-reserved).
 · algedonic escalation to the human: a DISTINCT channel from the approval gate, or the same human-input seam?
 · homeostat residual: does ANY explicit S3↔S4 feedback remain after feedforward, or is ≥3 + shadow enough?
 · S4 recursion: when (if) to split the single integrating S4 agent into curator/analyst/generator sub-viability
