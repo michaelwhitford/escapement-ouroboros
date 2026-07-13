@@ -215,10 +215,14 @@
     (fn [root]
       (let [{:keys [stored rejected]} (gene/decompose-genome! root :curator)]
         (is (= [] rejected))
-        (is (= #{:engage :identity :observe :metabolize :select :propose
+        ;; :engage is GONE from decomposition since the assembler migration —
+        ;; the nucleus preamble is infrastructure the loader prepends (design/
+        ;; prompt-assembly), no longer part of the genome BODY genes come from.
+        ;; The previously stored :engage gene stays in the db untouched.
+        (is (= #{:identity :observe :metabolize :select :propose
                  :repair :terminate}
               (set stored))
-          "the 8 λ-clauses of the real curator genome")
+          "the 7 persona λ-clauses of the real curator genome BODY")
         (testing "sources carry genome provenance"
           (is (= [:genome/curator] (:gene/sources (gene/read-gene root :observe)))))
         (testing "verbatim: stored content re-segments to itself (round-trip)"
@@ -229,6 +233,6 @@
         (testing "idempotent re-run → all duplicates, pointers, no crash"
           (let [{:keys [stored rejected]} (gene/decompose-genome! root :curator)]
             (is (= [] stored))
-            (is (= 8 (count rejected)))
+            (is (= 7 (count rejected)))
             (is (every? #(= :duplicate (:gene/error %)) rejected))
             (is (every? :gene/existing rejected))))))))

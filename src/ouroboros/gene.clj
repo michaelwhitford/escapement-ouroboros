@@ -296,8 +296,12 @@
   crash). Segmentation errors in the genome itself throw (our bug, fail loud).
   Returns {:stored [ids] :rejected [{:gene/id :gene/error :gene/existing?}]}."
   [root genome-id]
-  (let [{:keys [prompt slug]}    (agents/genome genome-id root)
-        {:keys [clauses errors]} (core/segment prompt)]
+  ;; :body, not :prompt — genes are the PERSONA's λ clauses. The assembled
+  ;; :prompt would re-decompose the shared preamble + module texts into every
+  ;; genome's gene set (infrastructure, not genes; dedupe would reject the
+  ;; copies anyway, but the intent is the body).
+  (let [{:keys [body slug]}      (agents/genome genome-id root)
+        {:keys [clauses errors]} (core/segment body)]
     (when (seq errors)
       (throw (ex-info "genome body failed structural segmentation — segmenter or genome bug"
                {:gene/error :parse :genome genome-id :errors errors})))

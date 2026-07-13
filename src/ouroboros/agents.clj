@@ -24,6 +24,7 @@
     [clojure.edn :as edn]
     [clojure.java.io :as io]
     [ouroboros.agents.core :as core]
+    [ouroboros.prompts :as prompts]
     [ouroboros.tools :as tools]))
 
 (def ^:private base-prefix "ouroboros/agents/")
@@ -59,20 +60,34 @@
            :source (str f)
            :doc    (slurp (fs/file f))})))))
 
+(defn- assemble-agent
+  "Compiled agent → agent with the FINAL :prompt: preamble ⊕ granted module
+  texts ⊕ body (ouroboros.agents.core/assemble — the ONE assembler). Module
+  texts resolve here (the impure edge); grants were already validated against
+  the registry ceiling in parse-genome. :subs today: {{MODEL}} (fail-loud
+  covers any token a body carries that we don't provide)."
+  [agent]
+  (assoc agent :prompt
+    (core/assemble {:preamble (prompts/preamble)
+                    :modules  (mapv prompts/module-text (:modules agent))
+                    :body     (:body agent)
+                    :subs     {:MODEL (name (:model agent))}})))
+
 (defn- compile-tier [genomes ctx]
   (into {}
-    (map (fn [g] (let [agent (core/parse-genome (merge g ctx))]
+    (map (fn [g] (let [agent (assemble-agent (core/parse-genome (merge g ctx)))]
                    [(:id agent) agent])))
     genomes))
 
 (defn compile-roster
   "Compile the full agent roster for `repo-root` (default \".\"): fold base
-  then custom through parse+validate, custom-wins-by-slug. Returns
+  then custom through parse+validate+assemble, custom-wins-by-slug. Returns
   {id → compiled-agent}. Throws on ANY invalid genome (never half-run)."
   ([] (compile-roster "."))
   ([repo-root]
-   (let [ctx {:registry-tools  (tools/tool-names)
-              :read-only-floor tools/read-only-tools}]
+   (let [ctx {:registry-tools   (tools/tool-names)
+              :read-only-floor  tools/read-only-tools
+              :registry-modules (prompts/module-names)}]
      (core/merge-roster
        [(compile-tier (base-genomes) ctx)
         (compile-tier (custom-genomes repo-root) ctx)]))))

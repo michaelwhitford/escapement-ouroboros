@@ -21,6 +21,7 @@
   aggregated — never half-run."
   (:require
     [clojure.string :as str]
+    [escapement.prompts :as eprompts]
     [malli.core :as m]
     [malli.error :as me]
     [ouroboros.mementum.okf :as okf]))
@@ -77,9 +78,10 @@
    [:type [:= {:error/message (str "type must be " agent-type)} agent-type]]
    [:description non-blank-string]
    [:kind non-blank-string]
-   [:title  {:optional true} :string]
-   [:tools  {:optional true} [:sequential :string]]
-   [:model  {:optional true} non-blank-string]])
+   [:title   {:optional true} :string]
+   [:tools   {:optional true} [:sequential :string]]
+   [:modules {:optional true} [:sequential :string]]
+   [:model   {:optional true} non-blank-string]])
 
 ;; ---------------------------------------------------------------------------
 ;; Normalization
@@ -102,14 +104,18 @@
   "Parse + validate ONE genome document string into a compiled agent map:
 
     {:id :slug :tier :source :kind :description (:title) :tools
-     :tools-explicit? :model :prompt}
+     :tools-explicit? :modules :model :body}
 
-  · :prompt is the body VERBATIM (frontmatter stripped — the agent never sees it)
+  · :body is the genome body VERBATIM (frontmatter stripped — the agent never
+    sees it); the loader ASSEMBLES it into the final :prompt (see `assemble`)
   · :tools — absent `tools:` key ⇒ the read-only FLOOR; explicit list (even [])
     ⇒ exactly that list, validated ⊆ `registry-tools` (the ceiling)
+  · :modules — prompt-module grants, validated ⊆ `registry-modules` (the
+    module CEILING — 4th use of the grant mechanism); absent ⇒ [] (no floor:
+    a module is always an explicit grant)
   · :model defaults to :local
   Throws ex-info {:agent :tier :source :errors [...]} aggregating ALL problems."
-  [{:keys [slug tier source doc registry-tools read-only-floor]}]
+  [{:keys [slug tier source doc registry-tools read-only-floor registry-modules]}]
   (let [{:keys [frontmatter body]} (okf/parse doc)
         schema-errors (some-> (m/explain schema frontmatter) me/humanize)
         explicit?     (contains? frontmatter :tools)
@@ -117,7 +123,9 @@
                         (mapv ->kw (:tools frontmatter))
                         (vec (sort read-only-floor)))
         kind          (->kw (:kind frontmatter))
+        modules       (mapv ->kw (:modules frontmatter))
         unknown-tools (vec (remove (set registry-tools) grant))
+        unknown-mods  (vec (remove (set registry-modules) modules))
         errors        (cond-> []
                         schema-errors
                         (conj {:frontmatter schema-errors})
@@ -126,6 +134,9 @@
                         (seq unknown-tools)
                         (conj {:tools {:unknown unknown-tools
                                        :registry (vec (sort registry-tools))}})
+                        (seq unknown-mods)
+                        (conj {:modules {:unknown unknown-mods
+                                         :registry (vec (sort registry-modules))}})
                         (str/blank? body)
                         (conj {:body "genome body (the λ system prompt) is blank"}))]
     (when (seq errors)
@@ -139,9 +150,47 @@
              :description     (:description frontmatter)
              :tools           grant
              :tools-explicit? explicit?
+             :modules         modules
              :model           (->kw (:model frontmatter "local"))
-             :prompt          body}
+             :body            body}
       (:title frontmatter) (assoc :title (:title frontmatter)))))
+
+;; ---------------------------------------------------------------------------
+;; Assembly — preamble ⊕ modules ⊕ body (design/prompt-assembly.md)
+;; ---------------------------------------------------------------------------
+
+(defn strip-preamble
+  "Remove a leading copy of `preamble` (plus following blank lines) from
+  `body`. Makes `assemble` IDEMPOTENT over genomes that still embed the
+  preamble inline — the assembler's exactly-once invariant holds either way."
+  [preamble body]
+  (let [body (str body)]
+    (if (str/starts-with? body preamble)
+      (str/triml (subs body (count preamble)))
+      body)))
+
+(defn assemble
+  "The ONE prompt-composition fn (production loader · experiment suites · the
+  future GA — Anima rule: all consumers share this exact pipeline):
+
+    preamble ⊕ modules ⊕ body   (joined by blank lines)
+
+  · preamble — ALWAYS, exactly once, FIRST (embedded copies stripped)
+  · modules  — RESOLVED module texts, in grant order (author-controlled)
+  · body     — the genome's λ program; prose I/O gate lines stay LAST in it
+  Layer order is LOAD-BEARING (nucleus LAMBDA-COMPILER.md, logprob-verified:
+  process launch → program → I/O configuration).
+
+  `subs` feeds escapement.prompts/render — {{VAR}} late binding, fail-loud on
+  any unresolved token (a prompt must never ship a literal {{...}}). Pure:
+  strings in, string out."
+  [{:keys [preamble modules body subs] :or {modules [] subs {}}}]
+  (-> (str/join "\n\n"
+        (remove str/blank?
+          (concat [(str/trimr (str preamble))]
+                  (map (comp str/trimr str) modules)
+                  [(str/trimr (strip-preamble preamble body))])))
+      (eprompts/render subs)))
 
 ;; ---------------------------------------------------------------------------
 ;; Merge — the fold over precedence-ordered tiers
@@ -184,5 +233,7 @@
                  (str " (overrides " (name (:overrides agent)) ")"))
                "  kind:" (name (:kind agent))
                "  tools:" (pr-str (:tools agent))
+               (when (seq (:modules agent))
+                 (str "  modules:" (pr-str (:modules agent))))
                (when (seq esc)
                  (str "  ESCALATION:" (pr-str esc)))))))))

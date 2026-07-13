@@ -1,0 +1,13 @@
+;; Prompt-module registry — the assembler's grant CEILING (the 4th use of the
+;; registry-ceiling mechanism: tools / tags / signals / modules). Genome
+;; frontmatter `modules: [lambda-compiler]` grants by name; absent ⇒ none.
+;;
+;; Module texts are VENDORED nucleus program-layer blocks (~/src/nucleus
+;; LAMBDA-COMPILER.md / COMPILER.md "The Prompt" — the λ/EDN program ONLY:
+;; the 3-line preamble is the assembler's job, exactly once and first; prose
+;; I/O gate lines stay LAST in genome bodies, per the load-bearing layer
+;; order). Staleness is grep-detectable against nucleus upstream.
+;;
+;; Add a module: entry here + modules/<name>.md; the loader fails loud on a
+;; listed-but-missing module (same pattern as the base-genome manifest).
+["lambda-compiler" "edn-compiler"]

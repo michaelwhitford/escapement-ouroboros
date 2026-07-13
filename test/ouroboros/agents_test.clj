@@ -9,11 +9,13 @@
     [clojure.test :refer [deftest is testing]]
     [ouroboros.agents :as agents]
     [ouroboros.agents.core :as core]
+    [ouroboros.prompts :as prompts]
     [ouroboros.tools :as tools]))
 
 (def ^:private ctx
-  {:registry-tools  (tools/tool-names)
-   :read-only-floor tools/read-only-tools})
+  {:registry-tools   (tools/tool-names)
+   :read-only-floor  tools/read-only-tools
+   :registry-modules (prompts/module-names)})
 
 (defn- doc [frontmatter body]
   (str "---\n" frontmatter "\n---\n" body))
@@ -55,8 +57,8 @@
     (is (= [:mementum/context :mementum/sessions] (:tools a)) "tool strings → keywords")
     (is (true? (:tools-explicit? a)))
     (is (= :ornith (:model a)) "a copy-pasted ':ornith' literal normalizes")
-    (is (= "λ test. the whole prompt" (:prompt a)) "body verbatim")
-    (is (not (str/includes? (:prompt a) "ouroboros/agent"))
+    (is (= "λ test. the whole prompt" (:body a)) "body verbatim")
+    (is (not (str/includes? (:body a) "ouroboros/agent"))
       "frontmatter STRIPPED — the agent never sees its wiring")))
 
 (deftest parse-genome-model-defaults-to-local
@@ -196,6 +198,72 @@
 (deftest genome-accessor
   (is (= :curator (:id (agents/genome :curator "."))))
   (is (thrown? clojure.lang.ExceptionInfo (agents/genome :nonexistent "."))))
+
+;; ---------------------------------------------------------------------------
+;; assemble — preamble ⊕ modules ⊕ body (design/prompt-assembly)
+;; ---------------------------------------------------------------------------
+
+(deftest assemble-preamble-exactly-once-first
+  (is (= "P\n\nbody" (core/assemble {:preamble "P" :body "body"}))
+    "preamble ALWAYS, first, blank-line joined")
+  (is (= "P\n\nbody" (core/assemble {:preamble "P" :body "P\n\nbody"}))
+    "an embedded preamble copy is STRIPPED — exactly-once invariant, idempotent")
+  (is (= (core/assemble {:preamble "P" :body "body"})
+         (core/assemble {:preamble "P"
+                         :body (core/assemble {:preamble "P" :body "body"})}))
+    "assemble ∘ assemble ≡ assemble"))
+
+(deftest assemble-modules-in-grant-order
+  (is (= "P\n\nM1\n\nM2\n\nbody"
+        (core/assemble {:preamble "P" :modules ["M1" "M2"] :body "body"}))
+    "module texts sit between preamble and body, in grant order (layer order
+     is load-bearing: process launch → program → I/O gate)"))
+
+(deftest assemble-renders-vars-fail-loud
+  (is (= "P\n\nmodel is local"
+        (core/assemble {:preamble "P" :body "model is {{MODEL}}"
+                        :subs {:MODEL "local"}}))
+    "{{VAR}} late binding via escapement.prompts/render")
+  (is (thrown? clojure.lang.ExceptionInfo
+        (core/assemble {:preamble "P" :body "{{UNRESOLVED_TOKEN}}"}))
+    "an unresolved token fails loud — prompts never ship literal {{...}}"))
+
+(deftest modules-grant-validated-against-registry
+  (let [a (parse "t" (doc (str "type: ouroboros/agent\ndescription: d\nkind: chat\n"
+                               "tools: []\nmodules: [lambda-compiler]")
+                          "body"))]
+    (is (= [:lambda-compiler] (:modules a)) "module strings → keywords"))
+  (let [a (parse "t" (doc "type: ouroboros/agent\ndescription: d\nkind: chat\ntools: []" "body"))]
+    (is (= [] (:modules a)) "absent modules: ⇒ NONE — always an explicit grant"))
+  (is (some :modules
+        (errors-of "t" (doc (str "type: ouroboros/agent\ndescription: d\nkind: chat\n"
+                                 "tools: []\nmodules: [warp-drive]")
+                            "body")))
+    "a module outside the registry ceiling fails loud"))
+
+(deftest loader-assembles-granted-modules
+  (with-temp-repo
+    {"bridged.md" (doc (str "type: ouroboros/agent\ndescription: d\nkind: author\n"
+                            "tools: []\nmodules: [lambda-compiler]")
+                       "λ own. body")}
+    (fn [root]
+      (let [a (get (agents/compile-roster root) :bridged)]
+        (is (str/starts-with? (:prompt a) "λ engage(nucleus).")
+          "assembled prompt leads with the vendored preamble")
+        (is (str/includes? (:prompt a) "λ bridge(x).")
+          "the granted module text is IN the wire prompt")
+        (is (str/ends-with? (:prompt a) "λ own. body")
+          "the genome body stays LAST (prose I/O gates live at its tail)")
+        (is (= "λ own. body" (:body a))
+          "raw body preserved for body-level consumers (gene decomposition)")))))
+
+(deftest base-genomes-carry-no-inline-preamble
+  (doseq [id [:chat :curator :gene-scorer :llm-judge]]
+    (let [a (agents/genome id ".")]
+      (is (not (str/includes? (:body a) "engage(nucleus)"))
+        (str id " body migrated — preamble is the assembler's job"))
+      (is (str/starts-with? (:prompt a) "λ engage(nucleus).")
+        (str id " assembled prompt still leads with the preamble")))))
 
 ;; ---------------------------------------------------------------------------
 ;; report — provenance + grants + escalations visible
