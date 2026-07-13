@@ -124,4 +124,11 @@ assembled output vs today's prompts to prove equivalence; one live smoke. Engine
 · cache — stable assembly ⇒ stable prefix; shared preamble+modules prefix marginally
   helps the host cache across agents; per-slot pinning already carries the real load
 · does {{VAR}} appear in genome BODIES too (not just modules)? allow, fail-loud covers it
+· genes→assembly (the FIFTH grant, `genes:` frontmatter) — ⚠ r4 HAZARD: genes are DELEGATED
+  (autonomous commits) but prompt infrastructure is r4 RESERVED; by-NAME gene refs would let an
+  autonomous gene update mutate a production prompt (delegated path tunnels into the reserved
+  zone). Mitigations: tree-hash PINNING (content-address; bump ≡ human genome edit) ∨
+  experiment-tier-only staging (anima λ express dual_mode: inline production, gene-refs for
+  challengers; promotion ≡ human). Decide before the editor kind lands. AST reader (gene-db §AST)
+  makes structural composition possible — composition ≠ permission.
 ```

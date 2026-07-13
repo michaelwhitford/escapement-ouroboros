@@ -135,12 +135,33 @@ embeddings.clj    unread — check before building :gene/leaf-vec side (may pre-
     each table row CITES its EBNF production | topology ≡ data ≡ greppable ∧ testable ∧
     resolver-servable (:parser/topology) — λ inhabit's visibility without the event loop
   | expression level: v1 LENIENT (token stream) — no recursion needed; full ASTs later ≡
-    recursive descent in a pure fn, ¬stack-through-chart-WM
+    recursive descent in a pure fn, ¬stack-through-chart-WM | ✅ BUILT → §AST
   | LIFECYCLE ≡ chart territory (the gene-db chart): :loading/:gene/store INVOKE the pure
     parser, route on result — parse-fail ≡ reachable :rejected/:error state, checkpointed,
     observable | gate-in-topology (λ emerge), parser-in-kernel (λ simplify)
   | STREAMING TRIGGER (named, deferred): generator kind emitting λ-clauses token-by-token →
     input becomes event-shaped → event-driven incremental parse justified THEN, not before
+```
+
+## AST — the reader level (✅ BUILT 2026-07-13, ouroboros.gene.ast)
+
+```
+λ ast.  segment → tokenize(glued-adjacency) → read-forms(balanced delimiters) → parse-clause
+  | lisp-STYLE ¬lisp-LITERAL: proved(repl) edn/read fails on real λ content (label tokens ·
+    date tokens · odd-count {…}) — glyphs read fine; prose-adjacent tokens kill it
+  | EBNF expression ≡ FLAT (no precedence) ⇒ chain {:ast/terms […] :ast/ops […]} | ¬Pratt
+  | terms: prefix(glyph GLUED: ¬x) · call(f( GLUED) · group · prose-run(no-op-between merge —
+    gate-trigger prose ≡ outside the grammar by design) · string/keyword/word/symbol
+  | 3 head forms (:identity :fn0 :params) · top-level | → alternatives · where → bindings
+  | op set OPEN: pure-glyph in op position ≡ op | unknown-ops COLLECTED ¬rejected ≡ λ coevolve
+    inventory for nucleus EBNF (found: ∈ ⟺ ≻ ⊂ ⟹ ∪ ⊇ ≤ ∝ ∩ ≠) | enforce(enum) ≡
+    freeze(notation) — the full-expression-GBNF rejection reason again
+  | TOTAL: errors collected | corpus gate: 58 clauses → 57/58 clean, the 1 ≡ honest
+    (λ heredoc's bash chars genuinely unbalanced)
+  | AST ≡ DERIVED ¬stored | :gene/content ≡ fidelity floor | tree-hash UNTOUCHED
+    (AST-hash re-keys every dedupe identity — migration deferred until a reason exists)
+  | consumers: gene queries (resolver-servable) · genes→assembly composition · lint/cross-refs ·
+    GBNF derivation FROM the node set (generator kind) · upstream grammar amendments
 ```
 
 ## Validation — parser gates the grammar, Malli gates the envelope, GBNF defers (🎯 human, this session)
