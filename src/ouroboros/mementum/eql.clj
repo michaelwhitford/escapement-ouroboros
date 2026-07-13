@@ -22,7 +22,8 @@
     [com.wsscode.pathom.connect :as pc]
     [ouroboros.gene :as gene]
     [ouroboros.gene.core :as gene.core]
-    [ouroboros.mementum.store :as store]))
+    [ouroboros.mementum.store :as store]
+    [ouroboros.signals :as signals]))
 
 (defn- root [env] (get env :mementum/root "."))
 
@@ -107,6 +108,27 @@
    ::pc/output [:gene/scores]}
   {:gene/scores (gene/read-scores (root env) id)})
 
+;; ---------------------------------------------------------------------------
+;; Signal resolvers (design/signals.md — "the pathom parser is the bus",
+;; Anima lineage). ONE parameterized read (the recall-resolver house
+;; pattern): params ATTENUATE — query ≡ subscription, consumers pull
+;; level-appropriate slices (by-type / for-source / recent in one).
+;; ---------------------------------------------------------------------------
+
+(pc/defresolver signals-resolver
+  "Global, parameterized signal query:
+    [(:mementum/signals {:type :s1/report :source \"curator\" :n 5})]
+  All params optional — bare read returns everything, oldest→newest."
+  [env _]
+  {::pc/output [:mementum/signals]}
+  (let [{:keys [type source n]} (-> env :ast :params)]
+    {:mementum/signals
+     (cond->> (signals/all-signals (root env))
+       type   (filterv #(= type (:signal/type %)))
+       source (filterv #(= source (:signal/source %)))
+       n      (take-last n)
+       true   vec)}))
+
 (pc/defresolver parser-topology
   "The segmenter FSM served as data (design/gene-db.md §Parser:
   topology ≡ greppable ∧ testable ∧ resolver-servable)."
@@ -183,14 +205,42 @@
           (:errors d)        (assoc :gene/errors (:errors d))
           (:gene/existing d) (assoc :gene/existing (:gene/existing d)))))))
 
+;; signal/emit! — THE signal write path via EQL (the veneer twin of the
+;; :signal/emit tool; both route through ouroboros.signals/emit!, λ converge).
+;; Params here are native EDN — no JSON boundary, so :data is a real map:
+;;   [(signal/emit! {:type :s1/report :data {:summary "s" :outcome :ok}
+;;                   :lambda "λ …" :source "bb-maintain"})]
+;; Core throws structured → caught → first-class rejection data (the
+;; mementum store! precedent). NOTE: the veneer does NOT enforce per-agent
+;; grants — grants gate the LLM-facing tool; the veneer is infrastructure
+;; (charts, bb tasks, tests) already inside the trust boundary.
+(pc/defmutation signal-emit!-mut [env {:keys [type data lambda source]}]
+  {::pc/sym    'signal/emit!
+   ::pc/output [:signal/id :signal/path :signal/written
+                :signal/error :signal/errors :signal/existing]}
+  (try
+    (assoc (signals/emit! (root env)
+             (cond-> {:signal/type   type
+                      :signal/data   data
+                      :signal/source (str (or source "eql"))}
+               lambda (assoc :signal/lambda lambda)))
+      :signal/error nil)
+    (catch clojure.lang.ExceptionInfo e
+      (let [d (ex-data e)]
+        (cond-> {:signal/written false
+                 :signal/error   (or (:signal/error d) :error)}
+          (:errors d)          (assoc :signal/errors (:errors d))
+          (:signal/existing d) (assoc :signal/existing (:signal/existing d)))))))
+
 ;; ---------------------------------------------------------------------------
 ;; Parser — mirrors escapement.ui.resolvers (proven under bb).
 ;; ---------------------------------------------------------------------------
 
 (def registry
   [page-resolver knowledge-index memories-index recall-resolver
-   gene-resolver genes-index gene-scores parser-topology
-   store!-mut synthesize!-mut update!-mut delete!-mut gene-store!-mut])
+   gene-resolver genes-index gene-scores parser-topology signals-resolver
+   store!-mut synthesize!-mut update!-mut delete!-mut gene-store!-mut
+   signal-emit!-mut])
 
 (def parser
   (delay

@@ -24,7 +24,8 @@
     [escapement.prompts :as eprompts]
     [malli.core :as m]
     [malli.error :as me]
-    [ouroboros.mementum.okf :as okf]))
+    [ouroboros.mementum.okf :as okf]
+    [ouroboros.signals.core :as signals.core]))
 
 ;; ---------------------------------------------------------------------------
 ;; Vocabulary
@@ -81,6 +82,7 @@
    [:title   {:optional true} :string]
    [:tools   {:optional true} [:sequential :string]]
    [:modules {:optional true} [:sequential :string]]
+   [:signals {:optional true} [:sequential :string]]
    [:model   {:optional true} non-blank-string]])
 
 ;; ---------------------------------------------------------------------------
@@ -113,19 +115,30 @@
   · :modules — prompt-module grants, validated ⊆ `registry-modules` (the
     module CEILING — 4th use of the grant mechanism); absent ⇒ [] (no floor:
     a module is always an explicit grant)
+  · :signals — emit-type grants (design/signals.md — the 5th grant surface),
+    validated ⊆ `registry-signals` (the signal-type registry ≡ the emit
+    ceiling); absent ⇒ [] (emit NOTHING — no floor). A non-empty grant
+    auto-adds :signal/emit to :tools (ONE grant surface: the TYPE grant is
+    the capability; a typeless emit tool would be inert)
   · :model defaults to :local
   Throws ex-info {:agent :tier :source :errors [...]} aggregating ALL problems."
-  [{:keys [slug tier source doc registry-tools read-only-floor registry-modules]}]
+  [{:keys [slug tier source doc registry-tools read-only-floor registry-modules
+           registry-signals]}]
   (let [{:keys [frontmatter body]} (okf/parse doc)
         schema-errors (some-> (m/explain schema frontmatter) me/humanize)
         explicit?     (contains? frontmatter :tools)
-        grant         (if explicit?
-                        (mapv ->kw (:tools frontmatter))
-                        (vec (sort read-only-floor)))
+        signals       (mapv ->kw (:signals frontmatter))
+        grant         (as-> (if explicit?
+                               (mapv ->kw (:tools frontmatter))
+                               (vec (sort read-only-floor))) g
+                        (if (and (seq signals) (not-any? #{:signal/emit} g))
+                          (conj g :signal/emit)
+                          g))
         kind          (->kw (:kind frontmatter))
         modules       (mapv ->kw (:modules frontmatter))
         unknown-tools (vec (remove (set registry-tools) grant))
         unknown-mods  (vec (remove (set registry-modules) modules))
+        unknown-sigs  (vec (remove (set registry-signals) signals))
         errors        (cond-> []
                         schema-errors
                         (conj {:frontmatter schema-errors})
@@ -137,6 +150,9 @@
                         (seq unknown-mods)
                         (conj {:modules {:unknown unknown-mods
                                          :registry (vec (sort registry-modules))}})
+                        (seq unknown-sigs)
+                        (conj {:signals {:unknown unknown-sigs
+                                         :registry (vec (sort registry-signals))}})
                         (str/blank? body)
                         (conj {:body "genome body (the λ system prompt) is blank"}))]
     (when (seq errors)
@@ -151,6 +167,7 @@
              :tools           grant
              :tools-explicit? explicit?
              :modules         modules
+             :signals         signals
              :model           (->kw (:model frontmatter "local"))
              :body            body}
       (:title frontmatter) (assoc :title (:title frontmatter)))))
@@ -222,11 +239,13 @@
   (incl. overrides) and the tool GRANT, flagging escalations beyond the
   read-only floor."
   [roster read-only-floor]
-  (let [floor (set read-only-floor)]
+  (let [floor    (set read-only-floor)
+        reserved (signals.core/reserved-types)]
     (str "Compiled " (count roster) " agent" (when (not= 1 (count roster)) "s") ":\n"
       (str/join "\n"
         (for [[id agent] (sort-by key roster)
-              :let [esc (vec (remove floor (:tools agent)))]]
+              :let [esc      (vec (remove floor (:tools agent)))
+                    res-sigs (vec (filter reserved (:signals agent)))]]
           (str "  " (name id)
                "  " (name (:tier agent))
                (when (:overrides agent)
@@ -235,5 +254,9 @@
                "  tools:" (pr-str (:tools agent))
                (when (seq (:modules agent))
                  (str "  modules:" (pr-str (:modules agent))))
+               (when (seq (:signals agent))
+                 (str "  signals:" (pr-str (:signals agent))))
                (when (seq esc)
-                 (str "  ESCALATION:" (pr-str esc)))))))))
+                 (str "  ESCALATION:" (pr-str esc)))
+               (when (seq res-sigs)
+                 (str "  RESERVED-SIGNALS:" (pr-str res-sigs)))))))))

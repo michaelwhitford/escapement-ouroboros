@@ -15,6 +15,14 @@ sessions/
 # + knowledge pages through the human gate, like sessions/ → mementum/).
 experiments/results/
 
+# Signals — the inter-agent DATA plane (design/signals.md): typed durable
+# EDN facts, one file per signal. Machine observation, pre-approval — the
+# sessions/ pattern: filesystem-side, queried via the EQL veneer, promoted
+# into mementum/ only through the human gate. Git stays approved-memory-only.
+# ROOT-ANCHORED (/signals/) — an unanchored signals/ swallows the SOURCE dir
+# src/ouroboros/signals/ (caught live at first git status).
+/signals/
+
 # Gene score side-store — high-churn machine observation keyed by gene name
 # (design/gene-db.md: scores side-stored, joined at query via :gene/scores;
 # settled summaries PROMOTE into the tracked gene file through the human gate).

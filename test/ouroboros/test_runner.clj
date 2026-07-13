@@ -19,7 +19,9 @@
     [ouroboros.experiment.core-test]
     [ouroboros.gene.core-test]
     [ouroboros.gene.ast-test]
-    [ouroboros.gene-test]))
+    [ouroboros.gene-test]
+    [ouroboros.signals.core-test]
+    [ouroboros.signals-test]))
 
 (defn run! [& _]
   (let [{:keys [fail error]}
@@ -39,5 +41,7 @@
           'ouroboros.experiment.core-test
           'ouroboros.gene.core-test
           'ouroboros.gene.ast-test
-          'ouroboros.gene-test)]
+          'ouroboros.gene-test
+          'ouroboros.signals.core-test
+          'ouroboros.signals-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))

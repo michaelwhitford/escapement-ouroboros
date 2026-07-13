@@ -10,12 +10,14 @@
     [ouroboros.agents :as agents]
     [ouroboros.agents.core :as core]
     [ouroboros.prompts :as prompts]
+    [ouroboros.signals.core :as signals.core]
     [ouroboros.tools :as tools]))
 
 (def ^:private ctx
   {:registry-tools   (tools/tool-names)
    :read-only-floor  tools/read-only-tools
-   :registry-modules (prompts/module-names)})
+   :registry-modules (prompts/module-names)
+   :registry-signals signals.core/signal-types})
 
 (defn- doc [frontmatter body]
   (str "---\n" frontmatter "\n---\n" body))
@@ -157,7 +159,9 @@
       (let [c (:chat roster)]
         (is (= :chat (:kind c)))
         (is (true? (:tools-explicit? c)))
-        (is (= (disj (tools/tool-names) :web/search) (set (:tools c)))
+        ;; :signal/emit rides the `signals:` grant, not `tools:` (design/
+        ;; signals.md) — chat has no signal types, so no emit tool.
+        (is (= (disj (tools/tool-names) :web/search :signal/emit) (set (:tools c)))
           "everything in the ceiling except web/search — 🎯 human decision")
         (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))))
     (testing "gene-scorer genome — the GA fitness function"
@@ -278,3 +282,71 @@
     {"curator.md" (doc "type: ouroboros/agent\ndescription: shadowed\nkind: proposer\ntools: []" "body")}
     (fn [root]
       (is (str/includes? (agents/report root) "custom (overrides base)")))))
+;; ---------------------------------------------------------------------------
+;; signals: grant — the 5th grant surface (design/signals.md)
+;; ---------------------------------------------------------------------------
+
+(deftest signals-grant-normalizes-and-arms-the-tool
+  (let [a (parse "t" (doc (str "type: ouroboros/agent\n"
+                               "description: d\n"
+                               "kind: proposer\n"
+                               "tools: [mementum/context]\n"
+                               "signals: [s1/report, \":human/notice\"]")
+                          "body"))]
+    (is (= [:s1/report :human/notice] (:signals a)) "strings → keywords")
+    (is (= [:mementum/context :signal/emit] (:tools a))
+      "non-empty signals grant auto-adds :signal/emit — ONE grant surface")))
+
+(deftest signals-grant-no-double-emit-tool
+  (let [a (parse "t" (doc (str "type: ouroboros/agent\n"
+                               "description: d\n"
+                               "kind: proposer\n"
+                               "tools: [signal/emit]\n"
+                               "signals: [s1/report]")
+                          "body"))]
+    (is (= [:signal/emit] (:tools a)) "already-listed emit tool not duplicated")))
+
+(deftest signals-absent-means-emit-nothing
+  (let [a (parse "t" (doc "type: ouroboros/agent\ndescription: d\nkind: chat\ntools: []" "body"))]
+    (is (= [] (:signals a)) "absent ⇒ [] — no floor, emit nothing")
+    (is (= [] (:tools a)) "no signals ⇒ no emit tool")))
+
+(deftest signals-unknown-type-fails-loud
+  (let [errs (errors-of "t" (doc (str "type: ouroboros/agent\n"
+                                      "description: d\n"
+                                      "kind: proposer\n"
+                                      "signals: [nope/nope, s1/report]")
+                                 "body"))]
+    (is (= [:nope/nope] (get-in (first (filter :signals errs)) [:signals :unknown]))
+      "unknown signal types aggregated, registry named")))
+
+(deftest signals-grant-appends-projection-to-prompt-not-body
+  (with-temp-repo
+    {"emitter.md" (doc (str "type: ouroboros/agent\n"
+                            "description: an emitting agent\n"
+                            "kind: proposer\n"
+                            "signals: [s1/report]")
+                       "λ emitter. observe → emit")}
+    (fn [root]
+      (let [a (agents/genome :emitter root)]
+        (is (str/includes? (:prompt a) "λ signal_emission.")
+          "projection assembled into the prompt")
+        (is (str/includes? (:prompt a) "⟨type :s1/report⟩")
+          "the granted type's FILLED exemplar is present")
+        (is (not (str/includes? (:prompt a) "⟨type :s4/proposal⟩"))
+          "ungranted types are absent")
+        (is (= "λ emitter. observe → emit" (:body a))
+          ":body stays RAW — gene decomposition reads the persona only")))))
+
+(deftest report-shows-signals-and-reserved-escalation
+  (with-temp-repo
+    {"alarmer.md" (doc (str "type: ouroboros/agent\n"
+                            "description: reserved-signal agent\n"
+                            "kind: proposer\n"
+                            "signals: [ouro/algedonic, s1/report]")
+                       "body")}
+    (fn [root]
+      (let [r (agents/report root)]
+        (is (str/includes? r "signals:[:ouro/algedonic :s1/report]"))
+        (is (str/includes? r "RESERVED-SIGNALS:[:ouro/algedonic]")
+          "reserved grants scream in the audit surface")))))

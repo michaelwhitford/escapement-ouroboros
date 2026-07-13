@@ -25,6 +25,7 @@
     [clojure.java.io :as io]
     [ouroboros.agents.core :as core]
     [ouroboros.prompts :as prompts]
+    [ouroboros.signals.core :as signals.core]
     [ouroboros.tools :as tools]))
 
 (def ^:private base-prefix "ouroboros/agents/")
@@ -65,13 +66,21 @@
   texts ⊕ body (ouroboros.agents.core/assemble — the ONE assembler). Module
   texts resolve here (the impure edge); grants were already validated against
   the registry ceiling in parse-genome. :subs today: {{MODEL}} (fail-loud
-  covers any token a body carries that we don't provide)."
+  covers any token a body carries that we don't provide).
+
+  A `signals:` grant appends the signal-emission projection AFTER the body
+  (FILLED exemplars per granted type — projection 1 of the signal registry;
+  I/O configuration sits last, the nucleus layer order). `:body` on the
+  agent stays RAW — gene decomposition reads the persona, never the
+  infrastructure projection."
   [agent]
-  (assoc agent :prompt
-    (core/assemble {:preamble (prompts/preamble)
-                    :modules  (mapv prompts/module-text (:modules agent))
-                    :body     (:body agent)
-                    :subs     {:MODEL (name (:model agent))}})))
+  (let [projection (signals.core/prompt-projection (:signals agent))]
+    (assoc agent :prompt
+      (core/assemble {:preamble (prompts/preamble)
+                      :modules  (mapv prompts/module-text (:modules agent))
+                      :body     (cond-> (:body agent)
+                                  projection (str "\n\n" projection))
+                      :subs     {:MODEL (name (:model agent))}}))))
 
 (defn- compile-tier [genomes ctx]
   (into {}
@@ -87,7 +96,8 @@
   ([repo-root]
    (let [ctx {:registry-tools   (tools/tool-names)
               :read-only-floor  tools/read-only-tools
-              :registry-modules (prompts/module-names)}]
+              :registry-modules (prompts/module-names)
+              :registry-signals signals.core/signal-types}]
      (core/merge-roster
        [(compile-tier (base-genomes) ctx)
         (compile-tier (custom-genomes repo-root) ctx)]))))
