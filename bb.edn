@@ -17,9 +17,12 @@
  :tasks {smoke {:doc      "First light: escapement.lib/run smoke — no-LLM Phase A + local llama.cpp Phase B."
                 :requires ([ouroboros.smoke :as smoke])
                 :task     (smoke/-main)}
-         curate {:doc      "The CURATOR agent — observes mementum + prior sessions, metabolizes, PROPOSES one memory (uncommitted; human-gated)."
-                 :requires ([ouroboros.curator :as curator])
-                 :task     (curator/-main)}
+         maintain {:doc      "The maintenance sweep (rung 1) — bb maintain [slug]: sequential hermetic proposer runs over the schedule table (2×2 roster by tag); each run emits an :s1/report signal; artifacts land uncommitted (human-gated). No arg ⇒ full sweep; slug ⇒ that genome only (replaces the old bb curate ≡ bb maintain harness-knowledge)."
+                   :requires ([ouroboros.schedule :as schedule])
+                   :task     (apply schedule/-main *command-line-args*)}
+         proposals {:doc      "The morning-coffee inbox — pending proposals/ (algedonic first) + uncommitted memory candidates awaiting human review."
+                    :requires ([ouroboros.proposals :as proposals])
+                    :task     (proposals/-main)}
          compact {:doc      "THE canonical Ouroboros chatbot — interactive λ-compact chat: per-message assistant compaction (memory=λ, cache-stable); fresh worker per turn via re-entry; stdin ingress, /quit to end (needs local llama.cpp @ localhost:5100)."
                   :requires ([ouroboros.compact :as compact])
                   :task     (compact/-main)}

@@ -1,8 +1,9 @@
 ---
 type: ouroboros/agent
-title: Curator
-description: Mementum curation agent — observes context + prior λ-sessions, metabolizes, proposes ONE memory (uncommitted, human-gated).
+title: Harness Knowledge
+description: The harness×knowledge cell of the maintenance matrix (curator role) — observes mementum context + prior λ-sessions, metabolizes, proposes ONE memory (uncommitted, human-gated).
 kind: proposer
+tags: [curator]
 tools: [mementum/context, mementum/sessions, mementum/propose-memory]
 model: local
 ---

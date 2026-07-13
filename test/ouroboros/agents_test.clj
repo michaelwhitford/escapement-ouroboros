@@ -147,10 +147,18 @@
 
 (deftest base-roster-compiles
   (let [roster (agents/compile-roster ".")]
-    (is (contains? roster :curator))
+    (is (contains? roster :harness-knowledge))
     (is (contains? roster :chat))
-    (testing "curator genome"
-      (let [c (:curator roster)]
+    (testing "the 2×2 maintenance roster is present with role tags"
+      (is (= [:curator] (:tags (:harness-knowledge roster))))
+      (is (= [:curator] (:tags (:app-knowledge roster))))
+      (is (= [:assessor] (:tags (:harness-coder roster))))
+      (is (= [:assessor] (:tags (:app-coder roster))))
+      (is (every? #(= :proposer (:kind (% roster)))
+            [:harness-knowledge :app-knowledge :harness-coder :app-coder])
+        "ALL four cells ride the proposer kind — new role ⇒ new genome, not new kind"))
+    (testing "harness-knowledge genome (the former curator)"
+      (let [c (:harness-knowledge roster)]
         (is (= :proposer (:kind c)))
         (is (= [:mementum/context :mementum/sessions :mementum/propose-memory] (:tools c)))
         (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))
@@ -161,7 +169,13 @@
         (is (true? (:tools-explicit? c)))
         ;; :signal/emit rides the `signals:` grant, not `tools:` (design/
         ;; signals.md) — chat has no signal types, so no emit tool.
-        (is (= (disj (tools/tool-names) :web/search :signal/emit) (set (:tools c)))
+        ;; :harness/context + :ouro/propose-change are the maintenance
+        ;; roster's hands (design/scheduled-maintenance) — not chat's.
+        ;; This assertion is a deliberate TRIPWIRE: ceiling growth must be
+        ;; consciously granted-or-excluded here.
+        (is (= (disj (tools/tool-names)
+                 :web/search :signal/emit :harness/context :ouro/propose-change)
+               (set (:tools c)))
           "everything in the ceiling except web/search — 🎯 human decision")
         (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))))
     (testing "gene-scorer genome — the GA fitness function"
@@ -183,13 +197,13 @@
 (deftest custom-tier-adds-and-overrides
   (with-temp-repo
     {"fizzbuzz.md" (doc "type: ouroboros/agent\ndescription: custom specialist\nkind: author" "λ fizzbuzz. body")
-     "curator.md"  (doc "type: ouroboros/agent\ndescription: shadowed curator\nkind: proposer\ntools: []" "λ custom-curator. body")}
+     "harness-knowledge.md"  (doc "type: ouroboros/agent\ndescription: shadowed curator\nkind: proposer\ntools: []" "λ custom-curator. body")}
     (fn [root]
       (let [roster (agents/compile-roster root)]
         (is (= :custom (get-in roster [:fizzbuzz :tier])) "plop a file ⇒ new agent")
-        (is (= :custom (get-in roster [:curator :tier])) "custom shadows base by slug")
-        (is (= :base (get-in roster [:curator :overrides])))
-        (is (= [] (get-in roster [:curator :tools])) "replace-whole: base grant GONE")
+        (is (= :custom (get-in roster [:harness-knowledge :tier])) "custom shadows base by slug")
+        (is (= :base (get-in roster [:harness-knowledge :overrides])))
+        (is (= [] (get-in roster [:harness-knowledge :tools])) "replace-whole: base grant GONE")
         (is (= :base (get-in roster [:chat :tier])) "unshadowed base intact")))))
 
 (deftest invalid-custom-fails-loud
@@ -200,7 +214,7 @@
         "one invalid genome ⇒ the whole compile throws — never half-run"))))
 
 (deftest genome-accessor
-  (is (= :curator (:id (agents/genome :curator "."))))
+  (is (= :harness-knowledge (:id (agents/genome :harness-knowledge "."))))
   (is (thrown? clojure.lang.ExceptionInfo (agents/genome :nonexistent "."))))
 
 ;; ---------------------------------------------------------------------------
@@ -262,7 +276,7 @@
           "raw body preserved for body-level consumers (gene decomposition)")))))
 
 (deftest base-genomes-carry-no-inline-preamble
-  (doseq [id [:chat :curator :gene-scorer :llm-judge]]
+  (doseq [id [:chat :harness-knowledge :app-knowledge :harness-coder :app-coder :gene-scorer :llm-judge]]
     (let [a (agents/genome id ".")]
       (is (not (str/includes? (:body a) "engage(nucleus)"))
         (str id " body migrated — preamble is the assembler's job"))
@@ -275,11 +289,12 @@
 
 (deftest report-surfaces-provenance-and-escalation
   (let [r (agents/report ".")]
-    (is (str/includes? r "curator"))
+    (is (str/includes? r "harness-knowledge"))
+    (is (str/includes? r "tags:[:curator]") "role-as-tag visible in the audit surface")
     (is (str/includes? r "ESCALATION:[:mementum/propose-memory]")
       "the write grant beyond the read-only floor is the human's audit surface"))
   (with-temp-repo
-    {"curator.md" (doc "type: ouroboros/agent\ndescription: shadowed\nkind: proposer\ntools: []" "body")}
+    {"harness-knowledge.md" (doc "type: ouroboros/agent\ndescription: shadowed\nkind: proposer\ntools: []" "body")}
     (fn [root]
       (is (str/includes? (agents/report root) "custom (overrides base)")))))
 ;; ---------------------------------------------------------------------------
@@ -350,3 +365,24 @@
         (is (str/includes? r "signals:[:ouro/algedonic :s1/report]"))
         (is (str/includes? r "RESERVED-SIGNALS:[:ouro/algedonic]")
           "reserved grants scream in the audit surface")))))
+;; ---------------------------------------------------------------------------
+;; tags: — role-as-tag (design/scheduled-maintenance)
+;; ---------------------------------------------------------------------------
+
+(deftest tags-normalize-open-vocabulary
+  (let [a (parse "t" (doc (str "type: ouroboros/agent\n"
+                               "description: d\n"
+                               "kind: proposer\n"
+                               "tags: [curator, \":assessor\", brand-new-role]")
+                          "body"))]
+    (is (= [:curator :assessor :brand-new-role] (:tags a))
+      "strings → keywords; vocabulary OPEN — unknown roles are legal by design")))
+
+(deftest tags-absent-means-none
+  (let [a (parse "t" (doc "type: ouroboros/agent\ndescription: d\nkind: chat\ntools: []" "body"))]
+    (is (= [] (:tags a)))))
+
+(deftest tags-show-in-report
+  (let [roster {:x {:id :x :tier :base :kind :proposer :tags [:curator]
+                    :tools [] :signals [] :modules []}}]
+    (is (str/includes? (core/report roster #{}) "tags:[:curator]"))))

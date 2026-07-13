@@ -83,6 +83,12 @@
    [:tools   {:optional true} [:sequential :string]]
    [:modules {:optional true} [:sequential :string]]
    [:signals {:optional true} [:sequential :string]]
+   ;; tags — ROLE-AS-TAG (design/scheduled-maintenance): OPEN vocabulary by
+   ;; design (roles EMERGE — curator, assessor, verifier — no schema change
+   ;; per new role; kind stays CLOSED). The loader genuinely CONSUMES tags:
+   ;; the schedule selects by tag, the roster report shows them. Discipline:
+   ;; tags select WHO runs — NEVER what-may (capability stays in grants).
+   [:tags    {:optional true} [:sequential :string]]
    [:model   {:optional true} non-blank-string]])
 
 ;; ---------------------------------------------------------------------------
@@ -168,6 +174,7 @@
              :tools-explicit? explicit?
              :modules         modules
              :signals         signals
+             :tags            (mapv ->kw (:tags frontmatter))
              :model           (->kw (:model frontmatter "local"))
              :body            body}
       (:title frontmatter) (assoc :title (:title frontmatter)))))
@@ -251,6 +258,8 @@
                (when (:overrides agent)
                  (str " (overrides " (name (:overrides agent)) ")"))
                "  kind:" (name (:kind agent))
+               (when (seq (:tags agent))
+                 (str "  tags:" (pr-str (:tags agent))))
                "  tools:" (pr-str (:tools agent))
                (when (seq (:modules agent))
                  (str "  modules:" (pr-str (:modules agent))))

@@ -23,6 +23,13 @@ experiments/results/
 # src/ouroboros/signals/ (caught live at first git status).
 /signals/
 
+# Proposals — the maintenance roster's human-gated recommendation channel
+# (design/harness-coder): pre-approval observation, filesystem-side; the
+# human promotes by ACTING (the change commit cites the proposal slug).
+# Root-anchored (the /signals/ lesson). The sweep lockfile likewise.
+/proposals/
+/.maintain.lock
+
 # Gene score side-store — high-churn machine observation keyed by gene name
 # (design/gene-db.md: scores side-stored, joined at query via :gene/scores;
 # settled summaries PROMOTE into the tracked gene file through the human gate).

@@ -130,3 +130,40 @@
 
 (deftest signal-emit-in-the-ceiling
   (is (contains? (tools/tool-names) :signal/emit)))
+;; ---------------------------------------------------------------------------
+;; :harness/context + :ouro/propose-change — the maintenance roster's hands
+;; ---------------------------------------------------------------------------
+
+(deftest harness-context-digests-the-live-harness
+  (let [r (tp/dispatch (tools/new-registry ".") :harness/context {})]
+    (is (false? (:is-error r)))
+    (is (str/includes? (:result r) "ROSTER:"))
+    (is (str/includes? (:result r) "PENDING PROPOSALS"))
+    (is (str/includes? (:result r) "⟨genome chat⟩") "genome bodies present")
+    (is (str/includes? (:result r) "MODELS:"))))
+
+(deftest propose-change-gated-round-trip
+  (let [root (temp-root)
+        reg  (tools/new-registry root)
+        good (str "---\ntype: ouroboros/proposal\n"
+                  "description: test finding\ntarget: src/ouroboros/agents/chat.md\n"
+                  "evidence: [compact-1]\nseverity: ordinary\n---\n🔁 problem → sketch\n")]
+    (testing "valid proposal writes working tree only"
+      (let [r (tp/dispatch reg :ouro/propose-change {:slug "t1" :content good})]
+        (is (false? (:is-error r)))
+        (is (str/includes? (:result r) "NOT committed"))))
+    (testing "re-propose pending is corrective"
+      (let [r (tp/dispatch reg :ouro/propose-change {:slug "t1" :content good})]
+        (is (true? (:is-error r)))
+        (is (str/includes? (:result r) "already pending"))))
+    (testing "invalid severity is corrective with errors"
+      (let [r (tp/dispatch reg :ouro/propose-change
+                {:slug "t2" :content (str/replace good "ordinary" "urgent")})]
+        (is (true? (:is-error r)))
+        (is (str/includes? (:result r) "severity"))))))
+
+(deftest maintenance-tools-in-the-ceiling
+  (is (contains? (tools/tool-names) :harness/context))
+  (is (contains? (tools/tool-names) :ouro/propose-change))
+  (is (not (contains? tools/read-only-tools :harness/context))
+    "harness context is an explicit grant, not the floor"))

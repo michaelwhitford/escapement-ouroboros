@@ -1,4 +1,4 @@
-(ns ouroboros.curator.core
+(ns ouroboros.proposer.core
   "Pure metabolize kernel for the CURATOR agent. Turns prior sessions'
   λ-compacted message arrays into a digest the curator LLM pattern-matches over
   to propose memories (and, later, knowledge pages).

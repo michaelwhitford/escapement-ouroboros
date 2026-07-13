@@ -325,11 +325,11 @@
 ;; ---------------------------------------------------------------------------
 
 (defn -main
-  "Decompose an APPROVED genome (default: curator) into mementum/genes/, then
+  "Decompose an APPROVED genome (default: harness-knowledge) into mementum/genes/, then
   run the delegated commit path over the whole dirty queue. Rejections print
   for human eyes — they never auto-commit."
   [& args]
-  (let [slug   (or (first args) "curator")
+  (let [slug   (or (first args) "harness-knowledge")
         d      (decompose-genome! "." (keyword slug))
         c      (commit-genes! "." {:trigger (str "decompose genome/" slug)})]
     (println (str "decompose genome/" slug ": "

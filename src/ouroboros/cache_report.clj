@@ -21,7 +21,7 @@
   (:require
     [cheshire.core :as json]
     [clojure.string :as str]
-    [ouroboros.curator.core :as ccore]
+    [ouroboros.proposer.core :as ccore]
     [ouroboros.session :as session]))
 
 ;; ---------------------------------------------------------------------------

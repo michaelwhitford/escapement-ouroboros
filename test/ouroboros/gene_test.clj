@@ -1,7 +1,7 @@
 (ns ouroboros.gene-test
   "Gene store tests — the three intake gates + real-genome decomposition.
   Deterministic: temp dirs, no LLM, no git commits. The decompose test runs
-  against the REAL base-tier curator genome (classpath resource)."
+  against the REAL base-tier harness-knowledge genome (classpath resource)."
   (:require
     [babashka.fs :as fs]
     [babashka.process :as proc]
@@ -210,10 +210,10 @@
             (is (= [:envelope] (mapv :gene/error rejected))))
           (is (= before (git-out root "rev-parse" "HEAD")) "HEAD untouched"))))))
 
-(deftest decompose-curator
+(deftest decompose-harness-knowledge
   (with-root
     (fn [root]
-      (let [{:keys [stored rejected]} (gene/decompose-genome! root :curator)]
+      (let [{:keys [stored rejected]} (gene/decompose-genome! root :harness-knowledge)]
         (is (= [] rejected))
         ;; :engage is GONE from decomposition since the assembler migration —
         ;; the nucleus preamble is infrastructure the loader prepends (design/
@@ -222,16 +222,16 @@
         (is (= #{:identity :observe :metabolize :select :propose
                  :repair :terminate}
               (set stored))
-          "the 7 persona λ-clauses of the real curator genome BODY")
+          "the 7 persona λ-clauses of the real harness-knowledge (ex-curator) genome BODY")
         (testing "sources carry genome provenance"
-          (is (= [:genome/curator] (:gene/sources (gene/read-gene root :observe)))))
+          (is (= [:genome/harness-knowledge] (:gene/sources (gene/read-gene root :observe)))))
         (testing "verbatim: stored content re-segments to itself (round-trip)"
           (let [g (gene/read-gene root :select)
                 {:keys [clauses errors]} (core/segment (:gene/content g))]
             (is (empty? errors))
             (is (= (:gene/content g) (:gene/content (first clauses))))))
         (testing "idempotent re-run → all duplicates, pointers, no crash"
-          (let [{:keys [stored rejected]} (gene/decompose-genome! root :curator)]
+          (let [{:keys [stored rejected]} (gene/decompose-genome! root :harness-knowledge)]
             (is (= [] stored))
             (is (= 7 (count rejected)))
             (is (every? #(= :duplicate (:gene/error %)) rejected))

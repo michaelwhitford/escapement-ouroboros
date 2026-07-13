@@ -9,7 +9,7 @@
     [ouroboros.mementum.store-test]
     [ouroboros.mementum.eql-test]
     [ouroboros.session-test]
-    [ouroboros.curator.core-test]
+    [ouroboros.proposer.core-test]
     [ouroboros.tools-test]
     [ouroboros.compact.core-test]
     [ouroboros.cache-report-test]
@@ -21,7 +21,9 @@
     [ouroboros.gene.ast-test]
     [ouroboros.gene-test]
     [ouroboros.signals.core-test]
-    [ouroboros.signals-test]))
+    [ouroboros.signals-test]
+    [ouroboros.proposals-test]
+    [ouroboros.schedule-test]))
 
 (defn run! [& _]
   (let [{:keys [fail error]}
@@ -31,7 +33,7 @@
           'ouroboros.mementum.store-test
           'ouroboros.mementum.eql-test
           'ouroboros.session-test
-          'ouroboros.curator.core-test
+          'ouroboros.proposer.core-test
           'ouroboros.tools-test
           'ouroboros.compact.core-test
           'ouroboros.cache-report-test
@@ -43,5 +45,7 @@
           'ouroboros.gene.ast-test
           'ouroboros.gene-test
           'ouroboros.signals.core-test
-          'ouroboros.signals-test)]
+          'ouroboros.signals-test
+          'ouroboros.proposals-test
+          'ouroboros.schedule-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))

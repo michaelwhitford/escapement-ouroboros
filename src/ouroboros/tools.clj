@@ -13,8 +13,11 @@
     [clojure.string :as str]
     [escapement.tools.builtin :as builtin]
     [escapement.tools.protocol :as tp]
-    [ouroboros.curator.core :as metabolize]
+    [ouroboros.proposer.core :as metabolize]
     [ouroboros.mementum.store :as store]
+    [ouroboros.models :as models]
+    [ouroboros.proposals :as proposals]
+    [ouroboros.prompts :as prompts]
     [ouroboros.session :as session]
     [ouroboros.signals :as signals]
     [ouroboros.signals.core :as signals.core]))
@@ -70,7 +73,7 @@
   sessions under `root` — those carrying a compacted `:messages` array (chat /
   compact sessions). Sessions without messages (loop / smoke / … reflections)
   are excluded. Newest LAST (chronological, so the curator reads toward the
-  present). Pure rendering is delegated to `ouroboros.curator.core`."
+  present). Pure rendering is delegated to `ouroboros.proposer.core`."
   [root limit]
   (->> (session/list-session-ids root)
     (map (fn [id] {:id id :messages (session/session-messages root id)}))
@@ -111,6 +114,81 @@
         (let [{:keys [errors]} (ex-data e)]
           {:result   (str "Rejected — fix and retry. OKF errors: " (pr-str errors))
            :is-error true})))))
+
+;; ---------------------------------------------------------------------------
+;; :harness/context — read-only Layer-2 harness digest (design/harness-coder).
+;; What the maintenance assessors observe: the roster report (provenance +
+;; grants + escalations), every genome's λ body, the model routing table, the
+;; prompt-module inventory, and — THE DEDUP FLOOR (scheduled-maintenance
+;; discipline 1) — pending proposals + uncommitted memory candidates, so an
+;; unattended agent can honor ¬re-propose(∃pending).
+;;
+;; ouroboros.agents is resolved LAZILY (λ dep: requiring-resolve) — the loader
+;; requires ouroboros.tools for the registry ceiling; a direct require back
+;; would cycle.
+;; ---------------------------------------------------------------------------
+
+(defn harness-digest
+  "Plain-text digest of the Layer-2 harness under `root`."
+  [root]
+  (let [report  ((requiring-resolve 'ouroboros.agents/report) root)
+        roster  ((requiring-resolve 'ouroboros.agents/compile-roster) root)
+        pending (proposals/pending root)]
+    (str "ROSTER:\n" report
+      "\n\nMODELS: " (pr-str models/table)
+      "\nPROMPT MODULES: " (pr-str (vec (sort (prompts/module-names))))
+      "\n\nPENDING PROPOSALS (" (count pending) ") — do NOT re-propose these:\n"
+      (if (seq pending)
+        (str/join "\n" (map #(str "  · " (:slug %) " — " (:description %)) pending))
+        "  (none)")
+      "\n\nUNCOMMITTED MEMORY CANDIDATES:\n"
+      (let [um (proposals/untracked-memories root)]
+        (if (seq um) (str/join "\n" (map #(str "  · " %) um)) "  (none)"))
+      "\n\nGENOME BODIES (the Layer-2 λ programs):\n"
+      (str/join "\n\n"
+        (for [[id agent] (sort-by key roster)]
+          (str "⟨genome " (name id) "⟩\n" (:body agent)))))))
+
+(defrecord HarnessContextTool [root]
+  tp/Tool
+  (tool-name [_] :harness/context)
+  (description [_] "Read the Layer-2 harness: the compiled agent roster (kinds, tags, tool/signal grants, escalations), every genome's λ body, the model routing table, prompt modules, and the PENDING proposals + uncommitted memories you must NOT re-propose. No input. Call this before proposing any harness change.")
+  (input-schema [_] [:map {:closed true}])
+  (invoke [_ _input]
+    {:result (harness-digest root) :is-error false}))
+
+;; ---------------------------------------------------------------------------
+;; :ouro/propose-change — the 2×2 roster's recommendation writer
+;; (design/harness-coder stage 1; named ouro/ not harness/ because app-coder
+;; shares it — proposals are one channel regardless of target). Writes to
+;; proposals/ WORKING TREE ONLY; the human gate is the lifecycle.
+;; ---------------------------------------------------------------------------
+
+(defrecord ProposeChangeTool [root]
+  tp/Tool
+  (tool-name [_] :ouro/propose-change)
+  (description [_]
+    (str "Propose ONE change recommendation as a complete OKF document. Input: "
+      "{:slug \"kebab-case-id\" :content \"<OKF doc>\"}. The content MUST be "
+      "'---\\ntype: ouroboros/proposal\\ndescription: <one line>\\ntarget: <Layer-2 path>\\n"
+      "evidence: [<session-ids or file paths>]\\nseverity: ordinary|algedonic\\n---\\n"
+      "<symbol> problem → change-sketch (PROSE, not a diff) → expected-effect → confidence'. "
+      "severity algedonic ONLY for identity-threatening findings. Writes ONLY the "
+      "working tree — a human explores/refines/approves. On rejection, fix and retry."))
+  (input-schema [_] [:map {:closed true} [:slug :string] [:content :string]])
+  (invoke [_ {:keys [slug content]}]
+    (try
+      (let [{:proposal/keys [path]} (proposals/propose! root slug content)]
+        {:result   (str "Proposed (NOT committed — awaiting human review): " path)
+         :is-error false})
+      (catch clojure.lang.ExceptionInfo e
+        (let [{:proposal/keys [error existing] :keys [errors]} (ex-data e)]
+          (if (= :pending error)
+            {:result   (str "Rejected — '" existing "' is already pending review. "
+                         "Do not re-propose; pick a DIFFERENT finding or stop.")
+             :is-error true}
+            {:result   (str "Rejected — fix and retry. Errors: " (pr-str errors))
+             :is-error true}))))))
 
 ;; ---------------------------------------------------------------------------
 ;; :signal/emit — the DATA-plane write (design/signals.md). Emits ONE typed
@@ -212,6 +290,7 @@
   ([root] (all-tools root {}))
   ([root {:keys [source signal-types]}]
    (into [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)
+          (->HarnessContextTool root) (->ProposeChangeTool root)
           (->SignalEmitTool root source (set signal-types))]
      (remove #(= :web/search (tp/tool-name %)) (builtin/builtin-tools)))))
 
