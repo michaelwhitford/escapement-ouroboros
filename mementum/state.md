@@ -1054,6 +1054,43 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           (autonomous) gene commits must not reach production prompts — mitigations: tree-hash
           PINNING (content-address, bump ≡ human) ∨ experiment-tier-only staging (anima λ express
           dual_mode); open Qs: pin-vs-stage · body replace-vs-interleave · layer tags.
+          [SUPERSEDED by item 29 — hash-pinning was a λ converge violation, human caught it.]
+
+  29. 🎯 DECIDED (this session, 2026-07-13): GENE PROMOTION ≡ GIT-REF RESOLUTION (¬special hash) —
+       the r4 hazard resolved git-natively. Human challenge "genes are in git, why an extra hash?"
+       was a PRINCIPLES CATCH: hash-pinning complected identities (simplify ✗) and duplicated git's
+       memory (git_remembers ✗). CLEAN DIVISION: tree-hash ≡ WHAT (semantic identity, gate-3 dedupe
+       ONLY — whitespace-normalized, git blob-sha can't do it) | git sha/ref ≡ WHICH (version,
+       provenance, pinning — git's job).
+       ── THE DESIGN: production genomes resolve `genes:` grants via a human-moved git ref
+          (git show <ref>:mementum/genes/<name>.edn) — NEVER the working tree; experiment
+          assembler resolves the working tree (fluid, autonomous churn fine, sandboxed).
+          Promotion ≡ human moves the ref (ONE git command, the reserved act). Review surface ≡
+          git diff <ref>..main -- mementum/genes/. Ref absent → FAIL LOUD (silent tree-fallback
+          ≡ the one_way rot vector — forbidden).
+       ── 9-PRINCIPLES AUDIT (human asked; recorded): 8 aligned (repo_as_memory · simplify ·
+          git_remembers · self_improve strongly — promotion completes the work→learn→verify→
+          update→evolve cycle for genes) | 1 real tension: one_way (two resolution modes) —
+          converts to aligned ⟺ loader ENFORCES tier rule structurally (production ≡ ref ONLY,
+          experiment ≡ tree ONLY; decidable → Malli/loader gate, ¬prose). repl_as_brain nuance
+          accepted: production deliberately reads MEMORY (reproducible prompts ≡ feature).
+       ── IMPLICATIONS BANKED: ref move ≡ NEW RESERVED PRIMITIVE (→ vsm r-enumeration; r10 makes
+          the addition itself human-gated — consistent) · enforcement debt ≡ part of the spec,
+          design not blessed without it · bootstrap: first promotion precedes first production
+          gene-composed genome · git-at-assemble-time dependency accepted (repo_as_memory already
+          makes git load-bearing); PACKAGED-DEP FLAG: tags don't ride :git/sha deps — shipped-as-
+          library genomes can't resolve a host ref (same seam class as manifest.edn; pre-release
+          story, not now) · deepest shift: human gate moves from guarding WRITES to guarding
+          PROMOTION — Ashby: scarce regulator spent where ¬decidable, autonomy roomier AND the
+          gate stronger.
+       ── NAMING (pending human pick, shortlist banked): recommended ref `germline` + act
+          `promote` (house verb REUSED — experiment verdicts + score summaries already promote;
+          λ converge). germline ≡ genes that INHERIT; working tree ≡ SOMA (somatic churn, never
+          inherited). Runners-up: genes-stable · promoted. Rejected: bless(vague) · canon(collides
+          w/ canonical-resource) · champion(premature) · expressed(wrong layer — anima per-agent) ·
+          fixed(bug-fix collision) · wild-type(means unmodified ¬approved).
+       ── NEXT ENCODE (after name lock): design/prompt-assembly open-Q superseded → resolved
+          design (ref-resolution + tier rule) · vsm-on-escapement §Reserved += ref-move primitive.
 ```
 
 ## Gotchas for future me
