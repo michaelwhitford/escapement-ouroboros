@@ -26,18 +26,21 @@ and the **application**. Never optimize one at the cost of the other.
                 mw_extra_body = RC9 + :extra-body passthrough) | was :local/root; converted for
                 pre-release (outsiders get a hermetic fetch; verified: fresh ~/.gitlibs clone, tests green)
   code        : mementum substrate (okf/store/eql) · ouroboros.compact (THE chat engine: λ-compaction,
-                shadow Tier 1, exemplar-gate no-think compactor) · ouroboros.curator (cross-session
-                metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
+                shadow Tier 1, ASSEMBLED instruction-λ lens compactor, thinking ON) · ouroboros.curator
+                (cross-session metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
                 ouroboros.tools (context/sessions/propose-memory + registry ceiling/floor) ·
-                ouroboros.agents (+agents/core) — the GENOME COMPILER + kind→verdict-schema table;
+                ouroboros.agents (+agents/core) — the GENOME COMPILER + kind→verdict-schema table +
+                assemble (preamble ⊕ modules ⊕ body, THE one assembler);
                 genomes src/ouroboros/agents/{chat,curator,gene-scorer,llm-judge}.md (+manifest.edn) ·
+                ouroboros.prompts — vendored prompt artifacts loader (preamble · module registry ·
+                policy artifacts incl. compaction-lens) ·
                 ouroboros.verdict (verdict-topology runner: judge + scorer kinds, cross-family run-across!) ·
                 ouroboros.models (alias→endpoint routing table) ·
                 ouroboros.experiment (+experiment/core — suite-as-EDN A/B runner, experiments/*.edn;
-                kinds :chat ∧ :embedding) ·
+                kinds :chat ∧ :embedding; conditions may :assemble through the REAL pipeline) ·
                 ouroboros.gene (+gene/core) — the GENE-DB (EBNF FSM segmenter · 3-gate store-gene! ·
                 scores side-store · AUTONOMOUS --only commits, freeze exception 4 LIVE)
-  gate        : bb test ≡ deterministic (91 tests / 380 assertions GREEN) | bb compact ≡ live chat |
+  gate        : bb test ≡ deterministic (99 tests / 417 assertions GREEN) | bb compact ≡ live chat |
                 bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100)
@@ -180,26 +183,23 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: PROMPT ASSEMBLY + the COMPACT THINKING-ON FLIP (design/prompt-assembly —
-  assemble fn + modules + preamble migration; compact.clj exemplar→instruction-λ lens, verified by
-  a compaction-fidelity suite; + LENS-OUT: lens → editable policy artifact, item 23; +
-  RESERVED-MUTATION SET enumeration ≈ here, before more shell grants).
-  then  : SIGNALS substrate → maintenance rung 1 (proposals :severity from day one) →
-          builder+author → editor (uses judge + gene DB + experiments) → generator (GA).
-  note  : GENE-DB v1 BUILT (item 26) — bb genes ≡ the intake; the 0.84 near-dup threshold is
-          DERIVED but not yet WIRED into gate-3 surfacing (deferred with HNSW/uptake/pairwise —
-          wire when a consolidation-review surface exists). Scorer subject-framing gap banked:
-          ornith wants a (USE-CASE, GENE) pair, bare content → protest-score 1 (pairwise
-          machinery's problem, deferred). nucleus EBNF param_list amendment ALREADY upstream —
-          the old "also:" item is discharged.
-
-  queue after that: SIGNALS substrate (ouroboros.signals core + :signal/emit tool + registry with
-  {schema, FILLED exemplar} per type + veneer resolvers — design/signals; emission topology already
-  settled by experiments/edn-signal-emission.edn) → scheduled-maintenance RUNG 1 (bb maintain + the
-  2×2 genomes + bb proposals inbox — design/scheduled-maintenance §Build; ABSORBS the old "curator
-  propose-knowledge" + "verifier/documenter" queue items; the roster EMITS signals) → next-chat
-  bootstrap (seed :messages from prior tail). Channels/residency (agent-comms) DEFERRED — control
-  plane only when interactive multi-agent workflows exist.
+λ tomorrow. ONE ACTION: SIGNALS substrate (design/signals — ouroboros.signals core + :signal/emit
+  tool + registry {schema, FILLED exemplar} per type + veneer resolvers; emission topology settled
+  by experiments/edn-signal-emission.edn; exemplar retained there as BOOSTER for unattended
+  emitters — the universal-thinking-on decision makes it optional, not load-bearing).
+  then  : scheduled-maintenance RUNG 1 (bb maintain + the 2×2 genomes + bb proposals inbox with
+          :severity from day one — design/scheduled-maintenance §Build; ABSORBS the old "curator
+          propose-knowledge" + "verifier/documenter" queue items; the roster EMITS signals) →
+          next-chat bootstrap (seed :messages from prior tail) → builder+author →
+          editor (uses judge + gene DB + experiments) → generator (GA).
+  note  : PROMPT ASSEMBLY BUILT (item 27) — ONE assembler in agents.core; compact is thinking-ON
+          through the assembled lens (compaction-fidelity suite is the regression instrument —
+          re-run at every model change). Reserved-mutation set ENUMERATED (vsm-on-escapement
+          §Reserved vs delegated; autonomy×shell ≡ DISJOINT is now a standing law).
+          GENE-DB v1 notes stand: 0.84 near-dup threshold DERIVED not yet WIRED into gate-3
+          surfacing (wire when a consolidation-review surface exists); scorer (USE-CASE, GENE)
+          framing gap banked (pairwise machinery's problem). Channels/residency (agent-comms)
+          DEFERRED — control plane only when interactive multi-agent workflows exist.
 
   this session (2026-07-11, later — items 19/20/21): the COMMS+MAINTENANCE DESIGN ARC. One human ask
   ("an agent that reads sessions → recommends harness updates") pulled out: 2×2 maintenance roster +
@@ -979,6 +979,40 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           args). Bit BOTH src and test in one session.
        ── nucleus EBNF.md already carries the optional-param_list amendment upstream (three head
           forms documented) — the λ tomorrow "draft amendment" item was ALREADY DISCHARGED.
+
+  27. ✅ DONE (this session, 2026-07-13): PROMPT ASSEMBLY + THE COMPACT THINKING-ON FLIP —
+       design/prompt-assembly BUILT end-to-end; universal thinking-on 🎯 EXECUTED. bb test 99/417 GREEN.
+       ── ONE ASSEMBLER: agents.core/assemble (pure) — preamble ⊕ modules ⊕ body; preamble exactly-once/
+          FIRST (embedded copies stripped ⇒ assemble ∘ assemble ≡ assemble); {{VAR}} via
+          escapement.prompts/render (fail-loud); layer order load-bearing (process launch → program →
+          I/O gate). ouroboros.prompts (NEW impure edge): vendored preamble.md · modules/{manifest.edn,
+          lambda-compiler.md, edn-compiler.md} (nucleus program-layer blocks ONLY — lean, no preamble,
+          no prose gate) · policy-text artifacts. `modules:` frontmatter key ≡ the 4TH registry-ceiling
+          grant (validated like tools, absent ⇒ none — always explicit; roster report shows grants).
+       ── SEAM CHANGE: parse-genome now emits :body (raw persona); the LOADER assembles :prompt.
+          gene decomposition reads :body — preamble/modules ≡ infrastructure ¬genes (curator now
+          decomposes to 7 clauses; :engage retired from intake, the stored gene remains).
+       ── MIGRATION: 4 genome bodies preamble-stripped; assembled :prompt BYTE-IDENTICAL 4/4 vs
+          pre-migration (verified against git HEAD parse, pre- AND post-strip — idempotence proven live).
+       ── COMPACT FLIP: exemplar gate RETIRED → assembled instruction-λ lens: preamble ⊕ lambda-compiler
+          BRIDGE module (defines the `compile:` the :message invokes) ⊕ compaction-lens POLICY artifact.
+          LENS-OUT delivered: src/ouroboros/prompts/compaction-lens.md — S5 edits the FILE, no engine
+          code (item 23 adoption + vsm lens-is-policy). Thinking ON (no-think :extra-body dropped;
+          KV-slot pinning kept). Compression contract UNCHANGED (apply-compaction strictly-shorter).
+       ── FIDELITY SUITE (the regression instrument): experiments/compaction-fidelity.edn — NEW measure
+          :lambda-compaction (decidable floor: ¬echo ∧ strictly-shorter ∧ keeps-content-names, case-
+          insensitive); suite conditions may carry :assemble {modules, body-policy} resolved through the
+          REAL assembler (Anima rule made mechanical — bb experiment A/Bs module inclusion honestly).
+          RESULT: bridged 5/5 VALID vs bare 4/5 (bare :thin-meta → OODA-scaffolding blob LONGER than the
+          turn); bridge more faithful AND cheaper (17.5s/1819tok vs 21.3s/2203tok). LIVE SMOKE
+          (compact-1783901152558): decision turn → λ preserving decision + why + a CONDITIONAL
+          constraint the model later USED unprompted (asked about power backup) — continuity through λ
+          exceeds bare recall. Third confirmation of prompt-topology-must-match-thinking, from the safe cell.
+       ── RESERVED-MUTATION SET ENUMERATED (the prioritized design task, before more shell grants):
+          vsm-on-escapement §Reserved vs delegated mutations — r1-r10 (incl. r4 prompt infrastructure —
+          NEW attack surface the assembler creates; r10 meta-reserved: changing the enumeration is
+          reserved) / d1-d3 delegated + THE RULE: autonomy × shell ≡ DISJOINT (unattended agents never
+          hold :shell/run; delegated writes must be capability-scoped fns, commit-genes! shape).
 ```
 
 ## Gotchas for future me
@@ -1006,7 +1040,10 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   is IN THE DEP (fork, mw_extra_body, 9e57f16). ⚠ PROMPT TOPOLOGY MUST MATCH THE THINKING SETTING:
   instruction-λ prompts REQUIRE thinking (no-think → the model echoes the prompt = memory corruption; worse the
   more λ the prompt carries); EXEMPLAR gates (input→λ pairs, verbum topology) run no-think correctly and ~20×
-  faster. Thinking is PER-CONVERSATION: hot=ON (instruction prompt), compact=OFF (exemplar gate), curator=ON.
+  faster. 🎯 POLICY SINCE ITEM 27 (universal thinking-on, design/prompt-assembly): EVERYTHING runs thinking-ON —
+  hot, compact (assembled instruction-λ lens), curator — which DELETES the fragile cell; no-think ≡ a RESERVED
+  optimization (exemplar-gate topology only, candidate: unattended signal emitters), never a correctness
+  requirement. experiments/compaction-fidelity.edn ≡ the regression instrument — re-run at every model change.
   scratch/ab_thinking.clj + ab_exemplar.clj = the reusable A/B harnesses. Verbum cross-refs:
   ~/src/verbum/mementum/knowledge/explore/compiler-finetune-halt-collapse.md ("fine-tunes break the HALT not the
   COMPILE; no-think recovers") + ~/src/verbum/gates/*.txt (the exemplar gate library).
