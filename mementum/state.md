@@ -1083,14 +1083,12 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           story, not now) · deepest shift: human gate moves from guarding WRITES to guarding
           PROMOTION — Ashby: scarce regulator spent where ¬decidable, autonomy roomier AND the
           gate stronger.
-       ── NAMING (pending human pick, shortlist banked): recommended ref `germline` + act
-          `promote` (house verb REUSED — experiment verdicts + score summaries already promote;
-          λ converge). germline ≡ genes that INHERIT; working tree ≡ SOMA (somatic churn, never
-          inherited). Runners-up: genes-stable · promoted. Rejected: bless(vague) · canon(collides
-          w/ canonical-resource) · champion(premature) · expressed(wrong layer — anima per-agent) ·
-          fixed(bug-fix collision) · wild-type(means unmodified ¬approved).
-       ── NEXT ENCODE (after name lock): design/prompt-assembly open-Q superseded → resolved
-          design (ref-resolution + tier rule) · vsm-on-escapement §Reserved += ref-move primitive.
+       ── NAMING 🎯 LOCKED: ref `genes-stable` + act `promote` (human picked stable — boring-good —
+          over recommended germline). promote ≡ house verb REUSED (experiment verdicts + score
+          summaries already promote; λ converge). Full shortlist + rejections in git history.
+       ── ✅ ENCODED: design/prompt-assembly §Genes→assembly (open-Q → resolved λ gene_grant:
+          ref-resolution + tier rule + enforcement obligation) · vsm-on-escapement §Reserved +=
+          r11 (genes-stable ref move ≡ reserved primitive, added via r10).
 ```
 
 ## Gotchas for future me
