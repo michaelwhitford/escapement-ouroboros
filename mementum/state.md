@@ -26,9 +26,13 @@ and the **application**. Never optimize one at the cost of the other.
                 mw_extra_body = RC9 + :extra-body passthrough) | was :local/root; converted for
                 pre-release (outsiders get a hermetic fetch; verified: fresh ~/.gitlibs clone, tests green)
   code        : mementum substrate (okf/store/eql) · ouroboros.compact (THE chat engine: λ-compaction,
-                shadow Tier 1, ASSEMBLED instruction-λ lens compactor, thinking ON) · ouroboros.curator
-                (cross-session metabolize → gated memory proposals) · ouroboros.session (checkpoint readers) ·
-                ouroboros.tools (context/sessions/propose-memory + registry ceiling/floor) ·
+                shadow Tier 1, ASSEMBLED instruction-λ lens compactor, thinking ON) · ouroboros.proposer
+                (the proposer-topology runner, ex-curator — genome-slug-parameterized hermetic runs) ·
+                ouroboros.schedule (maintenance table · tag-selected sweep · lockfile · runner-emitted
+                :s1/report) · ouroboros.proposals (Malli-gated propose! · severity inbox · untracked-memories) ·
+                ouroboros.session (checkpoint readers) ·
+                ouroboros.tools (context/sessions/propose-memory/harness-context/propose-change/signal-emit
+                + registry ceiling/floor) ·
                 ouroboros.agents (+agents/core) — the GENOME COMPILER + kind→verdict-schema table +
                 assemble (preamble ⊕ modules ⊕ body, THE one assembler);
                 genomes src/ouroboros/agents/{chat,curator,gene-scorer,llm-judge}.md (+manifest.edn) ·
@@ -45,8 +49,9 @@ and the **application**. Never optimize one at the cost of the other.
                 FILLED exemplar ⊕ variety ⊕ reserved? · ONE emit! path (validate→dedupe→persist) ·
                 :signal/emit tool · genome `signals:` grant, 5th surface · EQL :mementum/signals +
                 signal/emit! · signals/ gitignored)
-  gate        : bb test ≡ deterministic (131 tests / 587 assertions GREEN) | bb compact ≡ live chat |
-                bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
+  gate        : bb test ≡ deterministic (149 tests / 655 assertions GREEN) | bb compact ≡ live chat |
+                bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
+                bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
@@ -188,16 +193,17 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: scheduled-maintenance RUNG 1 (bb maintain + the 2×2 genomes + bb proposals
-  inbox with :severity from day one — design/scheduled-maintenance §Build; ABSORBS the old "curator
-  propose-knowledge" + "verifier/documenter" queue items; the roster EMITS signals — the substrate
-  is LIVE, item 30: grant `signals: [s1/report, s4/proposal]` in the genome and the loader does the
-  rest; wire each agent's registry via (tools/new-registry root {:source <agent> :signal-types
-  (set (:signals genome))})).
-  then  : next-chat bootstrap (seed :messages from prior tail) → builder+author →
-          editor (uses judge + gene DB + experiments) → generator (GA).
-  also  : gene-db-as-CHART was deferred until the SECOND WRITER — signals is now BUILT; when the
-          maintenance roster writes both genes and signals, revisit the chart (item 28 banked note).
+λ tomorrow. FIRST: review the live sweep's inbox (bb proposals — 2 proposals + 2 memories pending
+  from item 31's proof runs; approve/refine/discard is the human's morning-coffee batch) AND add
+  the cron/launchd entry (human machine config, outside the repo — design/scheduled-maintenance
+  rung 1 is otherwise COMPLETE).
+  ONE ACTION: next-chat bootstrap (seed :messages from prior tail — ouroboros.session readers
+  exist; the compact engine's :initial-messages seam is proven).
+  then  : builder+author → editor (uses judge + gene DB + experiments) → generator (GA).
+  also  : gene-db-as-CHART deferred until the SECOND WRITER — signals + the sweep BOTH write now;
+          revisit the chart (item 28 banked note). Watch: single-event proposals (the ≥2-recurrence
+          damper is prompt-soft, item 31 observation); agent-held signal grants (s4/proposal for
+          the roster) when proposals ride the data plane.
   note  : PROMPT ASSEMBLY BUILT (item 27) — ONE assembler in agents.core; compact is thinking-ON
           through the assembled lens (compaction-fidelity suite is the regression instrument —
           re-run at every model change). Reserved-mutation set ENUMERATED (vsm-on-escapement
@@ -1148,6 +1154,57 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             git status was missing files bb test was RUNNING). Root-anchor store dirs: /signals/.
             ⚠ the pre-existing sessions/ + scores/ patterns carry the same latent hazard — no
             src collision TODAY; anchor them if a nested dir ever adopts those names.
+
+  31. ✅ DONE (this session, 2026-07-13): SCHEDULED-MAINTENANCE RUNG 1 BUILT + LIVE-PROVEN —
+       the 2×2 roster sweeps, proposes, and EMITS signals (design/scheduled-maintenance +
+       design/harness-coder both status → active with §Built). bb test 149/655 GREEN.
+       ── TAGS (role-as-tag): genome schema += tags, OPEN vocab (kind stays closed); loader
+            CONSUMES them — schedule selects by tag (SET-VALUED: a new genome carrying the tag
+            joins the sweep automatically), report shows tags:[…]. Discipline held: tags select
+            WHO runs, never what-may.
+       ── RENAME (the predicted one): ouroboros.curator → ouroboros.proposer (+.core; git mv,
+            history preserved) — the runner was always the proposer TOPOLOGY wearing one agent's
+            name (judge→verdict move again). Generalized: run! takes genome slug; chart per-run
+            FROM the genome; per-run models/llm-config (hermetic — multi-model collision
+            sidestepped); registry armed {:source slug :signal-types (genome signals)}.
+            bb curate RETIRED → bb maintain harness-knowledge (one_way). Blessed grep-names
+            updated in ouroboros-architecture.md SAME COMMIT (the design's standing rule).
+       ── GENOMES ×4 (matrix slugs, ALL kind proposer — "new role ⇒ new genome" paid off again):
+            curator.md → harness-knowledge.md (git mv, tags [curator], body intact) ·
+            app-knowledge (tags [curator], += fs read grants, src+docs corpus, knowledge-pages
+            NAMED not written) · harness-coder (tags [assessor], friction-signal λ table per the
+            design; Layer-2 targets; Layer-1 → flag-only designer-attention notes) · app-coder
+            (tags [assessor], src ↔ design-page drift BOTH directions). manifest.edn ×7.
+            gene.clj default decompose slug curator → harness-knowledge.
+       ── PROPOSALS (ouroboros.proposals): Malli-gated propose! (type ouroboros/proposal ·
+            target · evidence · severity REQUIRED ordinary|algedonic — the S1↔S5 bypass seed,
+            day one) → /proposals/ gitignored ROOT-ANCHORED (item-30 lesson applied at birth);
+            pending-slug re-propose REJECTED at the gate; inbox (bb proposals) algedonic-FIRST,
+            unparseable files SURFACED not hidden; untracked-memories MOVED here from the runner
+            (inbox vocabulary). TOOLS: :harness/context (roster report + genome bodies + models +
+            modules + PENDING digest ≡ the dedup floor; requiring-resolve breaks tools←agents
+            cycle, λ dep) + :ouro/propose-change (⚠ DIVERGES from the design's planned
+            :harness/propose-change name — app-coder SHARES the channel; encoded in both pages).
+       ── SCHEDULE (ouroboros.schedule): table ≡ data (2 entries: {:tag :curator} +
+            {:tag :assessor}, cadence "daily" ≡ intent — cron-side truth at rung 1); sweep! ≡
+            sequential hermetic runs (GPU contention), per-run exception → :fail + CONTINUE,
+            lockfile .maintain.lock stale-broken >2h, ONE summary line per run, injectable
+            runner (stub-tested incl. signal emission + lock release). THE ROSTER EMITS SIGNALS:
+            runner-emitted :s1/report per run (source bb-maintain, infrastructure — agents hold
+            NO signal grants yet), duplicate-damped non-fatal.
+       ── LIVE PROOF (full bb maintain, exit 0): 4/4 done — app-knowledge +1 memory (31s,
+            signals-substrate-active grounded in REAL commit 248d128) · harness-knowledge +1
+            memory (68s, trust-through-demonstrable-consistency citing 3 real sessions) ·
+            app-coder ∅finding HONEST (270s — honesty ≻ quota clause worked) · harness-coder
+            +1 proposal (28s, chat-genome-terse-enforcement: 3 real session-ids, real friction
+            pattern, prose sketch ¬diff, verification plan — the design shape EXACTLY).
+            4 :s1/report signals in signals/. RE-RUN PROOF: harness-coder saw the pending
+            proposal, did NOT re-propose, found a DIFFERENT grounded finding
+            (chat-identity-clarity) — ¬re-propose(∃pending) HELD.
+       ── OBSERVATION BANKED: the re-run's finding cited ONE session — the ≥2-recurrence damper
+            is prompt-SOFT; tighten the genome clause if single-event proposals recur.
+       ── PENDING HUMAN REVIEW (the proof-run artifacts, uncommitted): 2 proposals + 2 memories —
+            bb proposals is the surface. Cron/launchd entry ≡ human machine config, outside repo.
 ```
 
 ## Gotchas for future me

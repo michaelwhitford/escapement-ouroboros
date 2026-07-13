@@ -3,7 +3,7 @@ type: mementum/knowledge
 title: Scheduled Maintenance — the 2×2 proposer roster, role-as-tag, and the timer ladder
 description: The system waits for human input by default, so maintenance agents run on a schedule — a 2×2 roster ({harness,app} × {coder,knowledge}, matrix slugs, ALL kind=proposer at stage 1) swept once or twice daily; "curator" is a ROLE not an agent and lives as an open-vocabulary genome TAG the loader genuinely consumes (schedule selects by tag, report groups by tag — tags pick WHO runs, never what-may); the schedule is data outside the genomes ({select-by, cadence, subject, budget-ms}); and the mechanism is a three-rung ladder, each rung source-verified — cron→bb maintain (sequential hermetic sweep, works today) → resident orchestrator + send-after (zero patches) → resident + a timer InvocationProcessor (Tony's statecharts custom-invocation example; lifecycle-scoped so pausing an agent ≡ exiting its state), whose only obstacle is a 2-line lib-facade seam (Options lacks invocation-processors — same gap class as the human-renderer gap, extra-body precedent).
 resource: file:///Users/mwhitford/src/escapement-ouroboros
-status: designing
+status: active
 category: design
 tags: [ouroboros, design, maintenance, schedule, roster, proposer, curator, tags, timer, invocation-processor, cron, residency]
 related:
@@ -18,11 +18,15 @@ depends-on:
 
 # Scheduled Maintenance — the 2×2 roster and the timer ladder
 
-> Forward-looking durable names: planned genomes `harness-coder` `app-coder`
-> `harness-knowledge` `app-knowledge`; planned table `ouroboros.schedule`; planned tasks
-> `bb maintain`, `bb proposals`; planned dir `proposals/`. Timer reference: the
-> `custom-invocation` example in the statecharts repo (`~/src/statecharts`, grep
-> `InvocationProcessor` / `:timer`).
+> RUNG 1 BUILT (2026-07-13, state item 31). Durable names: genomes `harness-coder`
+> `app-coder` `harness-knowledge` `app-knowledge` (base tier); `ouroboros.schedule`
+> (table · select-slugs · sweep-plan · sweep! · lock); `ouroboros.proposer` (the
+> generalized runner, ex-`ouroboros.curator`); `ouroboros.proposals` (gate · pending ·
+> inbox); tools `:harness/context` + `:ouro/propose-change` (NOT `:harness/propose-change`
+> — app-coder shares the channel); tasks `bb maintain [slug]`, `bb proposals`; dirs
+> `/proposals/` + `/.maintain.lock` (gitignored, root-anchored). Rungs 2/3 remain
+> design-only; timer reference: the `custom-invocation` example in the statecharts repo
+> (`~/src/statecharts`, grep `InvocationProcessor` / `:timer`). §Built (rung 1) below.
 
 ## The ask (human, 2026-07-11)
 
@@ -172,10 +176,46 @@ verify: bb test GREEN (schema/tags/table deterministic) | live: one full sweep p
   ≤4 grounded proposals citing real evidence; re-sweep does NOT duplicate them
 ```
 
+## Built (rung 1, as it landed)
+
+```
+λ built(rung-1).
+  runner        ouroboros.proposer — genome-slug-parameterized (judge→verdict move):
+                chart per-run FROM the genome; per-run models/llm-config (hermetic);
+                registry armed {:source slug :signal-types (genome signals)} |
+                bb curate RETIRED → bb maintain harness-knowledge (one_way)
+  tags          genome schema += tags, OPEN vocab (roles emerge; kind stays closed);
+                loader consumes: schedule selects by tag (set-valued — new genomes
+                join a sweep automatically), report shows tags
+  sweep         sequential hermetic (GPU + multi-model collision sidestepped);
+                per-run exception → :fail outcome, sweep CONTINUES; lockfile
+                .maintain.lock stale-broken >2h; ONE summary line per run
+  signals       the ROSTER EMITS: runner-emitted :s1/report per agent run (source
+                bb-maintain, infrastructure-set — agents hold NO signal grants yet);
+                duplicate-damped (dedupe rejection ≡ the damper working, non-fatal)
+  proposals     ouroboros.proposals: Malli-gated propose! (severity REQUIRED,
+                ordinary|algedonic); pending re-propose REJECTED at the gate (slug
+                collision → corrective); inbox algedonic-FIRST; unparseable files
+                SURFACED not hidden (λ escalate); untracked-memories moved here
+                (inbox vocabulary, ex-curator-runner)
+  dedup floor   :harness/context digests PENDING proposals + uncommitted memories +
+                roster report + genome bodies + models + modules; requiring-resolve
+                breaks the tools←agents cycle (λ dep)
+  LIVE PROOF    full sweep exit 0: 4/4 done — app-knowledge +1 memory (31s) ·
+                harness-knowledge +1 memory (68s) · app-coder honest ∅finding (270s) ·
+                harness-coder +1 proposal citing 3 REAL session-ids (28s); 4 :s1/report
+                signals; re-run harness-coder → did NOT re-propose (found a DIFFERENT
+                grounded finding) — the ¬re-propose(∃pending) discipline held
+  observation   re-run's second finding cited ONE session (the ≥2-recurrence damper is
+                prompt-soft) — watch; tighten the genome clause if single-event
+                proposals recur
+```
+
 ## Open questions
 
 ```
-· curator namespace rename timing — at bb maintain (forces the generalization) ∨ earlier
+· ~~curator namespace rename timing~~ RESOLVED — renamed at bb maintain as predicted
+  (ouroboros.proposer; blessed grep-names updated in the same commit)
 · app-knowledge emits TWO artifact types (doc edits vs knowledge pages) — different gates?
   (doc edit ≈ working-tree change proposal; knowledge page ≈ mementum proposal) — may split
   the genome later; start with knowledge-pages-only, docs as a named candidate

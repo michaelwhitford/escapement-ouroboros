@@ -3,7 +3,7 @@ type: mementum/knowledge
 title: Harness Coder — sessions → harness-update recommendations, human-gated
 description: A proposer-kind agent (curator's proven shape, NOT the editor kind — tagged assessor in the 2×2 maintenance roster) that reads past λ-compacted sessions plus a digest of the current Layer-2 harness (genomes, engine prompts, grants, config), detects friction patterns (repeated corrections, tool derails, re-typed instructions ≡ missing genome clause), and proposes ONE evidence-cited harness-change recommendation as an OKF file in proposals/ (filesystem-side pre-approval, sessions/ pattern) for the human to explore/refine/approve; recommendations are prose-with-evidence NOW, actual diffs belong to the later editor kind (stage 2, after gene DB + builder), and the agent targets Layer 2 ONLY — AGENTS.md stays the frozen Layer-1 designer harness.
 resource: file:///Users/mwhitford/src/escapement-ouroboros
-status: designing
+status: active
 category: design
 tags: [ouroboros, design, harness, assessor, proposer, editor, proposals, human-gate, sessions, layering]
 related:
@@ -17,10 +17,15 @@ depends-on:
 
 # Harness Coder — sessions → harness-update recommendations
 
-> Forward-looking durable names: planned genome `src/ouroboros/agents/harness-coder.md`;
-> planned tools `:harness/context`, `:harness/propose-change`; planned dir `proposals/`.
-> Drafted as *harness-scout*, renamed to the 2×2 matrix slug the same session
-> (🎯 self-descriptive names — see design/scheduled-maintenance §Naming).
+> STAGE 1 BUILT (2026-07-13, state item 31). Durable names: genome
+> `src/ouroboros/agents/harness-coder.md` (kind proposer, tags [assessor]); tools
+> `:harness/context` + `:ouro/propose-change` — the propose tool landed `ouro/` not
+> `harness/` because app-coder SHARES the channel (one proposal path regardless of
+> target); dir `/proposals/` (gitignored, root-anchored). Swept by `bb maintain`
+> ({:tag :assessor}). LIVE-PROVEN: first sweep proposed chat-genome-terse-enforcement
+> citing 3 real session-ids; re-run honored ¬re-propose(∃pending) and found a different
+> grounded finding. Drafted as *harness-scout*, renamed to the 2×2 matrix slug the same
+> session (🎯 self-descriptive names — see design/scheduled-maintenance §Naming/§Built).
 
 ## The role (human ask, 2026-07-11)
 

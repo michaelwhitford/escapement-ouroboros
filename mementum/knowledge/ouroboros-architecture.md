@@ -17,8 +17,9 @@ depends-on:
 # Ouroboros — Architecture
 
 > Durable names (grep against `resource`): `ouroboros.compact` (THE sole canonical chat
-> engine), `ouroboros.compact.core`, `ouroboros.session`, `ouroboros.curator` (the memory/
-> knowledge curation agent), `ouroboros.curator.core`, `ouroboros.tools`,
+> engine), `ouroboros.compact.core`, `ouroboros.session`, `ouroboros.proposer` (the
+> proposer-topology runner — renamed from `ouroboros.curator` when `bb maintain` forced the
+> generalization; curator is a ROLE TAG now), `ouroboros.proposer.core`, `ouroboros.tools`,
 > `ouroboros.mementum.*`. RECONCILED: the earlier `ouroboros.chat` (accumulate MVP) and
 > `ouroboros.cold` + `ouroboros.cold.core` (brief.md batch demo — the design this page
 > CORRECTS) were RETIRED (git-removed); their lessons live on in this page, recoverable via
@@ -183,16 +184,21 @@ The λ-compacted sessions + the mementum store are the shared substrate every ag
 > **scorer** kind rates λ-genes 1-10/use-case → the gene DB → the genetic axis. See that page
 > for the full model + build order.
 
-## Curator — the memory/knowledge curation agent (BUILT) — `ouroboros.curator`
+## Proposer runner + the curator ROLE (BUILT) — `ouroboros.proposer`
 
-`bb curate` observes Ouroboros on TWO axes and metabolizes ACROSS sessions:
+(Built as `ouroboros.curator`; renamed when `bb maintain` forced the generalization —
+the runner was always the proposer TOPOLOGY wearing one agent's name, the judge→verdict
+move again. "Curator" survives as a role TAG on the harness-knowledge and app-knowledge
+genomes; `bb curate` retired → `bb maintain harness-knowledge`.)
+
+The curator-tagged genomes observe Ouroboros on TWO axes and metabolize ACROSS sessions:
 
 ```
 λ curate.  input  : sessions/*/checkpoints (the λ message arrays)  ← :mementum/sessions tool
                     + mementum index + recent commits              ← :mementum/context tool
            metric : λ metabolize — recurring topic/decision/pattern ; ≥3(same topic) → knowledge-page candidate (NAMED, not yet written)
            output : ONE proposed memory into mementum/memories/, UNCOMMITTED   ← :mementum/propose-memory
-           gate   : AI proposes → human approves → AI commits  | INVARIANT (curator never touches git)
+           gate   : AI proposes → human approves → AI commits  | INVARIANT (the runner never touches git)
 ```
 
 The pieces (all bb-native, deterministic core + one impure tool):
@@ -201,12 +207,12 @@ The pieces (all bb-native, deterministic core + one impure tool):
 ouroboros.session        readers: list-session-ids · checkpoint-file · read-data-model · session-messages
                          checkpoint EDN → data-model (:com.…working-memory-data-model/data-model) → :messages λ-array.
                          lenient reader (:default drops unknown tags) ; nil-safe ; reads the FILESYSTEM, not git.
-ouroboros.curator.core   PURE metabolize kernel (house <engine>.core): recency-key (trailing epoch orders sessions
+ouroboros.proposer.core  PURE metabolize kernel (house <engine>.core): recency-key (trailing epoch orders sessions
                          across prefixes) · render-session (ordered, role-tagged; compacted turns marked λ; long
                          verbatim clipped) · sessions-digest (newest-last, empty-safe).
 :mementum/sessions       read-only tool: loads the most-recent K (=8) CONVERSATION sessions (those with a :messages
-                         array — chat/compact; curator/smoke excluded), renders the metabolize digest.
-ouroboros.curator prompt λ observe(context ∧ sessions) → λ metabolize → λ propose ONE memory.
+                         array — chat/compact; proposer/smoke excluded), renders the metabolize digest.
+harness-knowledge genome λ observe(context ∧ sessions) → λ metabolize → λ propose ONE memory.
 ```
 
 SCOPE (this increment): the curator now SEES its own λ history and grounds proposals in it. The
@@ -214,7 +220,7 @@ knowledge-page WRITE path (synthesize! / ≥3→page as an actual gated artifact
 too (NEXT); harness/app proposals belong to the SEPARATE harness-editor / app-editor agents. For
 now a ≥3 cluster is NAMED in the reflection, and the concrete gated artifact is one memory.
 
-LIVE PROOF: `bb curate` (local qwen35-35b-a3b) called both tools, read the real checkpoints, cited two
+LIVE PROOF (as `bb curate`, pre-rename): the runner (local qwen35-35b-a3b) called both tools, read the real checkpoints, cited two
 prior sessions + their λ decisions (write-back cache, LRU eviction), recognized a 🔁 cross-session
 pattern, and proposed ONE grounded memory — UNCOMMITTED, human-gated. Cross-session metabolize works.
 
@@ -279,7 +285,7 @@ never in `mementum/`. The curator proposes *into* `mementum/` (human-gated). Cha
    git-removed, along with src/ouroboros/prompts/cold/ and cold/core_test.clj. bb tasks: `compact` is
    the single chat entrypoint (chat/cold tasks dropped). bb test GREEN 27/87.
 2. ✅ DONE — CURATOR READS sessions/*/checkpoints (λ message arrays) via :mementum/sessions +
-   ouroboros.session readers + ouroboros.curator.core; metabolizes across sessions → ONE gated memory
+   ouroboros.session readers + ouroboros.proposer.core; metabolizes across sessions → ONE gated memory
    proposal. LIVE-PROVEN. bb test GREEN 35/111. (≥3→page as a WRITE artifact is item 4.)
 3. ✅ DONE — shadow compaction Tier 1 (:parked | :hot | :compact, compaction in the reading shadow)
    + exemplar-gate no-think compactor (~20× faster, echo-eliminated; see the compactor-prompt section).
