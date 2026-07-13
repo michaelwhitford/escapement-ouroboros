@@ -3,7 +3,7 @@ type: mementum/knowledge
 title: Signals — typed EDN results as the inter-agent DATA plane
 description: A signal is a typed, durable EDN FACT an agent emits ({:signal/type kw-from-registry, :signal/data nested-EDN, :signal/lambda optional-λ-string, :signal/source, :signal/at}) — consumers QUERY rather than receive, so signals give cross-process cross-TIME communication with NO residency (the geometry scheduled hermetic agents actually need; push cannot reach a process that does not exist between runs); the store is filesystem EDN under signals/ served by the existing mementum pathom2 veneer ("the parser is the bus" — Anima lineage), the type registry holds ONE contract per type projected THREE ways (filled exemplar primes generation, Malli schema gates the emit boundary, attributes serve EQL), and the emission prompt topology is empirically settled by experiments/edn-signal-emission.edn — nucleus preamble + filled exemplar + EDN-only gate, no-think, 12/12 first-pass valid cross-family vs 9/12 for prose instruction whose failures are structural (JSON drift, dropped braces).
 resource: file:///Users/mwhitford/src/escapement-ouroboros
-status: designing
+status: active
 category: design
 tags: [ouroboros, design, signals, comms, edn, data-plane, anima, registry, exemplar, no-think, pathom, eql]
 related:
@@ -17,10 +17,13 @@ depends-on:
 
 # Signals — typed EDN results as the inter-agent DATA plane
 
-> Forward-looking durable names: planned namespace `ouroboros.signals`; planned tool
-> `:signal/emit`; planned dir `signals/` (gitignored, sessions/ pattern); registry
-> keyword vocabulary seeded below. Lineage: Anima `resolvers/signals.clj` +
-> `designs/signals.md` (~/src/anima — source-verified this session).
+> BUILT (2026-07-13). Durable names: `ouroboros.signals.core` (pure: registry ·
+> validate · content-hash · signal-id · prompt-projection), `ouroboros.signals`
+> (edge: emit! · all-signals/recent/by-type/for-source), tool `:signal/emit`,
+> dir `signals/` (gitignored, sessions/ pattern), genome frontmatter key
+> `signals:` (the 5th grant surface), EQL `:mementum/signals` + `signal/emit!`.
+> Lineage: Anima `resolvers/signals.clj` + `designs/signals.md` (~/src/anima —
+> source-verified at design time). Build facts in §Built below.
 
 ## What a signal is
 
@@ -121,6 +124,47 @@ gene-DB Anima auto-forwarded genome-eligible signals (:signal/lambda) to its gen
 Grants: genome frontmatter `signals: [...]` (emit grants — mirrors tools/channels;
 registry ≡ ceiling; absent ⇒ emit nothing; reserved ⇒ escalation in roster report).
 
+## Built (the design as it landed)
+
+```
+λ built.
+  ONE write path   emit! (validate → content-hash dedupe → persist) | tool ∧ EQL
+                   mutation BOTH route through it (λ converge) — the open question
+                   "Tool vs mutation" RESOLVED: both, over one edge fn
+  tool seam        SOURCE-VERIFIED: escapement tool dispatch keywordizes TOP-LEVEL
+                   arg keys only, NO json-transformer decode before m/validate →
+                   nested keyword-keyed EDN cannot ride tool args as a map. The
+                   tool therefore takes :data AS AN EDN STRING — which IS the
+                   settled emission topology (the model natively writes EDN text
+                   when the FILLED exemplar shows it). LIVE-PROVEN end-to-end
+                   thinking-ON: grant → assembled projection → tool call →
+                   EDN-in-JSON-string parsed clean → Malli-valid persisted fact
+                   (the model derived :outcome :fail from prose unprompted); the
+                   model touched the tool 3×, dedupe held the store to ONE fact
+  grant            `signals:` frontmatter ≡ the 5th grant surface. Non-empty grant
+                   AUTO-ADDS :signal/emit to :tools (ONE grant surface — a typeless
+                   emit tool is inert; the TYPE grant is the capability). Absent ⇒
+                   [] ⇒ emit nothing. Unknown types fail-loud aggregated. Roster
+                   report: signals:[…] + RESERVED-SIGNALS:[…] escalation
+  projection       loader appends prompt-projection AFTER the body (I/O gate last,
+                   nucleus layer order); agent :body stays RAW — gene decomposition
+                   reads the persona, never infrastructure
+  identity         :signal/id ≡ time-ordered slug keyword :<at>-<ns>-<name>
+                   (λ identifier — no uuid; id ≡ filename stem, derived at load,
+                   gene precedent). content-hash ≡ sha256(canonical {type data
+                   lambda}) — :at/:source EXCLUDED: same fact re-emitted later or
+                   by another agent ≡ duplicate (re-proposal damping). Same-ms
+                   id collision with DIFFERENT content → :at bumped, never overwrite
+  trust boundary   tool `source` is INFRASTRUCTURE-set at registry construction
+                   (never model-claimed); default registry construction is
+                   inert-safe (no grants ⇒ every emit corrective-rejected). The
+                   EQL mutation does NOT enforce grants — the veneer is inside the
+                   trust boundary (charts, bb tasks, tests); grants gate the LLM
+  chat genome note the ceiling grew but chat did NOT: :signal/emit rides signals:,
+                   not the "full hands minus web/search" tools grant — chat has no
+                   signal types, so no emit tool (flagged at review, human-visible)
+```
+
 ## Open questions
 
 ```
@@ -129,10 +173,9 @@ registry ≡ ceiling; absent ⇒ emit nothing; reserved ⇒ escalation in roster
   artifact + an :s4/proposal signal points at it; (b) proposals become signals and
   bb proposals RENDERS them. Lean (a) — don't break the committed harness-coder shape.
 · retention/GC — unbounded signal accumulation; fine at current volume (sessions/ has
-  the same property); revisit with a fold/archive when query latency notices
+  the same property); revisit with a fold/archive when query latency notices.
+  emit! dedupe is O(n) over all-signals per emit — same revisit trigger.
 · Anima field lessons — the human reports signals were NOT battle-tested there (the
   idea came from the nucleus EDN-template behavior, now validated here); no operational
   retention/discipline lessons to import
-· :signal/emit as escapement Tool vs veneer mutation — Tool for chart-hosted agents
-  (curator pattern), veneer mutation for everything else; likely BOTH over one core fn
 ```

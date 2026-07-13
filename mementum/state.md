@@ -40,8 +40,12 @@ and the **application**. Never optimize one at the cost of the other.
                 kinds :chat ∧ :embedding; conditions may :assemble through the REAL pipeline) ·
                 ouroboros.gene (+gene/core +gene/ast) — the GENE-DB (EBNF FSM segmenter · λ-notation
                 AST reader (lisp-style, flat op chains) · 3-gate store-gene! · scores side-store ·
-                AUTONOMOUS --only commits, freeze exception 4 LIVE)
-  gate        : bb test ≡ deterministic (109 tests / 457 assertions GREEN) | bb compact ≡ live chat |
+                AUTONOMOUS --only commits, freeze exception 4 LIVE) ·
+                ouroboros.signals (+signals/core) — the DATA PLANE (typed-EDN-fact registry: schema ⊕
+                FILLED exemplar ⊕ variety ⊕ reserved? · ONE emit! path (validate→dedupe→persist) ·
+                :signal/emit tool · genome `signals:` grant, 5th surface · EQL :mementum/signals +
+                signal/emit! · signals/ gitignored)
+  gate        : bb test ≡ deterministic (131 tests / 587 assertions GREEN) | bb compact ≡ live chat |
                 bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100)
@@ -184,15 +188,16 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. ONE ACTION: SIGNALS substrate (design/signals — ouroboros.signals core + :signal/emit
-  tool + registry {schema, FILLED exemplar} per type + veneer resolvers; emission topology settled
-  by experiments/edn-signal-emission.edn; exemplar retained there as BOOSTER for unattended
-  emitters — the universal-thinking-on decision makes it optional, not load-bearing).
-  then  : scheduled-maintenance RUNG 1 (bb maintain + the 2×2 genomes + bb proposals inbox with
-          :severity from day one — design/scheduled-maintenance §Build; ABSORBS the old "curator
-          propose-knowledge" + "verifier/documenter" queue items; the roster EMITS signals) →
-          next-chat bootstrap (seed :messages from prior tail) → builder+author →
+λ tomorrow. ONE ACTION: scheduled-maintenance RUNG 1 (bb maintain + the 2×2 genomes + bb proposals
+  inbox with :severity from day one — design/scheduled-maintenance §Build; ABSORBS the old "curator
+  propose-knowledge" + "verifier/documenter" queue items; the roster EMITS signals — the substrate
+  is LIVE, item 30: grant `signals: [s1/report, s4/proposal]` in the genome and the loader does the
+  rest; wire each agent's registry via (tools/new-registry root {:source <agent> :signal-types
+  (set (:signals genome))})).
+  then  : next-chat bootstrap (seed :messages from prior tail) → builder+author →
           editor (uses judge + gene DB + experiments) → generator (GA).
+  also  : gene-db-as-CHART was deferred until the SECOND WRITER — signals is now BUILT; when the
+          maintenance roster writes both genes and signals, revisit the chart (item 28 banked note).
   note  : PROMPT ASSEMBLY BUILT (item 27) — ONE assembler in agents.core; compact is thinking-ON
           through the assembled lens (compaction-fidelity suite is the regression instrument —
           re-run at every model change). Reserved-mutation set ENUMERATED (vsm-on-escapement
@@ -1089,6 +1094,60 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
        ── ✅ ENCODED: design/prompt-assembly §Genes→assembly (open-Q → resolved λ gene_grant:
           ref-resolution + tier rule + enforcement obligation) · vsm-on-escapement §Reserved +=
           r11 (genes-stable ref move ≡ reserved primitive, added via r10).
+
+  30. ✅ DONE (this session, 2026-07-13): SIGNALS SUBSTRATE BUILT + LIVE-PROVEN — the inter-agent
+       DATA plane (design/signals.md, status → active with §Built). bb test 131/587 GREEN.
+       ── ouroboros.signals.core (pure kernel): type REGISTRY — 5 seed types (s4/proposal ·
+            s1/report · experiment/result · ouro/algedonic · human/notice), each {schema, FILLED
+            exemplar {:source :signal}, doc, variety ∈ agent-comms vocab, reserved?}; ONE contract
+            THREE projections held: exemplar → prompt-projection (primes) · schema → validate
+            (gates) · attributes → EQL (serves). :signal/id ≡ time-ordered slug keyword
+            :<at>-<ns>-<name> (λ identifier — NO uuid, diverges deliberately from the design page's
+            uuid sketch); content-hash ≡ sha256(canonical{type data lambda}) — :at/:source EXCLUDED
+            (same fact later/elsewhere ≡ duplicate → re-proposal damping).
+       ── ouroboros.signals (edge): emit! ≡ THE write path (validate → dedupe → persist; tool AND
+            EQL mutation both route through it, λ converge — the design's "Tool vs mutation" open-Q
+            resolved BOTH-over-one-fn); one EDN file per signal in signals/ (GITIGNORED, sessions/
+            pattern; envelope only on disk, id ≡ filename stem derived at load, gene precedent);
+            same-ms+same-type id collision → :at bumps, never overwrite (the recency-tie lesson,
+            pre-applied); reads all-signals/recent/by-type/for-source nil-safe.
+       ── :signal/emit TOOL — SEAM SOURCE-VERIFIED: escapement tool dispatch keywordizes TOP-LEVEL
+            arg keys ONLY, NO json-transformer before m/validate → nested keyword-keyed EDN cannot
+            ride tool args as a map ⇒ :data travels AS AN EDN STRING — which IS the settled emission
+            topology (exemplar SHOWS EDN → model writes EDN text natively). `source` is
+            INFRASTRUCTURE-set at registry construction (never model-claimed); default construction
+            inert-safe (no grants ⇒ corrective rejection). new-registry grew opts arity
+            {:source :signal-types} — existing 1-arity callers untouched.
+       ── GENOME `signals:` ≡ the 5TH GRANT SURFACE: validated ⊆ registry types (fail-loud
+            aggregated); absent ⇒ [] ⇒ emit nothing (no floor); non-empty AUTO-ADDS :signal/emit to
+            :tools (ONE grant surface — the TYPE grant is the capability; a typeless tool is inert).
+            Loader appends prompt-projection AFTER body (I/O gate last, nucleus layer order);
+            :body stays RAW (gene decomposition reads persona, never infrastructure). Roster report:
+            signals:[…] + RESERVED-SIGNALS:[…] escalation (s4/proposal + ouro/algedonic reserved).
+            ⚠ CHAT NOT EXPANDED: the ceiling grew but chat.md's "full hands minus web/search" did
+            NOT gain :signal/emit — it rides signals:, and chat has no type grant (agents_test
+            expectation updated accordingly — surfaced for human review, accepted at commit).
+       ── EQL veneer: :mementum/signals parameterized read ({:type :source :n} attenuate — query ≡
+            subscription, ONE resolver, recall-resolver house pattern) + signal/emit! mutation
+            (native EDN params — no JSON boundary; structured rejections, mementum precedent).
+            NOTE: the veneer does NOT enforce per-agent grants — grants gate the LLM-facing tool;
+            the veneer is inside the trust boundary (charts/bb tasks/tests).
+       ── LIVE PROOF (scratch/live_signal_emit.clj, thinking-ON qwen36@5100, exit 0): custom-tier
+            genome {tools: [], signals: [s1/report]} → REAL loader (grant [:signal/emit] derived,
+            projection assembled) → chart-hosted worker → tool call with EDN-in-JSON-string parsed
+            CLEAN → Malli-valid fact persisted; model derived :outcome :fail from "one agent failed"
+            UNPROMPTED + exact :metrics {:agents 3 :proposals 2 :wall-ms 142000}; model touched the
+            tool 3× and dedupe held the store to ONE fact — the gate topology works unattended.
+            The EDN-in-JSON-string escaping seam (the one thing edn-signal-emission did NOT cover)
+            is now proven.
+       ── DEBT BANKED: emit! dedupe is O(n) over all-signals per emit — fine at current volume,
+            revisit with retention/GC (design §Open). Scratch tap's :tool-call keys printed nil
+            (cosmetic, scratch-only — compact.clj has the right key map).
+       ── GOTCHA BANKED: an UNANCHORED .gitignore dir pattern (signals/) matches at EVERY level —
+            it silently swallowed src/ouroboros/signals/ + test/ouroboros/signals/ (caught because
+            git status was missing files bb test was RUNNING). Root-anchor store dirs: /signals/.
+            ⚠ the pre-existing sessions/ + scores/ patterns carry the same latent hazard — no
+            src collision TODAY; anchor them if a nested dir ever adopts those names.
 ```
 
 ## Gotchas for future me
