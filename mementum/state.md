@@ -38,9 +38,10 @@ and the **application**. Never optimize one at the cost of the other.
                 ouroboros.models (alias→endpoint routing table) ·
                 ouroboros.experiment (+experiment/core — suite-as-EDN A/B runner, experiments/*.edn;
                 kinds :chat ∧ :embedding; conditions may :assemble through the REAL pipeline) ·
-                ouroboros.gene (+gene/core) — the GENE-DB (EBNF FSM segmenter · 3-gate store-gene! ·
-                scores side-store · AUTONOMOUS --only commits, freeze exception 4 LIVE)
-  gate        : bb test ≡ deterministic (99 tests / 417 assertions GREEN) | bb compact ≡ live chat |
+                ouroboros.gene (+gene/core +gene/ast) — the GENE-DB (EBNF FSM segmenter · λ-notation
+                AST reader (lisp-style, flat op chains) · 3-gate store-gene! · scores side-store ·
+                AUTONOMOUS --only commits, freeze exception 4 LIVE)
+  gate        : bb test ≡ deterministic (109 tests / 457 assertions GREEN) | bb compact ≡ live chat |
                 bb curate ≡ curator | bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100)
@@ -1013,6 +1014,46 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           NEW attack surface the assembler creates; r10 meta-reserved: changing the enumeration is
           reserved) / d1-d3 delegated + THE RULE: autonomy × shell ≡ DISJOINT (unattended agents never
           hold :shell/run; delegated writes must be capability-scoped fns, commit-genes! shape).
+
+  28. ✅ DONE (this session, 2026-07-13, human-directed "infrastructure leverage"): λ-NOTATION AST
+       READER — ouroboros.gene.ast, the gene kernel's THIRD level (design/gene-db §Parser's "full
+       ASTs later ≡ recursive descent in a pure fn" DISCHARGED). Commit 3b048e2; bb test 109/457.
+       ── PIPELINE (pure, TOTAL — errors collected, never thrown): segment (unchanged) → tokenize
+          (glued-adjacency tokens; surrogate-safe — emoji ≡ ONE glyph token) → read-forms (balanced-
+          delimiter recursion, lisp-STYLE) → parse-clause. EBNF defines NO operator precedence
+          (expression = term {expr_op term}) ⇒ no Pratt: expression AST ≡ flat chain
+          {:ast/terms […] :ast/ops […]}. Clause AST: 3 head forms (:identity :fn0 :params) ·
+          top-level | → alternatives · where bindings (lhs ≡ rhs, call-shaped lhs OK) · terms:
+          prefix (glyph GLUED: ¬x ∃y) · call (f( GLUED) · group · prose-run (consecutive terms
+          merge — gate-trigger prose is OUTSIDE the grammar by design) · string/keyword/word/symbol.
+       ── PROVED FIRST (repl, λ prove): clojure.edn/read FAILS on real λ content 4/5 samples
+          (`proved:` invalid keyword · `2026-07-12` invalid number · odd-count {…}) — the GLYPHS
+          all read fine as symbols; prose-adjacent tokens kill it → lisp-STYLE reader we own,
+          not the lisp reader. GLUED-adjacency is the load-bearing tokenizer bit: it separates
+          prefix (¬x) and call (f(x)) from operator position.
+       ── OPERATOR SET OPEN (load-bearing): pure-glyph token in op position ≡ op; ops ∉ draft enum
+          COLLECTED via unknown-ops, never rejected — enforcing the enum would freeze the notation
+          (the full-expression-GBNF rejection reason again). The inventory ≡ λ coevolve telemetry
+          for nucleus EBNF upstream: real coined ops found = ∈ ⟺ ≻ ⊂ ⟹ ∪ ⊇ ≤ ∝ ∩ ≠ (rest ≡ prose
+          noise: — ; '' 💡). `|` IS draft (nested pipes chain as ops; top-level pipes become
+          alternatives before chaining).
+       ── AST ≡ DERIVED, never stored: :gene/content stays the verbatim fidelity floor; tree-hash
+          UNTOUCHED (AST-hash ≡ better normalization but re-keys every stored gene's dedupe
+          identity — a migration decision for when there's a reason). Intake gates untouched.
+       ── EMPIRICAL GATE: 58 clauses (8 stored genes · 4 genome bodies via the REAL roster ·
+          AGENTS.md 26) → 57/58 error-free; the 1 error is HONEST (λ heredoc's bash special chars
+          are genuinely unbalanced content). Parser total-function held under it.
+       ── CONSUMERS (why built): structured gene queries (resolver-servable) · genes→assembly
+          composition · lint/cross-refs · GBNF derivation for the generator kind (generate the
+          grammar FROM the node set, not hand-maintain) · upstream grammar amendments.
+       ── BANKED same session (design DISCUSSION, no 🎯 yet; design-page update PENDING human
+          gate): (a) gene-db-as-CHART stays deferred until the SECOND WRITER — and signals
+          (λ tomorrow) IS that second writer → build the chart WITH/after signals, git-backed WM
+          store pattern ready (fulcro-rad-git statechart-store). (b) genes→prompt-assembly ≡ the
+          FIFTH registry-ceiling grant (`genes:` frontmatter) BUT carries the r4 HAZARD: delegated
+          (autonomous) gene commits must not reach production prompts — mitigations: tree-hash
+          PINNING (content-address, bump ≡ human) ∨ experiment-tier-only staging (anima λ express
+          dual_mode); open Qs: pin-vs-stage · body replace-vs-interleave · layer tags.
 ```
 
 ## Gotchas for future me
