@@ -345,6 +345,12 @@ RESERVED (human authorizes every instance):
                                       capability boundary ITSELF
   r9  remotes ∧ history               push · branch surgery · rebase/rewrite — always human
   r10 autonomy-scope expansion        any change to the DELEGATED list below (meta-reserved)
+  r11 genes-stable ref move           gene PROMOTION (added 2026-07-13 via r10, human-approved):
+                                      production genomes resolve `genes:` grants at the
+                                      genes-stable ref (git show), NEVER the working tree —
+                                      moving the ref is the ONE act that lets delegated d1
+                                      churn reach production prompts (the r4 seam); review ≡
+                                      git diff genes-stable..main -- mementum/genes/
 
 DELEGATED (machine commits autonomously, decidable gates, post-hoc audit):
   d1  mementum/genes/                 decomposition of APPROVED genomes passing EBNF ∧ Malli ∧

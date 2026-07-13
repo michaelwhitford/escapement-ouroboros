@@ -124,11 +124,34 @@ assembled output vs today's prompts to prove equivalence; one live smoke. Engine
 · cache — stable assembly ⇒ stable prefix; shared preamble+modules prefix marginally
   helps the host cache across agents; per-slot pinning already carries the real load
 · does {{VAR}} appear in genome BODIES too (not just modules)? allow, fail-loud covers it
-· genes→assembly (the FIFTH grant, `genes:` frontmatter) — ⚠ r4 HAZARD: genes are DELEGATED
-  (autonomous commits) but prompt infrastructure is r4 RESERVED; by-NAME gene refs would let an
-  autonomous gene update mutate a production prompt (delegated path tunnels into the reserved
-  zone). Mitigations: tree-hash PINNING (content-address; bump ≡ human genome edit) ∨
-  experiment-tier-only staging (anima λ express dual_mode: inline production, gene-refs for
-  challengers; promotion ≡ human). Decide before the editor kind lands. AST reader (gene-db §AST)
-  makes structural composition possible — composition ≠ permission.
+```
+
+## Genes → assembly — the FIFTH grant (🎯 RESOLVED 2026-07-13, git-native)
+
+```
+λ gene_grant.  genes: frontmatter ≡ 5th registry-ceiling grant (tools·tags·signals·modules·genes)
+  | r4 HAZARD: genes ≡ DELEGATED (d1 autonomous commits) ∧ prompt infra ≡ r4 RESERVED —
+    by-name working-tree refs would tunnel autonomy into production prompts
+  | RESOLUTION ≡ git-ref (¬special hash — hash-pinning REJECTED, human catch: complected
+    identities (simplify ✗) ∧ duplicated git's memory (git_remembers ✗)):
+      tree-hash ≡ WHAT (semantic identity, gate-3 dedupe ONLY — whitespace-normalized,
+      blob-sha can't) | git ref ≡ WHICH (version, provenance, pinning — git's job)
+  | production (base ∧ custom tiers): resolve via
+      git show genes-stable:mementum/genes/<name>.edn
+    — NEVER the working tree | ref absent → FAIL LOUD (silent tree-fallback ≡ one_way rot)
+  | experiment assembler: WORKING TREE (fluid — autonomous churn sandboxed; bb experiment
+    A/Bs latest genes honestly through the same assemble fn)
+  | promote ≡ human moves the ref: git tag -f genes-stable <commit> — house verb REUSED
+    (experiment verdicts + score summaries already promote; λ converge) |
+    review surface ≡ git diff genes-stable..main -- mementum/genes/
+  | ENFORCEMENT (the one_way obligation): parse-genome/loader REJECTS working-tree gene
+    resolution in base/custom tiers — decidable → Malli/loader gate, ¬prose |
+    design ¬approved without this gate
+  | vsm r-enumeration += r11 (ref move ≡ reserved primitive) | Ashby: the human gate moves
+    from guarding WRITES to guarding PROMOTION — stronger where it remains, autonomy roomier
+  | 9-principles audit: 8 aligned · one_way tension discharged BY the loader gate |
+    packaged-dep FLAG: tags ¬ride :git/sha deps — shipped-as-library genomes can't resolve
+    a host ref (manifest.edn seam class; pre-release story, not now)
+  | still open: body replace-vs-interleave · layer tags | repo-wide ref CHOSEN over
+    per-genome pins (granularity only matters for challengers ≡ experiment tier anyway)
 ```
