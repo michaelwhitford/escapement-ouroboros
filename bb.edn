@@ -1,12 +1,14 @@
 {:paths ["src"]
- :deps  {;; Escapement is the runtime Ouroboros runs on — pinned to a sha on
-         ;; the FORK (michaelwhitford/escapement, branch mw_extra_body): RC9 +
-         ;; the :extra-body passthrough that enables chat_template_kwargs/
-         ;; id_slot/cache_prompt injection (the no-think compactor needs it).
-         ;; bb reads escapement's deps.edn transitively (statecharts/guardrails/
-         ;; malli/cheshire/http-client) — the lib path needs no pathom.
-         com.fulcrologic/escapement {:git/url "https://github.com/michaelwhitford/escapement"
-                                     :git/sha "9e57f16beda4374c44439e072d2232297e652b01"}
+ :deps  {;; Escapement is the runtime Ouroboros runs on — DE-FORKED: released
+         ;; upstream RC9 from Clojars (was a fork sha carrying an :extra-body
+         ;; passthrough for chat_template_kwargs/id_slot/cache_prompt). Those
+         ;; llama.cpp knobs now ride our own pure-consumer backend
+         ;; ouroboros.llm.llamacpp, injected via lib/run's :backend escape hatch
+         ;; and driven by MODELED escapement fields (:thinking → enable_thinking,
+         ;; cache-control marker → cache_prompt, :conversation/id → id_slot), so
+         ;; NO fork is needed. bb reads escapement's deps.edn transitively
+         ;; (statecharts/guardrails/malli/cheshire/http-client) — lib path, no pathom.
+         com.fulcrologic/escapement {:mvn/version "1.0.0-RC9"}
          ;; guardrails MUST stay EXPLICITLY pinned (any modern version) —
          ;; Pathom 2's transitive 0.0.12 breaks bb (escapement's documented
          ;; constraint). Pin it BEFORE pathom. 1.2.16 → 1.3.3 verified green.
@@ -17,6 +19,9 @@
  :tasks {smoke {:doc      "First light: escapement.lib/run smoke — no-LLM Phase A + local llama.cpp Phase B."
                 :requires ([ouroboros.smoke :as smoke])
                 :task     (smoke/-main)}
+         llama-smoke {:doc      "Live probe of the de-forked llama.cpp backend (ouroboros.llm.llamacpp) @ localhost:5100: proves :thinking :disabled ⇒ empty reasoning_content, :conversation/id ⇒ id_slot pinning (/slots), and a real send-turn. SKIPs (exit 0) if the server is down."
+                      :requires ([ouroboros.smoke-llama :as smoke-llama])
+                      :task     (smoke-llama/-main)}
          maintain {:doc      "The maintenance sweep (rung 1) — bb maintain [slug]: sequential hermetic proposer runs over the schedule table (2×2 roster by tag); each run emits an :s1/report signal; artifacts land uncommitted (human-gated). No arg ⇒ full sweep; slug ⇒ that genome only (replaces the old bb curate ≡ bb maintain harness-knowledge)."
                    :requires ([ouroboros.schedule :as schedule])
                    :task     (apply schedule/-main *command-line-args*)}

@@ -9,15 +9,13 @@
   (:require
     [clojure.string :as str]
     [escapement.llm :as ellm]
-    [escapement.llm.providers :as providers]))
+    [ouroboros.llm.llamacpp :as llamacpp]))
 
 (def base-url "http://localhost:5100/v1")
 (def model    "qwen36-35b-a3b")
 
 (def ctx
-  {:backend (providers/build-injected-credentials-backend
-              [{:provider :openai :api-key "sk-local" :base-url base-url}]
-              [{:provider :openai :model model}])
+  {:backend (llamacpp/new-backend {:base-url base-url :api-key "sk-local" :default-model model})
    :aliases {:local [{:provider :openai :model model}]}
    :preferences [:local]
    :eligibility-strict? false})
@@ -50,7 +48,7 @@ turn: %s
   (let [opts (cond-> {:model  :local
                       :prompt (format exemplar-gate text)}
                (not thinking?)
-               (assoc :extra-body {"chat_template_kwargs" {"enable_thinking" false}}))
+               (assoc :thinking {:type :disabled}))
         t0   (System/currentTimeMillis)
         res  (ellm/ask ctx opts)
         ms   (- (System/currentTimeMillis) t0)

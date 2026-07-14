@@ -67,6 +67,13 @@
 ;; stay open for the human's dynamic (unpinned) clients. Soft reservation —
 ;; no server-side mechanism exists; unpinned traffic selects similarity→LRU
 ;; over ALL slots and can occasionally land here (cost: one re-prefill).
+;;
+;; The slot NUMBERS live here, but they reach the wire via the DE-FORKED
+;; ouroboros.llm.llamacpp backend (NO :extra-body): each node declares WHICH
+;; conversation it is (`:conversation/id`), and the backend's :slots table
+;; (built below in run!/bootstrap-seed! from these constants) maps that convo
+;; id → id_slot. cache_prompt rides escapement's :auto-cache? default (→
+;; cache-control marker → the backend's caching-on?). See ouroboros.llm.llamacpp.
 (def ^:private hot-slot     2)   ; the conversation's warm prefix lives here
 (def ^:private compact-slot 3)   ; the compactor, quarantined
 (def ^:private event-queue-key :com.fulcrologic.statecharts/event-queue)
@@ -210,7 +217,10 @@
            ;; unified KV off ⇒ idle slots keep KV) the hot prefix survives
            ;; compaction; only the λ-rewritten tail re-evaluates (checkpoint-
            ;; granular restore — see mementum/knowledge/llama-cpp-prompt-cache).
-           :extra-body        {"id_slot" hot-slot "cache_prompt" true}
+           ;; DE-FORKED: the node just says WHICH conversation this is; the
+           ;; llamacpp backend maps :conversation/id :hot → id_slot hot-slot
+           ;; (its :slots table). cache_prompt rides the :auto-cache? default.
+           :conversation/id   :hot
            :real-tools        (:tools chat-genome)
            ;; NO :max-turns — absent ⇒ unbounded round-trips (source-verified:
            ;; the budget check is `(and max-turns …)`). A reply is open-ended
@@ -272,8 +282,9 @@
            ;; mitigation — pull forward iff real waits appear).
            ;; compact-slot: the compactor is quarantined in its own KV slot so
            ;; its prompts never evict the hot conversation's warm prefix in
-           ;; hot-slot (see the :hot node comment).
-           :extra-body        {"id_slot" compact-slot "cache_prompt" true}
+           ;; hot-slot (see the :hot node comment). DE-FORKED: :conversation/id
+           ;; :compact → id_slot compact-slot via the llamacpp backend's :slots.
+           :conversation/id   :compact
            :real-tools        []
            :max-turns         2
            :budget-ms         240000
@@ -369,8 +380,9 @@
          :stream?           false
          ;; The fold is compactor work — quarantine it in the compactor's slot
          ;; so launch never evicts a warm hot-slot prefix (another client's or,
-         ;; later, a resident session's).
-         :extra-body        {"id_slot" compact-slot "cache_prompt" true}
+         ;; later, a resident session's). DE-FORKED: :conversation/id :compact →
+         ;; id_slot compact-slot via the llamacpp backend's :slots table.
+         :conversation/id   :compact
          :real-tools        []
          :max-turns         2
          :budget-ms         240000
@@ -409,7 +421,10 @@
                :session-dir     fold-dir
                :transcript-path (str fold-dir "/transcript.jsonl")
                :checkpoint-dir  (str fold-dir "/checkpoints")
-               :tool-registry   (tools/new-registry root)}
+               :tool-registry   (tools/new-registry root)
+               ;; DE-FORKED slot pinning: the fold worker is compactor work →
+               ;; :conversation/id :compact → id_slot compact-slot.
+               :backend         (models/llama-backend :local {:compact compact-slot})}
               (models/llm-config :local)))
           (core/apply-fold prior k prior-id @out))))))
 
@@ -519,7 +534,14 @@
               ;; :local routing (credentials + aliases) from THE table —
               ;; ouroboros.models/llm-config (was inline; converged).
               (models/llm-config :local)
-              {:chart           compact-chart
+              {;; DE-FORKED backend (escape hatch, wins verbatim over the
+               ;; :credentials-assembled one): our llama.cpp backend owns slot
+               ;; policy — :conversation/id :hot→2, :compact→3 (was per-node
+               ;; :extra-body id_slot). cache_prompt + thinking ride modeled
+               ;; fields. llm-config above still supplies the dummy :credentials
+               ;; (schema-required) + alias :config (model resolution).
+               :backend         (models/llama-backend :local {:hot hot-slot :compact compact-slot})
+               :chart           compact-chart
               :session-id      session-id
               :session-dir     session-dir
               :transcript-path (str session-dir "/transcript.jsonl")

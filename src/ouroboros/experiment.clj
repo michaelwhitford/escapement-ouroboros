@@ -19,7 +19,6 @@
     [clojure.java.io :as io]
     [clojure.string :as str]
     [escapement.llm :as ellm]
-    [escapement.llm.providers :as providers]
     [ouroboros.agents.core :as acore]
     [ouroboros.experiment.core :as core]
     [ouroboros.models :as models]
@@ -28,13 +27,14 @@
 (def experiments-dir "experiments")
 
 (defn- make-ctx [alias]
-  (let [{:keys [base-url model]} (get models/table alias)]
+  (let [{:keys [model]} (get models/table alias)]
     (when-not model
       (throw (ex-info (str "unknown model alias: " alias)
                {:alias alias :known (vec (sort (keys models/table)))})))
-    {:backend (providers/build-injected-credentials-backend
-                [{:provider :openai :api-key "sk-local" :base-url base-url}]
-                [{:provider :openai :model model}])
+    ;; DE-FORKED backend: our llama.cpp backend (thinking-off rides the modeled
+    ;; :thinking field, not the fork's :extra-body). Experiments don't pin slots
+    ;; (throughput measurement, not a resident chat) ⇒ empty :slots.
+    {:backend (models/llama-backend alias)
      :aliases {:local [{:provider :openai :model model}]}
      :preferences [:local]
      :eligibility-strict? false}))
@@ -75,8 +75,11 @@
         opts    (clojure.core/cond-> {:model  :local
                                       :system system
                                       :prompt (format (:prompt-template suite) text)}
+                  ;; thinking-off via escapement's MODELED field (our llama.cpp
+                  ;; backend translates :disabled → chat_template_kwargs). thinking
+                  ;; true ⇒ no :thinking ⇒ server default (on) — contrast preserved.
                   (not thinking)
-                  (assoc :extra-body {"chat_template_kwargs" {"enable_thinking" false}}))
+                  (assoc :thinking {:type :disabled}))
         t0      (System/currentTimeMillis)
         res     (ellm/ask ctx opts)
         ms      (- (System/currentTimeMillis) t0)

@@ -22,9 +22,13 @@ and the **application**. Never optimize one at the cost of the other.
 ```
 λ state.
   repo        : /Users/mwhitford/src/escapement-ouroboros | git LIVE (root 79ac142)
-  runtime dep : bb.edn :git/sha 9e57f16… → github michaelwhitford/escapement (THE FORK, branch
-                mw_extra_body = RC9 + :extra-body passthrough) | was :local/root; converted for
-                pre-release (outsiders get a hermetic fetch; verified: fresh ~/.gitlibs clone, tests green)
+  runtime dep : bb.edn com.fulcrologic/escapement {:mvn/version "1.0.0-RC9"} — DE-FORKED (was the
+                michaelwhitford fork sha 9e57f16 = RC9 + :extra-body passthrough). The llama.cpp knobs
+                (chat_template_kwargs/id_slot/cache_prompt) now ride ouroboros.llm.llamacpp — our own
+                pure-consumer backend, injected via lib/run's :backend escape hatch, driven by MODELED
+                escapement fields (:thinking→enable_thinking · cache-control marker→cache_prompt ·
+                :conversation/id→id_slot). PR to upstream was CLOSED (human) — the backend is the answer.
+                RC9 is on Clojars (released); bb test GREEN against it (proof nothing needs the fork).
   code        : mementum substrate (okf/store/eql) · ouroboros.compact (THE chat engine: λ-compaction,
                 shadow Tier 1, ASSEMBLED instruction-λ lens compactor, thinking ON) · ouroboros.proposer
                 (the proposer-topology runner, ex-curator — genome-slug-parameterized hermetic runs) ·
@@ -39,7 +43,12 @@ and the **application**. Never optimize one at the cost of the other.
                 ouroboros.prompts — vendored prompt artifacts loader (preamble · module registry ·
                 policy artifacts incl. compaction-lens) ·
                 ouroboros.verdict (verdict-topology runner: judge + scorer kinds, cross-family run-across!) ·
-                ouroboros.models (alias→endpoint routing table) ·
+                ouroboros.models (alias→endpoint routing table + llama-backend constructor) ·
+                ouroboros.llm.llamacpp — the DE-FORKED llama.cpp backend (pure-consumer LLMBackend ⊕
+                StreamingLLMBackend; reuses escapement PUBLIC translate/parse/SSE, COPIES only the
+                private HTTP glue; modeled-field caching: :thinking→enable_thinking · cache-control→
+                cache_prompt · :conversation/id→id_slot via a construction :slots table; usage
+                cached_tokens→:cache-read-input-tokens FREE via reused openai-json->response) ·
                 ouroboros.experiment (+experiment/core — suite-as-EDN A/B runner, experiments/*.edn;
                 kinds :chat ∧ :embedding; conditions may :assemble through the REAL pipeline) ·
                 ouroboros.gene (+gene/core +gene/ast) — the GENE-DB (EBNF FSM segmenter · λ-notation
@@ -49,12 +58,13 @@ and the **application**. Never optimize one at the cost of the other.
                 FILLED exemplar ⊕ variety ⊕ reserved? · ONE emit! path (validate→dedupe→persist) ·
                 :signal/emit tool · genome `signals:` grant, 5th surface · EQL :mementum/signals +
                 signal/emit! · signals/ gitignored)
-  gate        : bb test ≡ deterministic (153 tests / 683 assertions GREEN) | bb compact ≡ live chat
+  gate        : bb test ≡ deterministic (160 tests / 707 assertions GREEN) | bb compact ≡ live chat
                 (+ bb compact <prior-id> ≡ opt-in bootstrap; bb sessions ≡ the picker) |
                 bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
                 bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
-                autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100)
+                autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100) |
+                bb llama-smoke ≡ de-forked backend probe (thinking-off + slot pinning, SKIPs if server down)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam,
                 agent-comms(REVISED→two-plane), scheduled-maintenance, harness-coder,
@@ -194,6 +204,33 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
+λ latest (this session — THE DE-FORK, human-directed, PR CLOSED). Escapement is now released
+  upstream RC9 (Clojars), NOT the fork. Built ouroboros.llm.llamacpp: a pure-consumer LLMBackend ⊕
+  StreamingLLMBackend that reuses escapement's PUBLIC translate/parse/SSE primitives and COPIES only
+  the ~120 lines of private HTTP glue (frozen ⇒ insulated from escapement internals; we track only the
+  stable public backend contract). 🎯 DESIGN — adapt escapement's CACHING pattern, not a passthrough:
+  every knob is a MODELED escapement field, so NO :extra-body and NO :metadata anti-pattern —
+    :thinking {:type :disabled}   → chat_template_kwargs {enable_thinking false}
+    cache-control marker (auto-cache default) → cache_prompt true   (build-request CONSUMES :auto-cache?
+                                    to STAMP the marker; the MARKER reaches the backend, so we read it)
+    :conversation/id ─(:slots)→   id_slot N   (escapement's prompt-cache correlation key → physical slot;
+                                    slot POLICY lives in backend construction, next to the endpoint)
+    usage.cached_tokens           → :cache-read-input-tokens (FREE — reused openai-json->response ⇒
+                                    bb cache-report works unchanged). Injected via lib/run :backend
+                                    escape hatch (wins verbatim; still needs dummy :credentials + alias
+                                    :config for model resolution). models/llama-backend builds it.
+  MIGRATED off the fork's :extra-body: compact.clj (:hot→:conversation/id :hot, :compact/:fold→:compact)
+  · experiment.clj (backend + :thinking :disabled) · 5 scratch/ab_*.clj harnesses. bb.edn → {:mvn/version
+  "1.0.0-RC9"}. LIVE-PROVEN (bb llama-smoke @5100): thinking OFF ⇒ reasoning_content nil (vs ON control),
+  slot 2 pinned (/slots), send-turn ⇒ answer + :cache-read-input-tokens. bb test 160/707 GREEN against
+  UPSTREAM RC9 (the proof nothing needs the fork). WHY custom-backend ≻ fork: the :backend escape hatch
+  only swaps the WHOLE backend (a thin decorator can't reach the wire-body — escapement's translate→POST
+  is internal), so we own translate+POST; but COPYING the private glue (vs calling) means Tony can churn
+  internals freely. NOTE compact node still runs thinking ON (unchanged — its instruction-λ lens needs
+  reasoning); thinking-off is now trivially available per-node via :thinking {:type :disabled} if wanted.
+  RESIDUAL: the extra-body-seam knowledge page (design/extra-body-seam) is now SUPERSEDED by the backend —
+  candidate to update/retire; a knowledge page for the de-forked-backend design is a synthesis candidate.
+
 λ tomorrow. FIRST: add the cron/launchd entry (human machine config, outside the repo —
   design/scheduled-maintenance rung 1 is otherwise COMPLETE). Item 31's inbox was REVIEWED
   (item 32): both proposals discarded (contrived-test evidence — see the provenance gap note

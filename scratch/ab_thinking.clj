@@ -7,7 +7,7 @@
   (:require
     [clojure.string :as str]
     [escapement.llm :as ellm]
-    [escapement.llm.providers :as providers]
+    [ouroboros.llm.llamacpp :as llamacpp]
     [ouroboros.compact :as compact]
     [ouroboros.session :as session]))
 
@@ -15,9 +15,7 @@
 (def model    "qwen36-35b-a3b")
 
 (def ctx
-  {:backend (providers/build-injected-credentials-backend
-              [{:provider :openai :api-key "sk-local" :base-url base-url}]
-              [{:provider :openai :model model}])
+  {:backend (llamacpp/new-backend {:base-url base-url :api-key "sk-local" :default-model model})
    :aliases {:local [{:provider :openai :model model}]}
    :preferences [:local]
    :eligibility-strict? false})
@@ -42,7 +40,7 @@
                       :model   :local
                       :prompt  (str "compile:\n\n" text)}
                (not thinking?)
-               (assoc :extra-body {"chat_template_kwargs" {"enable_thinking" false}}))
+               (assoc :thinking {:type :disabled}))
         t0   (System/currentTimeMillis)
         res  (ellm/ask ctx opts)
         ms   (- (System/currentTimeMillis) t0)]

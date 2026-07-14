@@ -15,6 +15,7 @@
     [ouroboros.cache-report-test]
     [ouroboros.agents-test]
     [ouroboros.models-test]
+    [ouroboros.llm.llamacpp-test]
     [ouroboros.verdict-test]
     [ouroboros.experiment.core-test]
     [ouroboros.gene.core-test]
@@ -39,6 +40,7 @@
           'ouroboros.cache-report-test
           'ouroboros.agents-test
           'ouroboros.models-test
+          'ouroboros.llm.llamacpp-test
           'ouroboros.verdict-test
           'ouroboros.experiment.core-test
           'ouroboros.gene.core-test
