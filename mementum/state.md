@@ -204,6 +204,16 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
           revisit the chart (item 28 banked note). Watch: single-event proposals (the ≥2-recurrence
           damper is prompt-soft, item 31 observation); agent-held signal grants (s4/proposal for
           the roster) when proposals ride the data plane.
+          EVIDENCE PROVENANCE GAP (human, first live inbox review 2026-07-14): BOTH pending proposals
+          DISCARDED — all evidence sessions were CONTRIVED TESTS (compaction/tool-use proofs), not real
+          human conversations. The ≥3-recurrence bar was "cleared" on synthetic data; the proposers
+          cannot distinguish test chatter from real usage. Topology gap: session evidence carries no
+          test-vs-real classification (cf. item 8: the curator's first proposal was discarded for the
+          SAME reason — grounded in throwaway demo chats. Now 2× recurrence → structural). Fix candidates
+          when it matters: session tagging at creation (chat vs scratch/proof), or proposer prompt-clause
+          discounting tool-proof-shaped sessions. Also discarded on merit: "¬simulate ¬narrate" prompt
+          patch judged liable to backfire subtly — behavioral prohibitions on n=1 evidence are cheap to
+          write, hard to predict.
   note  : PROMPT ASSEMBLY BUILT (item 27) — ONE assembler in agents.core; compact is thinking-ON
           through the assembled lens (compaction-fidelity suite is the regression instrument —
           re-run at every model change). Reserved-mutation set ENUMERATED (vsm-on-escapement
