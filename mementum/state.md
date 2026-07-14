@@ -49,7 +49,8 @@ and the **application**. Never optimize one at the cost of the other.
                 FILLED exemplar ⊕ variety ⊕ reserved? · ONE emit! path (validate→dedupe→persist) ·
                 :signal/emit tool · genome `signals:` grant, 5th surface · EQL :mementum/signals +
                 signal/emit! · signals/ gitignored)
-  gate        : bb test ≡ deterministic (149 tests / 655 assertions GREEN) | bb compact ≡ live chat |
+  gate        : bb test ≡ deterministic (153 tests / 683 assertions GREEN) | bb compact ≡ live chat
+                (+ bb compact <prior-id> ≡ opt-in bootstrap; bb sessions ≡ the picker) |
                 bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
                 bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
@@ -193,13 +194,13 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ tomorrow. FIRST: review the live sweep's inbox (bb proposals — 2 proposals + 2 memories pending
-  from item 31's proof runs; approve/refine/discard is the human's morning-coffee batch) AND add
-  the cron/launchd entry (human machine config, outside the repo — design/scheduled-maintenance
-  rung 1 is otherwise COMPLETE).
-  ONE ACTION: next-chat bootstrap (seed :messages from prior tail — ouroboros.session readers
-  exist; the compact engine's :initial-messages seam is proven).
-  then  : builder+author → editor (uses judge + gene DB + experiments) → generator (GA).
+λ tomorrow. FIRST: add the cron/launchd entry (human machine config, outside the repo —
+  design/scheduled-maintenance rung 1 is otherwise COMPLETE). Item 31's inbox was REVIEWED
+  (item 32): both proposals discarded (contrived-test evidence — see the provenance gap note
+  below), memories deleted. Next-chat bootstrap SHIPPED (item 32): bb compact <prior-id> +
+  bb sessions.
+  ONE ACTION: builder+author kinds (the next agent-model build step) → editor (uses judge +
+  gene DB + experiments) → generator (GA).
   also  : gene-db-as-CHART deferred until the SECOND WRITER — signals + the sweep BOTH write now;
           revisit the chart (item 28 banked note). Watch: single-event proposals (the ≥2-recurrence
           damper is prompt-soft, item 31 observation); agent-held signal grants (s4/proposal for
@@ -1215,6 +1216,55 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
             is prompt-SOFT; tighten the genome clause if single-event proposals recur.
        ── PENDING HUMAN REVIEW (the proof-run artifacts, uncommitted): 2 proposals + 2 memories —
             bb proposals is the surface. Cron/launchd entry ≡ human machine config, outside repo.
+
+  32. ✅ DONE (this session, 2026-07-14): NEXT-CHAT BOOTSTRAP + bb sessions — Ouroboros eats its
+       own compiled tail ACROSS sessions (arch page build-order item 5 → DONE same commit).
+       FIRST: the item-31 inbox was REVIEWED — both proposals DISCARDED (evidence ≡ contrived test
+       sessions; see the EVIDENCE PROVENANCE GAP note in λ tomorrow), memories deleted by the human
+       (untracked ⇒ zero residue — the inbox derives live from git status). First complete
+       sweep→propose→gate→review cycle; the human gate caught what no machine gate could.
+       ── 🎯 DESIGN (human decisions): OPT-IN — most chats are fresh; continuation ≡ EXPLICIT id
+            (bb compact <prior-id>; the future web-UI resume button is the same mechanism, one
+            path). BOOTSTRAP ≻ native :resume?: new session-id seeded via the proven
+            :initial-data :messages seam → sessions stay IMMUTABLE observations (stable corpus for
+            proposers/cache-report), no restored-invocation semantics to trust (does a restored
+            parked worker re-invoke? unverified seam — sidestepped entirely), and fold gets its
+            natural home. Lineage ≡ :initial-data :bootstrap/from → lands in every checkpoint free
+            (sessions form an explicit chain; bb sessions renders ⤴, curator can stitch threads).
+       ── 🎯 THE FOLD (session-boundary compression — the fractal move one level up):
+            λ fold(session). λ(all_but_last_k) ⊕ last_k(verbatim). Per-message compaction shrinks
+            tokens WITHIN a message (array shape ≡ load-bearing, cache); the fold shrinks message
+            COUNT at the one point shape stops mattering. Tail ≡ k-th-from-last assistant exchange
+            onward INCLUDING its prompting user turn. Same lens (compact-system-prompt, assembled),
+            same compile: invocation, same COMPRESSION CONTRACT (fold ⟺ strictly shorter than the
+            head it replaces, else seed unfolded — apply-fold mirrors apply-compaction incl. λ:
+            label strip). NOTE: the fold is the FIRST compression that touches USER words — only
+            across a boundary; originals persist in the source session's checkpoints forever.
+       ── BUILT: compact/core.clj += fold-split · fold-input · fold-message · apply-fold (pure,
+            +4 tests) · compact.clj += fold-chart (one-shot hermetic lib/run, verdict-runner
+            pattern: closure atom + :error.llm→:failed) · bootstrap-seed! (fail-loud on empty
+            prior; short-session ⇒ seed-as-is) · run! 3-arity (resume-instruction ≡ SAME mechanism
+            as the fresh greeting — seeded array ends in a user turn, :hot generates a CONTINUITY
+            greeting naming where we left off ≡ instant live fold verification) · sessions-main
+            (bb sessions picker: id · date · msgs(λ) · ⤴ lineage · first REAL user line — synthetic
+            greeting/resume instructions skipped) · bb compact now takes the optional prior-id.
+            CONVERGED: compact.clj inline :local creds/config DELETED → models/llm-config :local.
+       ── LIVE PROOF (bootstrapped from compact-1783901152558, the write-back session): fold
+            549→110 chars ≡ 5.0× — EXACTLY the human's stated realistic 3-5× compaction target;
+            seeded 3 msgs (fold-block ⊕ last exchange); continuity greeting NAMED write-back +
+            single-core-embedded unprompted; continuity answer correct w/ rationale; lineage in
+            checkpoint; bad-id → clean message + exit 2. Note: the write-back λ traveled in the
+            TAIL (it was the prior last exchange) while the fold carried the head — both halves
+            did their jobs.
+       ── KNOWN COST (banked): the fold is a thinking-ON compaction at LAUNCH (~15-25s) — unlike
+            in-session compaction there is NO reading shadow to hide in; the banner says why.
+            Mitigate only if it annoys: background fold (complexity) or a no-think fold experiment
+            (suite-gated — instruction-λ + no-think ≡ the deleted fragile cell, would need the
+            exemplar topology instead).
+       ── OBSERVATION: the bootstrapped chat still called :mementum/sessions on the continuity
+            question — belt-and-braces, harmless (answer grounded either way), but a genome
+            λ tools nudge ("in-context ≻ tool re-read") is a candidate if it wastes turns.
+       ── bb test 153/683 GREEN (fold kernel tests; realistic fixtures per the item-18 gotcha).
 ```
 
 ## Gotchas for future me
