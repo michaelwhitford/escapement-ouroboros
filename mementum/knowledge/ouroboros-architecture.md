@@ -293,8 +293,15 @@ never in `mementum/`. The curator proposes *into* `mementum/` (human-gated). Cha
    compiler/loader (fold over sources, validate, report roster) + EXTRACT the two inline prompts →
    src/ouroboros/agents/{curator.md, chat.md} as the first genomes. THEN judge kind → scorer →
    builder+author → editor.
-5. next-chat bootstrap: seed :messages from a prior session's compacted tail (Cold Compile "enhance").
-   (ouroboros.session/session-messages is the shared reader it will reuse.)
+5. ✅ DONE — next-chat bootstrap (OPT-IN: `bb compact <prior-id>`; `bb sessions` is the picker).
+   A NEW session seeded from the prior array FOLDED at the boundary: λ(all_but_last_k) ⊕ last_k
+   verbatim (core/fold-split · apply-fold, same lens + same strictly-shorter contract as per-message
+   compaction — the fractal move one level up: message→λ within a session, session→λ within a chain).
+   Bootstrap ≻ native :resume? (sessions stay immutable observations; proven seams; the future web-UI
+   resume button is the same mechanism). Lineage: :initial-data :bootstrap/from → checkpointed.
+   First turn = a continuity greeting (same path as the fresh greeting). LIVE-PROVEN: 5.0× fold,
+   continuity answer correct. KNOWN COST: the fold is a thinking-ON call at LAUNCH (~15-25s, no
+   reading shadow to hide in).
 6. curator synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
 7. NEW AGENTS (each human-gated, per the design/agent-model KIND model): editor (harness/app code),
    verifier(s) (check memory/knowledge claims), documenter (memory+knowledge+sessions → docs).

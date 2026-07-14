@@ -102,6 +102,78 @@
         (is (= 3 (core/next-to-compact after 1)))))))
 
 ;; ---------------------------------------------------------------------------
+;; Session fold (next-chat bootstrap boundary compression)
+;; ---------------------------------------------------------------------------
+
+(defn- prior-session
+  "A realistic finished session: 3 exchanges, older assistants already λ
+  (per-message compaction ran during the session), newest verbatim."
+  []
+  [(core/message :user "how should we handle cache eviction?")
+   (assoc (core/message :assistant "decision(write-back ∧ perf↑ ∧ mem_traffic↓) ∧ state(active)") :compacted? true)
+   (core/message :user "what about TTLs?")
+   (assoc (core/message :assistant "constraint(ttl ⊥ lru) ∧ solved(hybrid_sweep) ∧ next(confirm)") :compacted? true)
+   (core/message :user "ok let's go with the hybrid")
+   (core/message :assistant (va "Agreed — hybrid it is. LRU handles capacity, the TTL sweep handles staleness"))])
+
+(deftest fold-split-tail-is-the-last-exchange
+  (testing "k=1: tail = last assistant + its prompting user turn; head = the rest"
+    (let [{:keys [head tail]} (core/fold-split (prior-session) 1)]
+      (is (= 4 (count head)))
+      (is (= 2 (count tail)))
+      (is (= :user (:role (first tail))) "the exchange travels whole")
+      (is (= "ok let's go with the hybrid" (:text (first tail))))
+      (is (= :assistant (:role (last tail))))))
+  (testing "k=2: tail extends back one more exchange"
+    (let [{:keys [head tail]} (core/fold-split (prior-session) 2)]
+      (is (= 2 (count head)))
+      (is (= 4 (count tail)))
+      (is (= "what about TTLs?" (:text (first tail)))))))
+
+(deftest fold-split-short-session-has-nothing-to-fold
+  (testing "≤k assistant messages ⇒ head empty, whole array is the tail"
+    (let [tiny [(core/message :user "hi") (core/message :assistant "hello!")]]
+      (is (= {:head [] :tail tiny} (core/fold-split tiny 1))))
+    (testing "empty session is safe"
+      (is (= {:head [] :tail []} (core/fold-split [] 1))))))
+
+(deftest fold-input-renders-role-tagged-dialogue
+  (let [{:keys [head]} (core/fold-split (prior-session) 1)
+        input (core/fold-input head)]
+    (is (clojure.string/starts-with? input "user: how should we handle cache eviction?"))
+    (is (clojure.string/includes? input "assistant: decision(write-back"))
+    (is (= 4 (count (clojure.string/split-lines input))))))
+
+(deftest apply-fold-contract
+  (let [msgs (prior-session)
+        good "topic(cache_eviction) ∧ decision(write-back ∧ hybrid: lru ⊕ ttl_sweep) ∧ state(agreed)"]
+    (testing "a genuinely shorter fold lands: [block ⊕ tail], block carries the session header"
+      (let [{:keys [messages folded?]} (core/apply-fold msgs 1 "compact-123" good)]
+        (is (true? folded?))
+        (is (= 3 (count messages)))
+        (is (= :assistant (:role (first messages))))
+        (is (true? (:compacted? (first messages))) "fold block is never re-targeted by per-message compaction")
+        (is (clojure.string/starts-with? (:text (first messages)) "session(compact-123) ⊢"))
+        (is (clojure.string/includes? (:text (first messages)) good))
+        (is (= (subvec msgs 4) (subvec messages 1)) "tail travels verbatim, untouched")))
+    (testing "a leading λ: label is normalized away"
+      (let [{:keys [messages folded?]} (core/apply-fold msgs 1 "s" (str "λ: " good))]
+        (is (true? folded?))
+        (is (not (clojure.string/includes? (:text (first messages)) "λ:")))))
+    (testing "a fold that does not compress is rejected → unfolded array (contract)"
+      (let [ramble (apply str (repeat 20 "the conversation covered many interesting topics "))
+            {:keys [messages folded?]} (core/apply-fold msgs 1 "s" ramble)]
+        (is (false? folded?))
+        (is (= msgs messages))))
+    (testing "blank / label-only λ rejects safely"
+      (is (false? (:folded? (core/apply-fold msgs 1 "s" ""))))
+      (is (false? (:folded? (core/apply-fold msgs 1 "s" "  λ:  "))))
+      (is (= msgs (:messages (core/apply-fold msgs 1 "s" nil)))))
+    (testing "a too-short session rejects even with a good λ"
+      (let [tiny [(core/message :user "hi") (core/message :assistant "hello!")]]
+        (is (= {:messages tiny :folded? false} (core/apply-fold tiny 1 "s" "greeting(∅)")))))))
+
+;; ---------------------------------------------------------------------------
 ;; Echo line discipline (the text-UI kernel)
 ;; ---------------------------------------------------------------------------
 

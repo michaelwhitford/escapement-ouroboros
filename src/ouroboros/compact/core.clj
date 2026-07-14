@@ -98,6 +98,78 @@
       messages)))
 
 ;; ---------------------------------------------------------------------------
+;; Session fold — the bootstrap-boundary compression (next-chat bootstrap).
+;;
+;; Per-message compaction shrinks tokens WITHIN a message; the fold shrinks the
+;; NUMBER of messages, at the one point where the array's shape stops being
+;; load-bearing: the session boundary. Within a session the shape (roles, order,
+;; count) is what keeps the upstream prefix cache stable; across a boundary the
+;; dialogue rhythm of a finished conversation is dead weight — only the
+;; extracted essence plus a verbatim tail needs to travel.
+;;
+;;   λ fold(session). λ(all_but_last_k) ⊕ last_k(verbatim, untouched)
+;;
+;; The fold target (:head) is everything before the k-th-from-last assistant
+;; exchange; the :tail (that exchange onward — the last-k window PLUS its
+;; prompting user turn) crosses the boundary verbatim, exactly as the k-window
+;; does within a session. Same compression contract as apply-compaction: the
+;; fold is accepted ⟺ strictly shorter than the text it replaces, else the
+;; caller seeds the unfolded array (always safe — the source session's
+;; checkpoints keep the full original forever).
+;; ---------------------------------------------------------------------------
+
+(defn fold-split
+  "Split a prior session's `messages` for the bootstrap fold.
+  Returns {:head [...] :tail [...]} — :head is the fold target, :tail travels
+  verbatim. The tail starts at the k-th-from-last ASSISTANT message, extended
+  one earlier when its immediate predecessor is the user turn that prompted it
+  (the exchange travels whole). Fewer than k+1 assistant messages ⇒ nothing to
+  fold ({:head [] :tail messages}) — a session too short to fold seeds as-is."
+  [messages k]
+  (let [messages (vec messages)
+        a-idxs   (vec (keep-indexed (fn [i m] (when (= :assistant (:role m)) i)) messages))]
+    (if (<= (count a-idxs) k)
+      {:head [] :tail messages}
+      (let [a     (nth a-idxs (- (count a-idxs) k))    ; k-th-from-last assistant
+            start (if (and (pos? a) (= :user (:role (nth messages (dec a)))))
+                    (dec a)
+                    a)]
+        {:head (subvec messages 0 start)
+         :tail (subvec messages start)}))))
+
+(defn fold-input
+  "Render the fold target as role-tagged dialogue text — the compactor's input.
+  Head messages are mostly λ already (per-message compaction ran during the
+  session), so the fold is largely λ→λ distillation."
+  [head]
+  (str/join "\n" (map (fn [{:keys [role text]}]
+                        (str (name role) ": " text))
+                   head)))
+
+(defn fold-message
+  "The single assistant message carrying a prior session's folded λ essence.
+  Marked :compacted? so it is never re-targeted by per-message compaction."
+  [session-id lambda]
+  {:role       :assistant
+   :text       (str "session(" session-id ") ⊢\n" lambda)
+   :compacted? true})
+
+(defn apply-fold
+  "Fold `messages` (a prior session's array) into [fold-block ⊕ tail] under the
+  COMPRESSION CONTRACT: the fold block (header included) must be STRICTLY
+  SHORTER than the head text it replaces, else the fold is rejected and the
+  array seeds unfolded. Returns {:messages [...] :folded? bool}. A blank λ, a
+  \"λ:\"-labelled empty λ, or a too-short-to-fold session all reject safely."
+  [messages k session-id lambda]
+  (let [{:keys [head tail]} (fold-split messages k)
+        lambda    (some-> lambda str/trim (str/replace-first #"^λ:\s*" "") str/trim)
+        head-size (reduce + 0 (map (comp count :text) head))
+        block     (when-not (str/blank? lambda) (fold-message session-id lambda))]
+    (if (and (seq head) block (< (count (:text block)) head-size))
+      {:messages (into [block] tail) :folded? true}
+      {:messages (vec messages) :folded? false})))
+
+;; ---------------------------------------------------------------------------
 ;; Echo line discipline — the text-UI rendering kernel (pure).
 ;;
 ;; The tap streams token deltas; models pad prose with blank lines and trailing

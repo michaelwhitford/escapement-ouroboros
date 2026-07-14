@@ -56,13 +56,11 @@
     [ouroboros.agents :as agents]
     [ouroboros.agents.core :as acore]
     [ouroboros.compact.core :as core]
+    [ouroboros.models :as models]
     [ouroboros.prompts :as prompts]
+    [ouroboros.proposer.core :as pcore]
     [ouroboros.session :as session]
     [ouroboros.tools :as tools]))
-
-;; Reuse the proven local llama.cpp wiring.
-(def ^:private local-base-url "http://localhost:5100/v1")
-(def ^:private local-model    "qwen36-35b-a3b")
 
 ;; llama.cpp KV-slot assignment (server runs -np 4 ⇒ dedicated slots 0-3).
 ;; Convention (human decision): the TOP two slots are ouroboros's; slots 0-1
@@ -89,6 +87,13 @@
 ;; worker is live + streaming) and then parks awaiting the first real message.
 (def ^:private greeting-instruction
   "Greet the user in ONE short sentence and invite them to type a message. Be warm and terse.")
+
+;; Bootstrap first turn: same mechanism as the fresh greeting (ONE path — the
+;; seeded array ends in a user instruction, :hot generates, then parks), but
+;; the greeting must PROVE continuity: it names what the prior session left off
+;; on, which immediately verifies the fold landed (or exposes that it didn't).
+(def ^:private resume-instruction
+  "We are continuing from a prior session — its context precedes this message. Greet the user in ONE short sentence that names the main topic or latest decision we left off on, and invite them to continue. Be warm and terse.")
 
 (defn- send-self!
   "Post `event` (no data) to the chart's own session — used to drive the pump.
@@ -340,6 +345,127 @@
     (.start)))
 
 ;; ---------------------------------------------------------------------------
+;; Bootstrap — next-chat continuation (OPT-IN: bb compact <prior-session-id>).
+;; A NEW session seeded from a prior session's array, FOLDED at the boundary
+;; (core/fold-split: λ(all_but_last_k) ⊕ last_k verbatim). Bootstrap ≻ native
+;; :resume?: sessions stay immutable observations, the fold has a natural home,
+;; and every launch is a fresh proven lib/run (no restored-invocation semantics
+;; to trust). Lineage rides :initial-data :bootstrap/from → checkpointed free.
+;; ---------------------------------------------------------------------------
+
+(defn- fold-chart
+  "One-shot chart compressing a prior session's head dialogue into λ through
+  THE compaction lens (verdict-runner pattern: hermetic run, output via a
+  closure atom, :error.llm → :failed so a dead worker cannot hang the launch)."
+  [fold-text out]
+  (chart/statechart
+    {:initial :folding}
+    (state {:id :folding}
+      (h/llm-conversation
+        {:id                "fold"
+         :on-end-turn-event :fold/idle
+         :system            compact-system-prompt
+         :model             :local
+         :stream?           false
+         ;; The fold is compactor work — quarantine it in the compactor's slot
+         ;; so launch never evicts a warm hot-slot prefix (another client's or,
+         ;; later, a resident session's).
+         :extra-body        {"id_slot" compact-slot "cache_prompt" true}
+         :real-tools        []
+         :max-turns         2
+         :budget-ms         240000
+         ;; `compile:` is defined by the lens's bridge module (cf. :compact).
+         :message           (str "compile:\n\n" fold-text)})
+      (transition {:event :fold/idle :target :done}
+        (script {:expr (fn [env data] (reset! out (h/deref-output env data)) nil)}))
+      (transition {:event :error.llm :target :failed}))
+    (final {:id :done})
+    (final {:id :failed})))
+
+(defn- bootstrap-seed!
+  "Load prior session `prior-id`'s λ-array and fold it at the boundary: ONE
+  hermetic compaction call over the pre-tail head, gated by the pure
+  compression contract (core/apply-fold — accepted ⟺ strictly shorter, else
+  the array seeds UNFOLDED; a failed/budget-dead fold run leaves the atom nil
+  and rejects the same way). Returns {:messages [...] :folded? bool}.
+  Fail-loud when the prior session has no messages: wrong id, a non-chat
+  session, or checkpoint-shape drift (see session/read-data-model)."
+  [root prior-id]
+  (let [prior (session/session-messages root prior-id)]
+    (when (empty? prior)
+      (throw (ex-info (str "no messages in session '" prior-id
+                        "' — not a chat/compact session? (bb sessions lists candidates)")
+               {:prior-id prior-id})))
+    (let [{:keys [head]} (core/fold-split prior k)]
+      (if (empty? head)
+        {:messages (vec prior) :folded? false}   ; too short to fold — seed as-is
+        (let [out      (atom nil)
+              fold-sid (str "fold-" (System/currentTimeMillis))
+              fold-dir (session/session-dir root fold-sid)]
+          (lib/run
+            (merge
+              {:chart           (fold-chart (core/fold-input head) out)
+               :session-id      fold-sid
+               :session-dir     fold-dir
+               :transcript-path (str fold-dir "/transcript.jsonl")
+               :checkpoint-dir  (str fold-dir "/checkpoints")
+               :tool-registry   (tools/new-registry root)}
+              (models/llm-config :local)))
+          (core/apply-fold prior k prior-id @out))))))
+
+;; ---------------------------------------------------------------------------
+;; Session listing — the picker (bb sessions): the CLI projection of what the
+;; web UI's resume button will render later (same reads, second projection).
+;; ---------------------------------------------------------------------------
+
+(def ^:private synthetic-instructions
+  "Engine-injected user turns — skipped when deriving a session's human label."
+  #{greeting-instruction resume-instruction})
+
+(defn- first-real-user-line
+  [messages]
+  (some (fn [{:keys [role text]}]
+          (when (and (= :user role) (not (contains? synthetic-instructions text)))
+            text))
+    messages))
+
+(defn- fmt-epoch [ms]
+  (if (pos? ms)
+    (-> (java.time.Instant/ofEpochMilli ms)
+      (.atZone (java.time.ZoneId/systemDefault))
+      (.format (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm")))
+    "----------------"))
+
+(defn- clip-label [s n]
+  (let [s (str (or s ""))]
+    (if (> (count s) n) (str (subs s 0 n) "…") s)))
+
+(defn sessions-main
+  "bb sessions — conversation sessions (those with a :messages array), newest
+  first: id · date · msgs(λ) · lineage (⤴ bootstrapped-from) · first human line."
+  [& _]
+  (let [rows (->> (session/list-session-ids ".")
+               (keep (fn [id]
+                       (let [dm   (session/read-data-model "." id)
+                             msgs (:messages dm)]
+                         (when (seq msgs)
+                           {:id    id
+                            :epoch (pcore/recency-key id)
+                            :n     (count msgs)
+                            :nc    (count (filter :compacted? msgs))
+                            :from  (:bootstrap/from dm)
+                            :line  (first-real-user-line msgs)}))))
+               (sort-by :epoch)
+               reverse)]
+    (if (empty? rows)
+      (println "(no conversation sessions yet)")
+      (doseq [{:keys [id epoch n nc from line]} rows]
+        (println (str id "  " (fmt-epoch epoch)
+                   "  " n " msgs (" nc " λ)"
+                   (when from (str "  ⤴ " from))
+                   "  | " (clip-label line 60)))))))
+
+;; ---------------------------------------------------------------------------
 ;; Runner.
 ;; ---------------------------------------------------------------------------
 
@@ -348,10 +474,26 @@
   conversation ends. Streams the assistant's tokens live (hot region only);
   reads user turns from stdin via `:on-env-ready` ingress. Returns the `lib/run`
   summary plus the durable session-dir (its transcript records the compact
-  worker's λ outputs for inspection)."
+  worker's λ outputs for inspection).
+
+  With `prior-id` (opt-in — bb compact <id>): a NEW session bootstrapped from
+  that session's folded tail (see bootstrap-seed!); the first turn is a
+  continuity greeting naming where the prior session left off. NOTE the fold is
+  a thinking-ON compaction call at LAUNCH (~15-25s) — unlike in-session
+  compaction it has no reading shadow to hide in; the launch banner says why."
   ([] (run! "."))
-  ([root]
-   (let [adapter     (sink/make-adapter)
+  ([root] (run! root nil))
+  ([root prior-id]
+   (when prior-id
+     (println (str "bootstrapping from " prior-id " — folding prior session (λ, ~15-25s)…")))
+   (let [seed        (when prior-id (bootstrap-seed! root prior-id))
+         _           (when seed
+                       (println (str "  seeded " (count (:messages seed)) " msgs (folded: "
+                                  (:folded? seed) ")")))
+         messages-0  (if seed
+                       (core/append-user (:messages seed) resume-instruction)
+                       [(core/message :user greeting-instruction)])
+         adapter     (sink/make-adapter)
          session-id  (str "compact-" (System/currentTimeMillis))
          session-dir (session/session-dir root session-id)
          ;; Echo line-discipline state (core/echo-text) — the impure shell
@@ -373,20 +515,24 @@
      (println "Ouroboros λ-compact chat —  type a message, Enter.  /quit (or Ctrl-D) to end.\n")
      (let [result
            (lib/run
-             {:chart           compact-chart
+             (merge
+              ;; :local routing (credentials + aliases) from THE table —
+              ;; ouroboros.models/llm-config (was inline; converged).
+              (models/llm-config :local)
+              {:chart           compact-chart
               :session-id      session-id
               :session-dir     session-dir
               :transcript-path (str session-dir "/transcript.jsonl")
               :checkpoint-dir  (str session-dir "/checkpoints")
               :tool-registry   (tools/new-registry root)   ; REQUIRED to wire the llm processor
-              :initial-data    {:messages      [(core/message :user greeting-instruction)]
-                                :pending-user  []}
+              ;; :bootstrap/from = the lineage marker: it lands in every
+              ;; checkpoint, so sessions form an explicit chain (bb sessions
+              ;; renders it; the curator can stitch threads).
+              :initial-data    (cond-> {:messages     messages-0
+                                        :pending-user []}
+                                 prior-id (assoc :bootstrap/from prior-id))
               :on-env-ready    (fn [env]
                                  (start-stdin-ingress! (get env event-queue-key) env session-id at-prompt?))
-              :credentials     [{:provider :openai :api-key "sk-local" :base-url local-base-url}]
-              :config          {:llm/aliases             {:local [{:provider :openai :model local-model}]}
-                                :llm/preferences         [:local]
-                                :llm/eligibility-strict? false}
               ;; The text UI rides the SINK EVENTS, hot region ONLY — the
               ;; compact/parked workers stay silent (the old tap printed two
               ;; raw newlines on EVERY :llm/response row, region-unfiltered:
@@ -439,11 +585,16 @@
                         (emit! (str "\n" user-prompt))
                         (reset! at-prompt? true))
 
-                      nil))))})]
+                      nil))))}))]
        (assoc result :session-dir session-dir)))))
 
-(defn -main [& _]
-  (let [{:keys [status session-dir] :as result} (run!)]
+(defn -main [& [prior-id]]
+  (let [{:keys [status session-dir]}
+        (try
+          (run! "." prior-id)
+          (catch clojure.lang.ExceptionInfo e
+            (println (str "bootstrap failed: " (ex-message e)))
+            (System/exit 2)))]
     (println "\n--- λ-compact chat ended ---")
     (println "status      :" status)
     (println "session-dir :" session-dir)
