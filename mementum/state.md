@@ -226,8 +226,10 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   UPSTREAM RC9 (the proof nothing needs the fork). WHY custom-backend ≻ fork: the :backend escape hatch
   only swaps the WHOLE backend (a thin decorator can't reach the wire-body — escapement's translate→POST
   is internal), so we own translate+POST; but COPYING the private glue (vs calling) means Tony can churn
-  internals freely. NOTE compact node still runs thinking ON (unchanged — its instruction-λ lens needs
-  reasoning); thinking-off is now trivially available per-node via :thinking {:type :disabled} if wanted.
+  internals freely. 🎯 compactor thinking KEPT ON (human, settled — NOT an open thread): better
+  compaction QUALITY with it on. thinking-off (available per-node via :thinking {:type :disabled}) would
+  shrink the shadow work but DEGRADES compactions — quality ≻ the ~free speedup. The instruction-λ lens
+  needs the reasoning pass (no-think echoes it, A/B rounds 1-2). hot also runs thinking-ON.
   KNOWLEDGE: design/llamacpp-backend WRITTEN (the backend design — reuse boundary, modeled-field
   caching, :metadata anti-pattern rejected). design/extra-body-seam RETIRED (git rm) — we won't keep a
   leaky raw-body passthrough as a fallback; all pointers repointed to llamacpp-backend.

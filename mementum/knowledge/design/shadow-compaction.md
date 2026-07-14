@@ -148,7 +148,7 @@ prove annoying in practice.
 
 ## Enabling seam — the llama.cpp backend
 
-Slot pinning (`id_slot`), prefix reuse (`cache_prompt`), and compactor thinking-off
+Slot pinning (`id_slot`), prefix reuse (`cache_prompt`), and thinking-off
 (`chat_template_kwargs.enable_thinking=false`) are all llama.cpp body params that escapement's
 stock OpenAI backend does not forward. Our own backend `ouroboros.llm.llamacpp` reaches them via
 MODELED escapement fields — `:conversation/id`→id_slot, cache-control marker→cache_prompt,
@@ -186,8 +186,10 @@ un-configurable from Ouroboros; with it, all three are pure conversation-node da
 1. Tier 1 — decompose :hot into :parked | :hot | :compact; relocate the compaction trigger to
    :hot/idle; simplify the :user/next pump; add :user/msg enqueue to :compact. Pure topology +
    the latent :hot-busy? trap fixed. (Depends on nothing new.)
-2. thinking-off on the compactor via :thinking {:type :disabled} (the llamacpp backend
-   translates it — design/llamacpp-backend). ~Free; shrinks the shadow work.
+2. compactor thinking KEPT ON (🎯 human decision): thinking-off would shrink the shadow work
+   but PRODUCES WORSE compactions — quality ≻ the ~free speedup. The instruction-λ lens needs the
+   reasoning pass (no-think echoes it — A/B rounds 1-2). :thinking {:type :disabled} is available
+   per-node (design/llamacpp-backend) but deliberately UNUSED on :compact.
 3. Tier 2 — (parallel :hot :compact) + slot pinning via :conversation/id. Only if fast-human waits
    are observed. Adds real concurrency complexity; buys the fast-human insurance.
 ```
