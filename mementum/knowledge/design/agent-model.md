@@ -9,7 +9,6 @@ tags: [ouroboros, design, agents, genome, kinds, tools, capability-security, ver
 related:
   - ouroboros-architecture
   - design/shadow-compaction
-  - design/extra-body-seam
   - upstream/escapement-multi-agent-and-services
   - upstream/escapement-llm-conversation
   - upstream/escapement-library-embedding

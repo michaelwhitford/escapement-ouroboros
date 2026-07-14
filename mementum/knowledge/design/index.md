@@ -11,7 +11,7 @@ related:
   - design/agent-model
   - design/vsm-on-escapement
   - design/shadow-compaction
-  - design/extra-body-seam
+  - design/llamacpp-backend
   - design/agent-comms
   - design/signals
   - design/experiments
@@ -40,8 +40,10 @@ vsm-on-escapement      charts ARE executable VSM; channel ≡ event+scope+transd
                        variety; human ≡ System+1 S5; termination ≡ plateau-detection    other designs)
 shadow-compaction      compact aged turns DURING the human's reading shadow —           BUILT (Tier 1 live;
                        felt-latency ≻ throughput                                        Tier 2 shelved)
-extra-body-seam        the fork's raw-body passthrough (chat_template_kwargs,           BUILT (in the dep,
-                       id_slot, cache_prompt) — 4 gates, caller-wins                    9e57f16)
+llamacpp-backend       our pure-consumer LLMBackend (:backend escape hatch) — reaches   BUILT (live; fork
+                       llama.cpp knobs via MODELED fields (:thinking→enable_thinking,   RETIRED, dep on
+                       cache-control→cache_prompt, :conversation/id→id_slot); reuses    released RC9)
+                       escapement PUBLIC translate/parse/SSE, copies only HTTP glue
 agent-comms            escapement events ARE the bus but in-process only → residency    DEFERRED (control
                        + channels ≡ the live-push CONTROL plane                         plane; REVISED)
 signals                typed durable EDN facts, pull ≡ subscription, NO residency —     DESIGNED (build
@@ -66,7 +68,7 @@ prompt-assembly        preamble ⊕ modules ⊕ body (ONE pure assembler, grants
 cold start        state.md → THIS → the page your task names
 the agent system  agent-model → vsm-on-escapement → scheduled-maintenance → harness-coder
 the comms story   signals → agent-comms (deferred half) → experiments (how emission was settled)
-the chat engine   shadow-compaction → extra-body-seam (+ ouroboros-architecture, one level up)
+the chat engine   shadow-compaction → llamacpp-backend (+ ouroboros-architecture, one level up)
 ```
 
 ## Standing build order (mirror of state.md λ tomorrow — state.md wins on conflict)

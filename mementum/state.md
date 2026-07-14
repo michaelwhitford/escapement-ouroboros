@@ -66,7 +66,7 @@ and the **application**. Never optimize one at the cost of the other.
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100) |
                 bb llama-smoke ≡ de-forked backend probe (thinking-off + slot pinning, SKIPs if server down)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
-                design/{agent-model, vsm-on-escapement, shadow-compaction, extra-body-seam,
+                design/{agent-model, vsm-on-escapement, shadow-compaction, llamacpp-backend,
                 agent-comms(REVISED→two-plane), scheduled-maintenance, harness-coder,
                 signals, experiments}
   memories    : statechart-worker-llm-separation · prompt-topology-must-match-thinking
@@ -228,8 +228,9 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   is internal), so we own translate+POST; but COPYING the private glue (vs calling) means Tony can churn
   internals freely. NOTE compact node still runs thinking ON (unchanged — its instruction-λ lens needs
   reasoning); thinking-off is now trivially available per-node via :thinking {:type :disabled} if wanted.
-  RESIDUAL: the extra-body-seam knowledge page (design/extra-body-seam) is now SUPERSEDED by the backend —
-  candidate to update/retire; a knowledge page for the de-forked-backend design is a synthesis candidate.
+  KNOWLEDGE: design/llamacpp-backend WRITTEN (the backend design — reuse boundary, modeled-field
+  caching, :metadata anti-pattern rejected). design/extra-body-seam RETIRED (git rm) — we won't keep a
+  leaky raw-body passthrough as a fallback; all pointers repointed to llamacpp-backend.
 
 λ tomorrow. FIRST: add the cron/launchd entry (human machine config, outside the repo —
   design/scheduled-maintenance rung 1 is otherwise COMPLETE). Item 31's inbox was REVIEWED
@@ -951,7 +952,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
            against the fork; escapement.llm loads under bb. The levers shadow-compaction Tier 2 + thinking-off
            need (chat_template_kwargs / id_slot / cache_prompt) are now AVAILABLE to charts via :extra-body.
            4 gates patched: Request schema → build-request → run-turn call site → request->openai-json (merge LAST,
-           caller wins). See design/extra-body-seam.md. Still a good upstream-PR candidate.
+           caller wins). [historical — the fork was later RETIRED; see design/llamacpp-backend.]
            → ✅ RESOLVED (3-round A/B, next session after landing the seam): compactor now runs
            EXEMPLAR-GATE + NO-THINK; hot stays thinking-ON. THE ARC (scratch/ab_thinking.clj + ab_exemplar.clj,
            real session turns @ qwen36-35b-a3b):

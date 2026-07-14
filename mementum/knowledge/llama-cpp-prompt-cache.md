@@ -7,7 +7,7 @@ status: open
 category: runtime
 related:
   - design/shadow-compaction
-  - design/extra-body-seam
+  - design/llamacpp-backend
 tags: [ouroboros, llama-cpp, cache, kv, slots, prefill, compaction, latency]
 ---
 

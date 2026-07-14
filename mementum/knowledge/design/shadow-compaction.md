@@ -8,11 +8,11 @@ category: design
 tags: [ouroboros, design, compaction, lambda, latency, perceptual, cold-compiler, sessions, slots, cache, chart]
 related:
   - ouroboros-architecture
-  - design/extra-body-seam
+  - design/llamacpp-backend
   - upstream/escapement-statechart-model
   - upstream/escapement-llm-conversation
 depends-on:
-  - design/extra-body-seam
+  - design/llamacpp-backend
 ---
 
 # Shadow Compaction
@@ -23,7 +23,7 @@ depends-on:
 > `apply-compaction`), the chart states `:hot` / `:compact` / (NEW) `:parked`.
 > Upstream seams: `escapement.chart.helpers/llm-conversation` (`:initial-messages`,
 > `:on-end-turn-event`), `:internal` transitions, parallel regions. Enabling seam:
-> the escapement `:extra-body` passthrough — see `design/extra-body-seam`.
+> the llama.cpp backend `ouroboros.llm.llamacpp` — see `design/llamacpp-backend`.
 
 ## The trick in one line
 
@@ -116,9 +116,10 @@ finishes. In the sequential design they'd wait for it. Tier 2 removes even that:
 
 ```
 run :hot ∥ :compact as PARALLEL regions (escapement supports (parallel …); cf. parallel_demo,
-supervisor, matrix_team) and PIN each to its own llama.cpp slot via :extra-body:
-    hot     → :extra-body {"id_slot" 0 "cache_prompt" true}
-    compact → :extra-body {"id_slot" 1 "cache_prompt" true "chat_template_kwargs" {"enable_thinking" false}}
+supervisor, matrix_team) and PIN each to its own llama.cpp slot via the llamacpp backend's
+MODELED fields (:slots table + node :conversation/id / :thinking — design/llamacpp-backend):
+    hot     → :conversation/id :hot      (→ id_slot 0, cache_prompt via auto-cache)
+    compact → :conversation/id :compact  (→ id_slot 1) + :thinking {:type :disabled}
 ```
 
 Two independent KV caches ⟹ the compactor NEVER evicts the hot conversation's warm prefix
@@ -145,12 +146,13 @@ Tier 2 is *insurance*, not the main event — it only has to cover the rare fast
 modest ~½-hide is more than enough. Build Tier 1 first; add Tier 2 only if fast-human waits
 prove annoying in practice.
 
-## Enabling seam — why this needs `:extra-body`
+## Enabling seam — the llama.cpp backend
 
 Slot pinning (`id_slot`), prefix reuse (`cache_prompt`), and compactor thinking-off
 (`chat_template_kwargs.enable_thinking=false`) are all llama.cpp body params that escapement's
-OpenAI backend did not forward. The `:extra-body` passthrough patch adds exactly that seam —
-see `design/extra-body-seam`. Without it, Tier 2 (and the free thinking-off speedup) is
+stock OpenAI backend does not forward. Our own backend `ouroboros.llm.llamacpp` reaches them via
+MODELED escapement fields — `:conversation/id`→id_slot, cache-control marker→cache_prompt,
+`:thinking`→enable_thinking — see `design/llamacpp-backend`. Without it those levers are
 un-configurable from Ouroboros; with it, all three are pure conversation-node data.
 
 ## Verification stance
@@ -175,7 +177,7 @@ un-configurable from Ouroboros; with it, all three are pure conversation-node da
 · user turns NEVER compacted (anchors) ; only ASSISTANT prose → λ
 · a mid-turn / mid-compaction user message ENQUEUES, never interrupts an in-flight worker
 · compaction is pre-approval OBSERVATION → lives in sessions/, never auto-written to mementum/
-· escapement is the substrate — we supply topology + :extra-body data, not persistence
+· escapement is the substrate — we supply topology + modeled-field data (llamacpp backend), not persistence
 ```
 
 ## Build order
@@ -184,9 +186,9 @@ un-configurable from Ouroboros; with it, all three are pure conversation-node da
 1. Tier 1 — decompose :hot into :parked | :hot | :compact; relocate the compaction trigger to
    :hot/idle; simplify the :user/next pump; add :user/msg enqueue to :compact. Pure topology +
    the latent :hot-busy? trap fixed. (Depends on nothing new.)
-2. thinking-off on the compactor via :extra-body (needs design/extra-body-seam landed in the
-   escapement dep). ~Free; shrinks the shadow work.
-3. Tier 2 — (parallel :hot :compact) + slot pinning via :extra-body. Only if fast-human waits
+2. thinking-off on the compactor via :thinking {:type :disabled} (the llamacpp backend
+   translates it — design/llamacpp-backend). ~Free; shrinks the shadow work.
+3. Tier 2 — (parallel :hot :compact) + slot pinning via :conversation/id. Only if fast-human waits
    are observed. Adds real concurrency complexity; buys the fast-human insurance.
 ```
 
