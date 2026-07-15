@@ -1,0 +1,166 @@
+{:experiment/id :compaction-edge-cases
+ :experiment/type :prompt-ab
+ :experiment/hypothesis
+ "lambda-compaction handles edge-case turn shapes that stress the lens: very long turns (10K+ tokens), turns containing code blocks, and turns with multiple distinct decisions. The production lens (compaction-lens-values) is designed for prose; these shapes may cause lens breakage, hallucination, structure loss, or failure to compress. Subjects are SYNTHESIZED turns that push these boundaries. Measure :lambda-compaction (echo + shorter + keeps). FALSIFIER: any edge-case shows VALID=false, meaning the lens is not robust to real-world turn diversity."
+
+ :experiment/measure :lambda-compaction
+
+ :measure/echo-substrings ["structural_equivalence"
+                           "continuity-essence"
+                           "human-scaffolding"
+                           "engage(nucleus)"
+                           "anchor(canonical_name)"]
+
+ :measure/expected
+ {:long-prose {:keeps ["B-tree" "suffix trie" "BM25" "WAL" "Rust"]}
+  :code-turn  {:keeps ["handle_auth" "ratelimit" "middleware" "jwt"]}
+  :multi-decision {:keeps ["Redis" "gRPC" "write-back" "single-core"]}}
+
+ :matrix {:models [:local]
+          :thinking [true]
+          :repeats 1}
+
+ :conditions
+ {:compact
+  {:assemble {:modules [:lambda-compiler]
+              :body-policy "compaction-lens-values"}}}
+
+ :subjects
+ {:long-prose
+ "Let me walk through the full algorithm design for the search index. We need to balance three competing requirements: fast lookups, efficient inserts, and low memory overhead. The standard approaches are B-trees, hash indexes, and trie structures. B-trees give us O(log n) lookups and inserts with good cache locality, the nodes fit nicely in memory pages. Hash indexes give O(1) lookups but no range queries and poor memory efficiency due to load factor issues. Tries are great for prefix searches but can be memory-heavy with sparse alphabets.
+
+For our use case, full-text search with phrase queries and proximity operators, I would recommend a hybrid approach. Use a B-tree as the primary index structure, but augment it with a suffix trie for phrase matching. The B-tree handles term-level lookups efficiently, while the suffix trie enables fast phrase queries without scanning every document.
+
+The B-tree node size should be tuned to the memory page size, typically 4KB. Each node contains between 32 and 128 entries, giving us a branching factor that keeps the tree shallow, about height 5 for 10M documents. The internal nodes store only keys and child pointers, while leaf nodes store the actual document IDs and term frequencies.
+
+For inserts, we use a B+ tree variant where all data lives in the leaves. This means internal nodes are pure routing structures, they can be cached aggressively since they are small and frequently accessed. The leaves are linked in a sorted chain, which enables efficient range scans and sequential processing.
+
+The suffix trie is built separately. For each document, we extract all phrases of length 2 to 5 words and insert them into the trie. Each trie node stores a set of document IDs that contain the phrase ending at that node. This gives us O(m) phrase lookup time where m is the phrase length, regardless of document count.
+
+Memory usage: for 10M documents with an average of 1000 words each, the B-tree index is approximately 2.5GB. The suffix trie is approximately 800MB. Total is about 3.3GB, which fits comfortably in memory on a modern server.
+
+For the search algorithm itself, we use a two-phase approach. Phase 1: retrieve candidate documents from the B-tree using term-level queries. Phase 2: filter and rank candidates using the suffix trie for phrase constraints. This avoids the expensive phrase matching on the full document set.
+
+One optimization: we can use a Bloom filter on each B-tree leaf to quickly eliminate documents that do not contain a required term. This reduces the number of leaf nodes we need to scan during multi-term queries. The Bloom filter adds about 100MB of overhead but can reduce query time by 30-50% for complex queries.
+
+Another consideration: we should support both exact-match and approximate-match, fuzzy queries. For fuzzy matching, we can use Levenshtein distance with a threshold, computed on the term level. This is more efficient than computing distance on full documents. We will precompute a set of edit-distance-1 variants for each term and store them in a secondary lookup table.
+
+For ranking, we use a variant of BM25 that accounts for phrase proximity. Standard BM25 scores individual terms; our variant adds a proximity bonus when terms appear close together in the document. The proximity factor is computed from the position indices stored in the B-tree leaf nodes.
+
+Now let me discuss the implementation details. We will use a custom B-tree implementation rather than a library, because we need tight control over node sizes, memory layout, and the leaf-link structure. The implementation will be in Rust for performance, with a C-compatible FFI for the embedding layer.
+
+The Rust implementation will use arena allocation for tree nodes to minimize heap fragmentation and improve cache locality. Each node is allocated from a dedicated arena, and nodes are never moved after allocation. This gives us deterministic memory behavior and avoids the GC pauses that would hurt our latency SLA.
+
+For the suffix trie, we will use a compressed representation, specifically a compacted trie where nodes with single children are merged. This reduces the trie size by approximately 40% while preserving all query semantics. The compression is done at build time; queries operate on the compressed structure using a simple traversal algorithm.
+
+We should also consider the update path. Documents can be added and removed after the initial index build. For additions, we insert new entries into both the B-tree and the suffix trie. For deletions, we mark entries as deleted (lazy deletion) and periodically compact to reclaim space. The B-tree supports efficient lazy deletion through its leaf-chain structure.
+
+The compaction pass runs as a background thread that merges leaf nodes containing more than 50% deleted entries. It rebuilds the affected portion of the tree and updates the leaf-chain pointers. This is similar to LSM-tree compaction but operates on the B-tree structure. The compaction should be rate-limited to avoid impacting query performance, using a token bucket that allows compaction to use no more than 20% of available I/O bandwidth.
+
+One more optimization: we can use SIMD instructions to accelerate the term-level lookup in the B-tree. Modern CPUs have AVX-512 instructions that can compare 8 64-bit integers simultaneously. We will store the keys in each node as aligned 64-bit arrays and use SIMD for the binary search within each node. This should give us a 2-3x speedup on the lookup phase.
+
+For the phrase matching in the suffix trie, we can use a prefix-matching optimization. When searching for a phrase, we first look up the first word in the trie, then traverse down from that position. If the trie node for the first word has no children matching the second word, we can immediately return no results without traversing further. This pruning is especially effective for rare terms.
+
+We should also support wildcards in phrase queries, such as hello star world. For single-character wildcards, we can traverse all children at the wildcard position. For multi-character wildcards, we will need a more sophisticated approach, perhaps converting the wildcard pattern to a regular expression and using a regex-aware trie traversal.
+
+Finally, let me discuss the stability requirements. The index must be stable across restarts, meaning all data is persisted to disk and can be recovered after a crash. We will use a write-ahead log (WAL) for all mutations. Every insert, delete, and compaction operation is first logged to the WAL, then applied to the in-memory structure. On restart, we replay the WAL to reconstruct the index state.
+
+The WAL is append-only and uses memory-mapped files for fast writes. We will use fsync after each batch of operations to ensure durability. The batch size is configurable, default 1000 operations or 1MB of data, whichever comes first. This gives us a good balance between durability and write performance.
+
+For crash recovery, we do not need to replay the entire WAL, just the operations since the last checkpoint. Checkpoints are taken periodically, every 5 minutes, and include a snapshot of the in-memory index state. The checkpoint file contains the B-tree root pointers, the suffix trie root, and a WAL offset. On restart, we load the checkpoint and replay only the WAL entries after that offset.
+
+This should cover the full algorithm design. Let me know if you want to drill into any specific component, the B-tree implementation, the suffix trie compression, the SIMD optimizations, or the WAL/checkpoint system. I can provide detailed pseudocode for any of these.
+
+The key insight is that we are not building a generic search engine, we are building a search index tailored to our specific query patterns: term plus phrase plus proximity. This lets us optimize each component for our workload rather than paying the overhead of general-purpose features we do not need.
+
+One final thought: we should benchmark the index with realistic query patterns before committing to this design. The theoretical analysis looks good, but the actual performance will depend on the distribution of terms, phrases, and query complexity in our actual document corpus. We will need to collect query samples from early users and use them to validate our assumptions about term frequency distributions and phrase query ratios.
+
+I would recommend building a prototype that implements just the B-tree and basic term-level search, then benchmarking it against our query samples. If the performance meets our SLA, we can incrementally add the suffix trie and phrase matching. This incremental approach lets us validate the design before investing in the full implementation.
+
+For the prototype, I would suggest starting with a simple hash-based index, not the B-tree, to get the basic query pipeline working. Once we have the pipeline, we can swap in the B-tree for better performance. This way we are not blocked on the B-tree implementation while we validate the overall architecture.
+
+The hash-based prototype would use an inverted index: a map from term to a sorted list of document-id and position pairs. This is simple to implement and gives us O(1) term lookup with reasonable memory overhead. We can add phrase matching by intersecting position lists from multiple terms.
+
+Once we have the prototype working, we can measure the actual query latency and memory usage, then decide whether the B-tree is necessary or if the hash-based index is sufficient. This data-driven approach is more reliable than theoretical analysis alone, it tells us exactly where we need optimization and where we can skip it."
+
+ :code-turn
+ "Here is the complete middleware chain for the request handler. It includes authentication, rate limiting, request validation, and response formatting. The chain is composable, each middleware is a function that takes the request and a next function, and returns either a response or a modified request.
+
+fn handle_auth(req, next) {
+    let token = req.headers.get(authorization);
+    if token and validate_jwt(token) {
+        return next(req);
+    }
+    return Response::unauthorized();
+}
+
+fn handle_ratelimit(req, next) {
+    let client_id = req.client_id();
+    let mut store = RATE_LIMIT_STORE.lock().unwrap();
+    if let Some(last) = store.get(&client_id) {
+        if last.elapsed() < Duration::from_secs(1) {
+            let count = store.entry(client_id).or_insert(0);
+            if *count >= 10 {
+                return Response::rate_limited();
+            }
+            *count += 1;
+        } else {
+            *store.entry(client_id).or_insert(0) = 1;
+        }
+    } else {
+        store.insert(client_id, 1);
+    }
+    next(req)
+}
+
+fn handle_validation(req, next) {
+    let body = parse_json(&req.body);
+    if !body.contains_key(user_id) or !body.contains_key(action) {
+        return Response::bad_request(Missing required fields);
+    }
+    next(req)
+}
+
+fn handle_formatting(req, next) {
+    let mut resp = next(req);
+    resp.headers.insert(X-Request-Id, generate_request_id());
+    resp
+}
+
+fn build_chain() -> Vec<Middleware> {
+    vec![handle_auth, handle_ratelimit, handle_validation, handle_formatting]
+}
+
+fn execute_chain(req) {
+    let chain = build_chain();
+    let mut current = req;
+    for middleware in chain {
+        current = middleware(current, next);
+    }
+    current
+}
+
+The middleware chain is executed left-to-right. Each middleware can short-circuit the chain by returning a response directly, or pass the request to the next middleware. This gives us a clean separation of concerns, authentication, rate limiting, and validation are all independent and testable.
+
+One thing to note: the rate limiter uses a global mutex, which could become a bottleneck under high load. A future optimization would be to use per-client locks or a sharded counter. But for now, the global lock is fine since the critical section is very short."
+
+ :multi-decision
+ "Let me walk through the architecture decisions for the new microservices platform. We have four major decisions to make, each with trade-offs:
+
+1. Session Store: Redis vs Postgres. Redis is the clear winner here, our sessions are ephemeral, high-churn, and read-heavy. Redis gives us TTL-based expiry for free, sub-millisecond reads, and a simple API. Postgres would require a cron sweeper for expired sessions and would be slower on reads. The durability trade-off is acceptable because a dropped session just means the user re-logs-in. Decision: Redis.
+
+2. Inter-Service Communication: gRPC vs REST vs WebSocket. gRPC is the right choice for server-to-server communication, it is fast, strongly-typed, and supports streaming. REST is fine for the public API, but gRPC is better for internal services. WebSocket is only needed for real-time features like live updates, not for general communication. Decision: gRPC for internal services, REST for public API.
+
+3. Caching Strategy: Write-back vs Write-through. Write-back caching is faster because writes only happen once to the cache, while write-through writes to both cache and memory on every operation. However, write-back introduces complexity around cache coherence. Since our target is a single-core embedded system, coherence is not a concern, there is only one writer. Decision: Write-back caching, contingent on confirming single-core target.
+
+4. API Versioning: URL path vs header vs query parameter. URL path versioning, /api/v1/ and /api/v2/, is the most explicit and easiest to debug. Header versioning is cleaner but harder to cache and test. Query parameter versioning is the least elegant. Decision: URL path versioning for the public API.
+
+Additional constraints:
+- The platform must support hot-reloading of service configurations without restart.
+- All services must emit structured JSON logs with request IDs for tracing.
+- The platform must be deployable on both Linux and macOS development machines.
+- Memory usage per service must stay under 256MB for the embedded target.
+
+I will document these decisions in the architecture decision record and update the service templates accordingly. The Redis adapter can be written first since it is the highest priority, everything else depends on session management."}
+
+ :prompt-template "compile:\n\n%s"}

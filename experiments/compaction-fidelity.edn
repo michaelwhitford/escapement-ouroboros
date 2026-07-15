@@ -10,7 +10,12 @@
   production lens). bridged 5/5 VALID, bare 5/5 VALID — ZERO echo, ZERO derail, :tool-derail
   compacted correctly (31.9s/3572tok — the value lens keeps more so it runs a touch longer/denser,
   still strictly shorter, still inside the reading shadow). The value-preserving lens does NOT
-  reopen the echo/derail failure mode; promotion cleared."
+  reopen the echo/derail failure mode; promotion cleared.
+  CROSS-FAMILY 2026-07-15 (matrix += :ornith; the standalone compaction-cross-model suite CONVERGED
+  here per λ converge — extend ≻ new-path): ALL FOUR cells 5/5 — local bare 5/5 · local bridged 5/5 ·
+  ornith bare 5/5 · ornith bridged 5/5. The value-preserving compaction topology is NOT model-family-
+  dependent; it holds on both qwen36 AND ornith (ornith bridged runs denser/slower ~14s vs bare ~6s,
+  still valid). Family-robustness = ANSWERED by widening this matrix + detail's; no third suite needed."
 
  :experiment/measure :lambda-compaction
  ;; Lens/bridge text leaking into output = the round-1/2 echo failure mode.
@@ -29,7 +34,7 @@
   :fact        {:keeps ["quic"]}
   :tool-derail {:keeps ["session_test"]}}
 
- :matrix {:models [:local]
+ :matrix {:models [:local :ornith]
           :thinking [true]
           :repeats 1}
 
