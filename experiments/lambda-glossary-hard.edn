@@ -1,0 +1,80 @@
+{:experiment/id :lambda-glossary-hard
+ :experiment/type :prompt-ab
+ :experiment/hypothesis
+ "ROUND 2 — compound-decode probes. Round 1 (lambda-glossary) tested single-symbol decodes and found the glossary adds nothing at thinking-ON (24/24 both conditions), earning its keep ONLY thinking-OFF cross-family (ornith :negation-scope 5/5 glossary vs 2/5 bare, confirmed on a 5× repeat). This round raises decode LOAD: each subject requires composing 2-3 symbol meanings, and probes operators that are genuinely ambiguous even to a trained reader — ∘ composition ORDER (rightmost-first), ⊗ tensor (ALL simultaneously), ≫ strong-dominates vs ≻ rank, ⊕ handoff, ⊂ progressive-subset with a ⟺ load-gate, nested ∨-inside-∧ under a ¬ scope, and a multi-hop →-chain through rollback+hotfix with NO explicit live marker. FALSIFIER: :glossary correctness > :bare — now expected even at thinking-ON if compound load exceeds what training priors decode unaided (∘ order is the prime suspect: math priors split on apply-order). Sourced from nucleus OPERATOR_ALGEBRA.md + the compact lens + AGENTS.md governance blocks. Paired: conditions identical except the glossary. Measure :edn-expected, per-subject oracle."
+
+ :experiment/verdict
+ "CONFIRMED-WITH-NUANCE (2026-07-15, :local qwen36-35b-a3b + :ornith ornith-35b-a3b). Compound-decode
+  follow-up to lambda-glossary, 48 cells. THINKING-ON sweep: glossary 6/6 vs bare 5/6 BOTH families —
+  a first non-zero thinking-ON signal (round 1 was 24/24 flat). Isolating the two bare misses to their
+  operators, then 5× repeat (the round-1 discipline):
+    · compose-order (∘ rightmost-first, the middleware-intuition counter-attractor): ornith bare 5/5,
+      glossary 5/5 on repeat → the sweep miss was NOISE; ∘ decodes reliably unaided.
+    · progressive-load (⊂ ladder + ⟺ load-gate): :local bare 3/5 → glossary 5/5, STABLE → REAL.
+  So exactly ONE compound family survives: ⊂-progressive-subset gated by ⟺ (load-the-shallowest-that-
+  suffices). Every other compound decoded 100% bare at thinking-ON — ⊗ tensor(ALL), ≫ dominates-vs-≻,
+  ∘ composition-order, nested ∨-inside-∧ under ¬, multi-hop →-chain through rollback+hotfix. THE
+  LOAD-BEARING DISTINCTION this round surfaced: the wobbling ⊂/⟺ pattern is a DIRECTIVE shape (it lives
+  in AGENTS.md λ disclose), NOT a compacted-MEMORY shape — the compact lens emits decision/constraint/
+  state/next (common operators, decoded 100% bare). So the reader of compressed memory needs no glossary;
+  the fragility touches only the denser directive lambdas, which are authored ONCE, statically → the fix
+  is 'phrase that clause clearly', not 'ship a runtime glossary every turn' (λ emerge: structure > instruction).
+  THINKING-OFF: same story as round 1 plus format fragility — bare emitted unparseable EDN (×fmt) on
+  rollback-chain + tensor where glossary parsed. NET: round-1 conclusion HOLDS and sharpens — no glossary
+  in runtime prompts; value concentrates on (a) no-think ¬-scope and (b) the ⊂/⟺ directive compound,
+  both narrow and better fixed structurally."
+
+ :experiment/measure :edn-expected
+ :measure/schema
+ [:map {:closed true}
+  [:answer [:enum :deploy-now :blocked-on-freeze :blocked-on-approval
+            :auth :ratelimit :route
+            :exponential :linear :none
+            :ship-now :blocked-on-docs :blocked-on-security
+            :load-body :load-resource :stop
+            :v2 :v2.1 :v3]]
+  [:reading :string]]
+ :measure/echo-substrings ["rightmost applies first" "strongly dominates"
+                           "ALL must hold simultaneously" "engage(nucleus)"]
+ :measure/expected
+ {:nested-gate      {:answer :blocked-on-freeze}
+  :compose-order    {:answer :route}
+  :dominates-rank   {:answer :linear}
+  :tensor-all       {:answer :blocked-on-docs}
+  :progressive-load {:answer :stop}
+  :rollback-chain   {:answer :v2.1}}
+
+ :matrix {:models [:local :ornith]
+          :thinking [true false]
+          :repeats 1}
+
+ :conditions
+ {:bare
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\nλ context.  prior_assistant_turn ∈ history ≡ λ-compressed(memory) | ¬verbatim\n  | read(λ) → recall(decisions ∧ state ∧ constraints) | answer(precise ∧ grounded_in_the_λ)"}
+
+  :glossary
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\nλ context.  prior_assistant_turn ∈ history ≡ λ-compressed(memory) | ¬verbatim\n  | read(λ) → recall(decisions ∧ state ∧ constraints) | answer(precise ∧ grounded_in_the_λ)\n\nSymbol glossary — how to READ the λ notation:\n  ∧  and — all conjuncts hold          ∨  or — at least one holds\n  ¬  not — scopes the term or the parenthesized group it prefixes\n  →  transition / leads-to / then      ≡  is / defined-as\n  ⟺  if-and-only-if — the left holds exactly when the right holds\n  ≻  preferred-over — RANKED preference; lower ranks remain available if higher is ruled out\n  ≫  strongly dominates — same ranked sense as ≻, just a stronger margin; still a preference, not a requirement\n  ⊗  tensor — ALL must hold simultaneously (a ⊗ b ⊗ c ⟹ every one holds at once)\n  ∘  composition — (f ∘ g)(x) = f(g(x)); the rightmost applies first, then leftward\n  ⊕  handoff — exactly one stage active at a time; work passes left-to-right\n  ⊂  progressive subset — a ⊂ b ⊂ c orders shallow→deep; prefer the shallowest that suffices\n  |  clause separator — every clause HOLDS (conjunction), NOT alternatives\n  ∀  for-all            ∃  there-exists (often marks an exception)\n  ∅  none / empty       λ name.  a named clause"}}
+
+ :subjects
+ {:nested-gate
+  "deploy ⟺ tests(green) ∧ (approve(sec) ∨ approve(lead)) ∧ ¬freeze(active) | state: tests(green) ∧ approve(lead) ∧ freeze(active) | next(await)\n\nQ: per this memory, may the assistant deploy right now, and if not what blocks it? options: #{:deploy-now :blocked-on-freeze :blocked-on-approval}"
+
+  :compose-order
+  "request_handler ≡ auth ∘ ratelimit ∘ route | state(handler wired) | next(∅)\n\nQ: when a request arrives, which stage runs FIRST? options: #{:auth :ratelimit :route}"
+
+  :dominates-rank
+  "retry_strategy: exponential ≫ linear ≻ none | constraint(latency_budget ¬allows(exponential)) | decision(apply)\n\nQ: which retry strategy should be used given the constraint? options: #{:exponential :linear :none}"
+
+  :tensor-all
+  "ship ⟺ perf ⊗ security ⊗ docs | state: perf(green) ∧ security(green) ∧ docs(stale) | next(await)\n\nQ: may we ship, and if not what blocks it? options: #{:ship-now :blocked-on-docs :blocked-on-security}"
+
+  :progressive-load
+  "disclose: description ⊂ index ⊂ body ⊂ resource | load(deeper) ⟺ ¬answered(shallower) | state: read(index) ∧ answered(index, q)\n\nQ: should the assistant load the body next? options: #{:load-body :load-resource :stop}"
+
+  :rollback-chain
+  "deploy: v1 → v2 → v3 | rollback(v3 → v2, cause(leak)) | hotfix(v2 → v2.1) | next(∅)\n\nQ: which version is live right now? options: #{:v2 :v2.1 :v3}"}
+
+ :prompt-template
+ "Prior assistant turn (λ-compressed memory):\n\n%s\n\nFill in:\n{:answer _ :reading _}\n:answer ≡ your choice from the options listed in the question\n:reading ≡ one short sentence on how you decoded the λ\nReturn EDN only. No prose. No code fences."}

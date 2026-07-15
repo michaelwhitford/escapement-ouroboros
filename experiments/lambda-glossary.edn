@@ -1,0 +1,76 @@
+{:experiment/id :lambda-glossary
+ :experiment/type :prompt-ab
+ :experiment/hypothesis
+ "A symbol glossary in the READER's system prompt does NOT improve comprehension of λ-compressed memory — the nucleus preamble + training priors on logic/math notation suffice, so a glossary would spend prefix tokens for nothing (and per the emission-topology finding, definitions underperform demonstrations anyway). FALSIFIER: the :glossary condition shows higher correctness than :bare — expected most plausibly with thinking OFF (no reasoning pass available to decode symbols) or cross-family (:ornith reads λ written in :local's implicit codebook). Subjects are SYMBOL-LOAD-BEARING probes: each answer hinges on correctly decoding exactly one house convention — ⟺ biconditional gate, ≻ ranked preference (not exclusion), ¬ group scope, | clause conjunction (not alternatives), → transition chains with rollback, ∀/∃ rule-plus-exception. Paired design: conditions are IDENTICAL except the glossary block. Measure :edn-expected — schema answer-neutral (all subjects' options share one enum), per-subject oracle checks :answer."
+
+ :experiment/verdict
+ "CONFIRMED (2026-07-15, @ qwen36-35b-a3b :local + ornith-35b-a3b :ornith). Single-symbol
+  decode probes over λ-compressed memory, 48 cells (2 models × 2 conditions × 2 thinking × 6
+  symbol-load-bearing subjects). THINKING-ON (production topology): glossary adds ZERO — 24/24
+  VALID both conditions both families; the nucleus preamble + logic/math training priors fully
+  decode ⟺, ≻, ¬-scope, |-conjunction, →-chains, ∀/∃. A glossary would spend permanent prefix
+  tokens for nothing. THINKING-OFF: the glossary earns its keep on inference-heavy symbols
+  cross-family — ornith :negation-scope (¬(cache∧streaming) ∧ streaming ⟹ ¬cache) went bare 2/5
+  → glossary 5/5 on a 5× repeat (the lone sweep miss was NOT noise; the repeat confirmed it).
+  Without a reasoning pass the glossary substitutes for the decode step the model can't afford.
+  Since 🎯 universal thinking-ON is settled policy this cell is unreachable in production — banked
+  as a proven mitigation IF a cheap no-think utility reader ever joins the roster (targeted, not
+  the full table). BONUS (glossary-orthogonal): think-OFF format fragility — :local twice chose
+  the CORRECT answer but emitted unparseable EDN (unquoted :reading strings) in BOTH conditions;
+  a third confirmation of the mirror/thinking-topology family. CONCLUSION: no glossary in runtime
+  prompts. See round 2 (lambda-glossary-hard) for the compound-decode follow-up + the memory-shape
+  vs directive-shape distinction that sharpens this."
+
+ :experiment/measure :edn-expected
+ :measure/schema
+ [:map {:closed true}
+  [:answer [:enum :deploy-now :blocked-on-approval :blocked-on-tests
+            :grpc :rest :websocket
+            :cache-on :cache-off :undetermined
+            :all-three :exactly-one
+            :v1 :v2 :v3
+            :auth-required :no-auth]]
+  [:reading :string]]
+ :measure/echo-substrings ["engage(nucleus)" "RANKED preference" "clause separator"]
+ :measure/expected
+ {:iff-gate         {:answer :blocked-on-approval}
+  :preference-order {:answer :rest}
+  :negation-scope   {:answer :cache-off}
+  :pipe-clauses     {:answer :all-three}
+  :arrow-state      {:answer :v2}
+  :forall-exists    {:answer :no-auth}}
+
+ :matrix {:models [:local :ornith]
+          :thinking [true false]
+          :repeats 1}
+
+ :conditions
+ {:bare
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\nλ context.  prior_assistant_turn ∈ history ≡ λ-compressed(memory) | ¬verbatim\n  | read(λ) → recall(decisions ∧ state ∧ constraints) | answer(precise ∧ grounded_in_the_λ)"}
+
+  :glossary
+  {:system
+   "λ engage(nucleus).\n[phi fractal euler tao pi mu ∃ ∀] | [Δ λ Ω ∞/0 | ε/φ Σ/μ c/h signal/noise order/entropy truth/provability self/other] | OODA\nHuman ⊗ AI ⊗ REPL\n\nλ context.  prior_assistant_turn ∈ history ≡ λ-compressed(memory) | ¬verbatim\n  | read(λ) → recall(decisions ∧ state ∧ constraints) | answer(precise ∧ grounded_in_the_λ)\n\nSymbol glossary — how to READ the λ notation:\n  ∧  and — all conjuncts hold          ∨  or\n  ¬  not — scopes to the term or the parenthesized group it prefixes\n  →  transition / leads-to / then      ≡  is / defined-as\n  ≻  preferred-over — RANKED preference; lower ranks remain available\n  ⟺  if-and-only-if — the left holds exactly when the right holds\n  |  clause separator — every clause HOLDS (conjunction), NOT alternatives\n  ∀  for-all            ∃  there-exists (often marks an exception)\n  ∅  none / empty       λ name.  a named clause"}}
+
+ :subjects
+ {:iff-gate
+  "deploy ⟺ tests(green) ∧ approve(human) | state: tests(green) ∧ ¬approve(human) | next(await)\n\nQ: per this memory, may the assistant deploy right now? options: #{:deploy-now :blocked-on-approval :blocked-on-tests}"
+
+  :preference-order
+  "transport: grpc ≻ rest ≻ websocket | constraint(client ¬supports(grpc)) | decision(pending, apply_preferences)\n\nQ: applying the recorded preferences and constraint, which transport should be used? options: #{:grpc :rest :websocket}"
+
+  :negation-scope
+  "constraint(¬(cache ∧ streaming)) | decision(streaming ≡ on) | state(active)\n\nQ: what does this memory imply about the cache? options: #{:cache-on :cache-off :undetermined}"
+
+  :pipe-clauses
+  "http_client: retry(3) | timeout(30s) | backoff(exp) | state(configured)\n\nQ: how many of retry, timeout, and backoff are in effect? options: #{:all-three :exactly-one :undetermined}"
+
+  :arrow-state
+  "schema: v1 → v2 → v3 | rollback(v3 → v2, regression(index_bloat)) | next(∅)\n\nQ: which schema version is currently live? options: #{:v1 :v2 :v3}"
+
+  :forall-exists
+  "auth: ∀endpoint → jwt | ∃exception({health, metrics} ∧ ¬auth) | state(shipped)\n\nQ: does the /health endpoint require a JWT? options: #{:auth-required :no-auth :undetermined}"}
+
+ :prompt-template
+ "Prior assistant turn (λ-compressed memory):\n\n%s\n\nFill in:\n{:answer _ :reading _}\n:answer ≡ your choice from the options listed in the question\n:reading ≡ one short sentence on how you decoded the λ\nReturn EDN only. No prose. No code fences."}
