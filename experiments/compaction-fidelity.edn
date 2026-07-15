@@ -11,11 +11,13 @@
   compacted correctly (31.9s/3572tok — the value lens keeps more so it runs a touch longer/denser,
   still strictly shorter, still inside the reading shadow). The value-preserving lens does NOT
   reopen the echo/derail failure mode; promotion cleared.
-  CROSS-FAMILY 2026-07-15 (matrix += :ornith; the standalone compaction-cross-model suite CONVERGED
+  CROSS-FINE-TUNE 2026-07-15 (matrix += :ornith; the standalone compaction-cross-model suite CONVERGED
   here per λ converge — extend ≻ new-path): ALL FOUR cells 5/5 — local bare 5/5 · local bridged 5/5 ·
-  ornith bare 5/5 · ornith bridged 5/5. The value-preserving compaction topology is NOT model-family-
-  dependent; it holds on both qwen36 AND ornith (ornith bridged runs denser/slower ~14s vs bare ~6s,
-  still valid). Family-robustness = ANSWERED by widening this matrix + detail's; no third suite needed."
+  ornith bare 5/5 · ornith bridged 5/5. The value-preserving compaction topology holds on both qwen36
+  AND ornith (ornith bridged runs denser/slower ~14s vs bare ~6s, still valid). CAVEAT (human, 2026-07-15):
+  this is NOT a true cross-FAMILY result — :ornith is a FINE-TUNE of qwen35-35b-a3b, SAME base as :local
+  (qwen36); the result is fine-tune-robustness, not architecture-robustness. A genuine cross-family test
+  (gemma4 replacing ornith) is PENDING the server; re-run then to earn the cross-family claim."
 
  :experiment/measure :lambda-compaction
  ;; Lens/bridge text leaking into output = the round-1/2 echo failure mode.

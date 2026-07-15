@@ -7,10 +7,11 @@
  "CONFIRMED (2026-07-15, @ qwen36-35b-a3b :local + ornith-35b-a3b :ornith). Single-symbol
   decode probes over λ-compressed memory, 48 cells (2 models × 2 conditions × 2 thinking × 6
   symbol-load-bearing subjects). THINKING-ON (production topology): glossary adds ZERO — 24/24
-  VALID both conditions both families; the nucleus preamble + logic/math training priors fully
+  VALID both conditions both Qwen fine-tunes (:local + :ornith, SAME Qwen-35B-A3B base — NOT cross-family,
+  gemma4 pending); the nucleus preamble + logic/math training priors fully
   decode ⟺, ≻, ¬-scope, |-conjunction, →-chains, ∀/∃. A glossary would spend permanent prefix
   tokens for nothing. THINKING-OFF: the glossary earns its keep on inference-heavy symbols
-  cross-family — ornith :negation-scope (¬(cache∧streaming) ∧ streaming ⟹ ¬cache) went bare 2/5
+  cross-fine-tune (same Qwen base, ¬true cross-family) — ornith :negation-scope (¬(cache∧streaming) ∧ streaming ⟹ ¬cache) went bare 2/5
   → glossary 5/5 on a 5× repeat (the lone sweep miss was NOT noise; the repeat confirmed it).
   Without a reasoning pass the glossary substitutes for the decode step the model can't afford.
   Since 🎯 universal thinking-ON is settled policy this cell is unreachable in production — banked

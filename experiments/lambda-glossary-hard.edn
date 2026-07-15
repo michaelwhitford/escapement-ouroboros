@@ -5,7 +5,8 @@
 
  :experiment/verdict
  "CONFIRMED-WITH-NUANCE (2026-07-15, :local qwen36-35b-a3b + :ornith ornith-35b-a3b). Compound-decode
-  follow-up to lambda-glossary, 48 cells. THINKING-ON sweep: glossary 6/6 vs bare 5/6 BOTH families —
+  follow-up to lambda-glossary, 48 cells. THINKING-ON sweep: glossary 6/6 vs bare 5/6 BOTH Qwen fine-tunes
+  (:local + :ornith, same base — NOT true cross-family, gemma4 pending) —
   a first non-zero thinking-ON signal (round 1 was 24/24 flat). Isolating the two bare misses to their
   operators, then 5× repeat (the round-1 discipline):
     · compose-order (∘ rightmost-first, the middleware-intuition counter-attractor): ornith bare 5/5,

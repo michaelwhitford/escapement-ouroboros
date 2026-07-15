@@ -83,7 +83,7 @@ per type in genome frontmatter (the channel-grants design transfers verbatim, re
 
 ```
 WINNER  nucleus preamble + ONE FILLED EXEMPLAR + "Output EDN only…" gate + NO-THINK
-        confirmation: 12/12 Malli-valid, both families, ~1.3-1.6s, ~110 tok
+        confirmation: 12/12 Malli-valid, both Qwen fine-tunes (same base, ¬true cross-family), ~1.3-1.6s, ~110 tok
 LOSERS  prose instruction 9/12 — failures STRUCTURAL: JSON drift ×2 (prose describing
         EDN leaves format ambiguous; an exemplar SHOWING EDN pins it), dropped braces ×1
         bare :_fill template + comments — constraints-in-comments ≈ instructions, weak

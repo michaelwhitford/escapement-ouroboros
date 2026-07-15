@@ -60,7 +60,8 @@ Reading tips that the experiments proved load-bearing:
 
 Two suites settle it — `experiments/lambda-glossary.edn` (single-symbol) and
 `experiments/lambda-glossary-hard.edn` (compound-decode). Each is a paired A/B (identical
-except a glossary block in the reader's system prompt), swept over 2 model families ×
+except a glossary block in the reader's system prompt), swept over 2 Qwen-35B-A3B fine-tunes
+(:local qwen36 + :ornith — SAME base, NOT true cross-family; gemma4 pending) ×
 thinking on/off × symbol-load-bearing subjects, with a per-subject correctness oracle.
 
 ```

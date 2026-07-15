@@ -183,7 +183,10 @@ Distinct kinds because output type + downstream wiring + failure modes + body ne
 λ scorer-hazard.  LLM absolute 1-10 ≡ NOISY ∧ UNCALIBRATED — design IN, do not bolt on:
   rubric-anchors   body defines what a 1 is ∧ what a 10 is (concrete exemplars) — calibration anchor,
                    same principle as :when/deprecated in the memory probe
-  cross-family     score with 2 different-family models (qwen36 + ornith) → aggregate → uncorrelated noise cancels
+  cross-family     score with 2 DIFFERENT-FAMILY models → aggregate → uncorrelated noise cancels
+                   ⚠ CURRENT (qwen36 + ornith) is NOT cross-family — ornith is a qwen35 FINE-TUNE (same base);
+                     same-base fine-tunes share CORRELATED noise, so the decorrelation goal is UNMET until a
+                     genuine 2nd family (gemma4) replaces ornith — pending the server
   pairwise-select  LLMs rank A-vs-B ⋙ score absolute | store absolute for the DB, use PAIRWISE when GA must CHOOSE
   embed-dedupe     5103 embeddings collapse near-identical genes → pool stays clean (semantic-equality leveraged)
 ```
@@ -247,7 +250,8 @@ gate follows for free: custom-agent diff → local/cheap; base-agent diff → pr
 2. EXTRACT the two inline prompts → src/ouroboros/agents/curator.md + chat.md (proves the seam on known-good genomes).
    OKF envelope: {type: ouroboros/agent, description, kind, tools?, model?}. bb test stays green.
 3. judge kind — escapement :verdict-schema wiring + agents/llm-judge.md (first NEW genome, born in the convention).
-   cross-family routing (build→qwen36, judge→ornith) via :target/:llm/aliases.
+   cross-model routing (build→qwen36, judge→ornith) via :target/:llm/aliases
+   (⚠ qwen36+ornith share a Qwen-35B base — genuine cross-family pending gemma4).
 4. scorer kind — {score 1-10} verdict + rubric-anchored body ; embed-dedupe (5103) ; the gene-DB substrate.
 5. builder + author — the coding workflow spine (the workflow topology composes them with a bounded revise loop + human gate).
 6. editor (uses a judge) ; then analyst (clj-kondo tools) ; then generator (GA over the gene DB).

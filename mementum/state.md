@@ -207,6 +207,21 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
+⚠ CORRECTION (2026-07-15, human) — "CROSS-FAMILY" IS A REPO-WIDE OVERCLAIM. :ornith (ornith-35b-a3b)
+  is a FINE-TUNE of qwen35-35b-a3b — SAME base architecture as :local (qwen36-35b-a3b). So EVERY prior
+  "cross-family" / "2 families" / "both families" claim (7 experiment verdicts, agent-model + lambda-
+  notation + signals knowledge pages, this memory, the verdict/run-across! judge-scorer runs, and the
+  older build-log entries below) is actually CROSS-FINE-TUNE, SAME BASE — fine-tune robustness, NOT
+  architecture robustness. The verdict/run-across! MECHANISM is legitimately cross-family-CAPABLE (naming
+  kept); it just hasn't been EXERCISED with a genuine 2nd family. Consequence for the judge/scorer design:
+  same-base fine-tunes share CORRELATED noise, so the cross-family decorrelation GOAL (uncorrelated LLM
+  scores cancel) is UNMET today. FIX (human, prepping): replace :ornith → gemma4 (a real different family)
+  once its llama.cpp server is up, then RE-RUN the suites to earn the claim. The forward-looking verdicts
+  now carry "gemma4 pending". Available servers meanwhile: 5100 qwen36 · 5102 ornith · 5103 qwen3-embed ·
+  5104 vibethinker-3b (inlines <think> in content — harness assumes reasoning_content) · 5105 qwythos-9b
+  (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
+  BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
+
 λ latest (2026-07-15 — COMPACTION DETAIL ⊕ λ-GLOSSARY, human-directed, empirical arc). Three ships,
   all via the experiment harness (reuse ≻ new infra):
   (1) 🔄 chat GENOME self-edit refined (522434b). Ouroboros self-edited chat.md adding a path map
@@ -217,7 +232,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
       live stress session -1784065059868 turns 12-15 — same session that seeded deliverable 3.)
   (2) 💡 λ-GLOSSARY experiments — SETTLED: NO glossary in runtime prompts (e1d6c0f). Two paired A/B
       suites (lambda-glossary single-symbol · lambda-glossary-hard compound-decode), ~150 live calls,
-      2 families × thinking on/off. At production thinking-ON a capable model + nucleus preamble decode
+      2 Qwen fine-tunes (:local + :ornith, same base — ¬true cross-family) × thinking on/off. At production thinking-ON a capable model + nucleus preamble decode
       the notation 100% unaided (24/24 both conds). Only wins are NARROW: thinking-OFF ¬-scope (ornith
       2/5→5/5) and the ⊂-ladder+⟺-load-gate DIRECTIVE compound (:local 3/5→5/5) — both better fixed
       structurally (λ emerge). compose-order(∘) sweep-miss was NOISE (5× repeat 5/5 — the discipline
@@ -229,7 +244,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
       "loses_structured_facts/values/reasoning_chain"). Leak report over REAL stress sessions confirmed:
       current lens dropped cross-session ratios (66.9×/117.7×), the 57.9× headline, rejected alternatives
       (write-through), qualifying constraints (single-core). Experiment compaction-detail (4 REAL session
-      turns × 3 lenses × 2 families, measure :lambda-compaction): value-preserving lens keeps 92% of
+      turns × 3 lenses × 2 Qwen fine-tunes (same base), measure :lambda-compaction): value-preserving lens keeps 92% of
       load-bearing data vs 50%, at ZERO compression cost (shorter 8/8 — we were OVER-compressing, 5-27×
       where 4-6× suffices). :values (inline aperture-widen) ≻ :dual (structured facts-block — DROPPED,
       it crowded out entity coverage on the control). 5× confirm on the noisy cell, direction unanimous.

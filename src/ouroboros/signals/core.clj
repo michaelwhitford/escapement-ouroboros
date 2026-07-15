@@ -78,7 +78,7 @@
     :exemplar  {:source "assistant: Ran experiments/edn-signal-emission.edn — template-ex condition 12/12 Malli-valid across both families; prose 9/12 with structural failures."
                 :signal {:signal/type   :experiment/result
                          :signal/data   {:suite   "edn-signal-emission"
-                                         :summary "template-ex 12/12 valid cross-family vs prose 9/12 (structural failures)."}
+                                         :summary "template-ex 12/12 valid across 2 Qwen fine-tunes (same base) vs prose 9/12 (structural failures)."}
                          :signal/lambda "λ ab(exemplar, prose) → exemplar(12/12) ≻ prose(9/12)"}}}
 
    :ouro/algedonic

@@ -13,7 +13,9 @@
  :matrix {:models [:local :ornith], :thinking [true], :repeats 1},
  :experiment/verdict
  "CONFIRMED — :values wins (2026-07-15, :local qwen36-35b-a3b + :ornith ornith-35b-a3b, thinking-ON).
-  24 cells (3 lenses × 4 REAL stress-session turns × 2 families), measure :lambda-compaction. Pooled
+  24 cells (3 lenses × 4 REAL stress-session turns × 2 Qwen-35B-A3B fine-tunes [:local + :ornith, SAME
+  base — NOT a true cross-family test; ornith is a Qwen fine-tune, genuine cross-family gemma4 pending),
+  measure :lambda-compaction. Pooled
   value-survival × compression contract:
     current  values-kept 13/26 (50%)   shorter 8/8
     values   values-kept 24/26 (92%)   shorter 8/8   ← WINNER

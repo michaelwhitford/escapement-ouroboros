@@ -20,7 +20,7 @@ class teaches a preserve/discard decision; thinking is a per-conversation
 policy, decided by pairwise A/B on real turns.
 
 SECOND CONFIRMATION (EDN signal emission — experiments/edn-signal-emission.edn,
-3-round arc, cross-family qwen36+ornith): a FILLED EDN exemplar swept the
+3-round arc, qwen36+ornith — 2 Qwen fine-tunes, same base, ¬true cross-family): a FILLED EDN exemplar swept the
 confirmation run 12/12 Malli-valid no-think (~1.3s) vs prose instruction 9/12
 — prose failures were STRUCTURAL (JSON drift, dropped braces); exemplar
 failures across all rounds were retryable semantic slips only. Two refinements:
