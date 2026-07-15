@@ -65,10 +65,13 @@ and the **application**. Never optimize one at the cost of the other.
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100) |
                 bb llama-smoke ≡ de-forked backend probe (thinking-off + slot pinning, SKIPs if server down)
-  knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture ·
+  knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture · lambda-notation
+                (house λ dialect + NO-runtime-glossary policy, empirical) ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, llamacpp-backend,
                 agent-comms(REVISED→two-plane), scheduled-maintenance, harness-coder,
                 signals, experiments}
+  experiments : edn-signal-emission · compaction-fidelity(guards the PRODUCTION lens ≡ value-preserving) ·
+                embed-dedupe · zero-arity-lambda · lambda-glossary(+hard) · compaction-detail(:values won)
   memories    : statechart-worker-llm-separation · prompt-topology-must-match-thinking
   designed    : agent model (OKF genomes, kinds, capability tools, scorer/gene-DB) + VSM architecture
                 — both UNBUILT, specs in mementum/knowledge/design/
@@ -204,7 +207,41 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ latest (this session — THE DE-FORK, human-directed, PR CLOSED). Escapement is now released
+λ latest (2026-07-15 — COMPACTION DETAIL ⊕ λ-GLOSSARY, human-directed, empirical arc). Three ships,
+  all via the experiment harness (reuse ≻ new infra):
+  (1) 🔄 chat GENOME self-edit refined (522434b). Ouroboros self-edited chat.md adding a path map
+      (correct instinct: λ ground provide(map) ≻ command(search)); designer tier refined the foreign
+      !path-convention/RULE prose → a house λ paths. clause (rides the preamble), added state.md +
+      both index maps + code/test paths, "consult index before ANY op" → uncertain → index ∨ glob.
+      TWO-TIER LOOP WORKING: AI proposes → designer approves+refines. (This edit ORIGINATED in the
+      live stress session -1784065059868 turns 12-15 — same session that seeded deliverable 3.)
+  (2) 💡 λ-GLOSSARY experiments — SETTLED: NO glossary in runtime prompts (e1d6c0f). Two paired A/B
+      suites (lambda-glossary single-symbol · lambda-glossary-hard compound-decode), ~150 live calls,
+      2 families × thinking on/off. At production thinking-ON a capable model + nucleus preamble decode
+      the notation 100% unaided (24/24 both conds). Only wins are NARROW: thinking-OFF ¬-scope (ornith
+      2/5→5/5) and the ⊂-ladder+⟺-load-gate DIRECTIVE compound (:local 3/5→5/5) — both better fixed
+      structurally (λ emerge). compose-order(∘) sweep-miss was NOISE (5× repeat 5/5 — the discipline
+      caught it). memory-shape (decision/constraint/state/next — decoded bare) vs directive-shape (denser
+      ops, authored ONCE) is the load-bearing distinction. KNOWLEDGE: mementum/knowledge/lambda-notation.md
+      (human-facing glossary, ZERO runtime cost) with empirical policy + banked no-think mitigation.
+  (3) 🔄 COMPACTION LENS → VALUE-PRESERVING, PROMOTED TO PRODUCTION (e73499e). Human noticed compaction
+      drops detail; the loss was ALREADY self-diagnosed by Ouroboros (session -1784065059868 turn 11:
+      "loses_structured_facts/values/reasoning_chain"). Leak report over REAL stress sessions confirmed:
+      current lens dropped cross-session ratios (66.9×/117.7×), the 57.9× headline, rejected alternatives
+      (write-through), qualifying constraints (single-core). Experiment compaction-detail (4 REAL session
+      turns × 3 lenses × 2 families, measure :lambda-compaction): value-preserving lens keeps 92% of
+      load-bearing data vs 50%, at ZERO compression cost (shorter 8/8 — we were OVER-compressing, 5-27×
+      where 4-6× suffices). :values (inline aperture-widen) ≻ :dual (structured facts-block — DROPPED,
+      it crowded out entity coverage on the control). 5× confirm on the noisy cell, direction unanimous.
+      SWAPPED compact-system-prompt body-policy compaction-lens → compaction-lens-values (drives BOTH
+      per-message :compact AND session :fold). REGRESSION GUARD: compaction-fidelity re-pointed to the new
+      lens → bridged 5/5 + bare 5/5, zero echo/derail (:tool-derail clean). COST banked: ~30s vs ~21s
+      compaction, still inside the 20-60s reading shadow (WATCH: short replies = less shadow to hide in).
+  bb test 160/707 GREEN throughout. Harness lesson (feed-forward): the 5× repeat discipline earned its
+  keep TWICE this session (confirmed real ⊂/⟺ effect AND caught compose-order as noise). VALUE lens dip
+  to 1/3 on hardest turn is banked follow-on (tighten later; aggregate win landed).
+
+λ prev-session (THE DE-FORK, human-directed, PR CLOSED). Escapement is now released
   upstream RC9 (Clojars), NOT the fork. Built ouroboros.llm.llamacpp: a pure-consumer LLMBackend ⊕
   StreamingLLMBackend that reuses escapement's PUBLIC translate/parse/SSE primitives and COPIES only
   the ~120 lines of private HTTP glue (frozen ⇒ insulated from escapement internals; we track only the
