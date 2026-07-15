@@ -200,6 +200,15 @@
                (:tools b))
           "🎯 raw fs grants (human decision) + the dedicated test gate — NO :shell/run, git stays unreachable")
         (is (str/includes? (:prompt b) "λ verify.") "the tests-GREEN gate lives in the body")))
+    (testing "harness-editor genome — the editor kind's first genome (v1)"
+      (let [e (:harness-editor roster)]
+        (is (= :editor (:kind e)))
+        (is (= [:editor] (:tags e)))
+        (is (= [:harness/context :fs/read :fs/glob :fs/grep :fs/edit :fs/multi-edit :dev/run-tests]
+               (:tools e))
+          "edit-only escalation — NO fs/write (cannot CREATE genomes, v1 scope by capability) + NO shell")
+        (is (str/includes? (:prompt e) "SCOPE ≻ judge notes")
+          "precedence is explicit — the incident fix: notes must never override scope")))
     (testing "llm-judge genome — first genome born in the convention"
       (let [j (:llm-judge roster)]
         (is (= :judge (:kind j)))

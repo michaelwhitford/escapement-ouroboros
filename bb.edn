@@ -58,6 +58,9 @@
          builder {:doc      "The BUILDER kind (shot-loop, build stage) — bb builder \"<task, incl. plan path if any>\": real file edits + the dev/run-tests gate; output ≡ the UNCOMMITTED working-tree diff (prints status+diffstat); human reviews and commits."
                   :requires ([ouroboros.workflow :as workflow])
                   :task     (apply workflow/-main "builder" *command-line-args*)}
+         editor {:doc      "The EDITOR kind (S4→S5 adaptive channel, v1) — bb editor \"<recommendation ∨ proposal path>\": harness-editor edits Layer-2 genome files, llm-judge GATES the diff (fail ⇒ bounded revise with notes, k=2); REQUIRES a clean tree; output ≡ the UNCOMMITTED diff + judge trail; human reviews and commits."
+                 :requires ([ouroboros.workflow :as workflow])
+                 :task     (apply workflow/-main "editor" *command-line-args*)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

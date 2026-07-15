@@ -24,6 +24,38 @@
     (is (str/includes? report "uncommitted") "frames the human gate")
     (is (str/includes? report "changed nothing"))))
 
+;; ---------------------------------------------------------------------------
+;; next-action — the editor loop's pure gate decision (vsm §adaptive loop)
+;; ---------------------------------------------------------------------------
+
+(deftest next-action-gates-the-editor-loop
+  (testing "judge pass ⇒ accept, at any revision count"
+    (is (= :accept (workflow/next-action {:verdict {:status :pass :notes "ok"} :revisions 0})))
+    (is (= :accept (workflow/next-action {:verdict {:status :pass :notes "ok"} :revisions 2}))))
+  (testing "judge fail with revisions left ⇒ revise"
+    (is (= :revise (workflow/next-action {:verdict {:status :fail :notes "x"} :revisions 0})))
+    (is (= :revise (workflow/next-action {:verdict {:status :fail :notes "x"} :revisions 1}))))
+  (testing "revisions exhausted ⇒ give up (bounded — an LLM always finds an edit)"
+    (is (= :give-up (workflow/next-action {:verdict {:status :fail :notes "x"} :revisions 2}))))
+  (testing "judge itself failed (nil verdict) ⇒ give up — fail SAFE, never masquerade as accepted"
+    (is (= :give-up (workflow/next-action {:verdict nil :revisions 0})))))
+
+(deftest judge-subject-carries-criteria-recommendation-and-diff
+  (let [s (workflow/judge-subject "tighten λ paths" "--- a/x\n+++ b/x")]
+    (is (str/starts-with? s "CRITERIA:"))
+    (is (str/includes? s "RECOMMENDATION:\ntighten λ paths"))
+    (is (str/includes? s "DIFF:\n--- a/x"))))
+
+(deftest run-editor-refuses-a-dirty-tree
+  ;; THE incident regression (2026-07-15): launched over a dirty tree, the
+  ;; judged diff carried pre-existing uncommitted work → the judge ordered it
+  ;; stripped → the revise pass DESTROYED it. The guard fires before any LLM
+  ;; run — this test is deterministic.
+  (let [root (temp-git-repo)]
+    (spit (str (fs/path root "committed.txt")) "uncommitted dirt\n")
+    (is (= {:outcome :dirty-tree :verdicts [] :revisions 0}
+           (workflow/run-editor! "any recommendation" {:root root})))))
+
 (deftest diff-report-surfaces-edits-and-new-files
   (let [root (temp-git-repo)]
     (spit (str (fs/path root "committed.txt")) "modified\n")
