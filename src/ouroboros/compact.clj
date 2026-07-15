@@ -79,10 +79,10 @@
 (def ^:private event-queue-key :com.fulcrologic.statecharts/event-queue)
 (def ^:private quit-lines #{"/quit" "/exit" "/bye"})
 
-;; Text-UI role prefixes — every assistant line is prefixed (via the echo
-;; kernel, core/echo-text) and the user types after an explicit prompt, so the
-;; transcript-on-screen reads uniformly:  user: … / assistant: … / tool: …
-(def ^:private assistant-prefix "assistant: ")
+;; Text-UI role prefixes — only USER lines carry a prefix (the prompt the human
+;; types after); assistant output streams bare (echo kernel prefix = ""), so
+;; the transcript-on-screen reads:  user: … / <bare reply> / tool: …
+(def ^:private assistant-prefix "")
 (def ^:private user-prompt      "user: ")
 
 ;; Verbatim window: how many most-recent ASSISTANT replies stay uncompressed in
@@ -571,7 +571,7 @@
                   (when (= "hot" (str (:invokeid e)))
                     (case (:type e)
                       ;; Streamed reply text → uniform lines: newline runs
-                      ;; collapsed, blank lines dropped, "assistant: " prefix.
+                      ;; collapsed, blank lines dropped, no role prefix.
                       :text-delta
                       (let [{:keys [state out]}
                             (core/echo-text @echo assistant-prefix
