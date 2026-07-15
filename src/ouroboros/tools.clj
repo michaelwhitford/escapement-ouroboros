@@ -9,6 +9,7 @@
   Wiring strategy C (\"drive-yourself\", escapement-tools.md): `new-registry`
   builds a FRESH, isolated registry per call — no global/singleton mutation."
   (:require
+    [babashka.process :as proc]
     [clojure.edn :as edn]
     [clojure.string :as str]
     [escapement.tools.builtin :as builtin]
@@ -266,6 +267,55 @@
                      :is-error true}))))))))))
 
 ;; ---------------------------------------------------------------------------
+;; :dev/run-tests — the builder's VERIFICATION gate. Runs EXACTLY the
+;; deterministic suite (`bb test`): no arguments reach the shell, so the grant
+;; carries NO general execution capability — :shell/run stays a separate,
+;; deliberate escalation and git stays unreachable by absence (agent-model
+;; invariant). Failing tests are DOMAIN feedback the agent must react to, so
+;; they ride a corrective {:is-error true} result (the repair nudge), same as
+;; OKF rejections.
+;;
+;; `cmd` is injectable at construction (tests substitute a stub command —
+;; running bb test inside bb test would recurse); the registry default is the
+;; real suite.
+;; ---------------------------------------------------------------------------
+
+(def ^:private run-tests-timeout-ms 300000)
+
+(def ^:private run-tests-tail-chars
+  "Suite output can be long; the model needs the TAIL (counts + failures)."
+  4000)
+
+(defn- tail-str [s n]
+  (let [s (str s)]
+    (if (> (count s) n) (subs s (- (count s) n)) s)))
+
+(defrecord RunTestsTool [root cmd]
+  tp/Tool
+  (tool-name [_] :dev/run-tests)
+  (description [_]
+    (str "Run the project's deterministic test suite (bb test). No input. "
+      "Returns the suite tail (test/assertion counts + any failures). Run it "
+      "after EVERY batch of edits; a change is not done until the suite is "
+      "GREEN. On failure, read the output, fix, and re-run."))
+  (input-schema [_] [:map {:closed true}])
+  (invoke [_ _input]
+    (try
+      (let [ps  (apply proc/process {:dir (str root) :out :string :err :string} cmd)
+            res (deref ps run-tests-timeout-ms ::timeout)]
+        (if (= ::timeout res)
+          (do (proc/destroy-tree ps)
+              {:result   (str "Test run TIMED OUT after " (/ run-tests-timeout-ms 1000)
+                           "s — likely a hang. Do not retry blindly; report this.")
+               :is-error true})
+          (let [{:keys [exit out err]} res
+                text (str/trim (str out (when (seq (str err)) (str "\n" err))))]
+            {:result   (str "exit " exit "\n" (tail-str text run-tests-tail-chars))
+             :is-error (not (zero? exit))})))
+      (catch Exception e
+        {:result (str "Test runner failed to launch: " (ex-message e)) :is-error true}))))
+
+;; ---------------------------------------------------------------------------
 ;; Registry assembly
 ;; ---------------------------------------------------------------------------
 
@@ -291,6 +341,7 @@
   ([root {:keys [source signal-types]}]
    (into [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)
           (->HarnessContextTool root) (->ProposeChangeTool root)
+          (->RunTestsTool root ["bb" "test"])
           (->SignalEmitTool root source (set signal-types))]
      (remove #(= :web/search (tp/tool-name %)) (builtin/builtin-tools)))))
 

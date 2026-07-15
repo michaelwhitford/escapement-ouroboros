@@ -24,7 +24,8 @@
     [ouroboros.signals.core-test]
     [ouroboros.signals-test]
     [ouroboros.proposals-test]
-    [ouroboros.schedule-test]))
+    [ouroboros.schedule-test]
+    [ouroboros.workflow-test]))
 
 (defn run! [& _]
   (let [{:keys [fail error]}
@@ -49,5 +50,6 @@
           'ouroboros.signals.core-test
           'ouroboros.signals-test
           'ouroboros.proposals-test
-          'ouroboros.schedule-test)]
+          'ouroboros.schedule-test
+          'ouroboros.workflow-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))

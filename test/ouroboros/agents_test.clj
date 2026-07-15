@@ -185,6 +185,21 @@
         (is (= [] (:tools s)))
         (is (str/includes? (:prompt s) "λ rubric.")
           "rubric anchors live in the BODY — the calibration lever")))
+    (testing "author genome — the coding workflow's PLAN stage (build-order step 5)"
+      (let [a (:author roster)]
+        (is (= :author (:kind a)))
+        (is (= [:coder] (:tags a)))
+        (is (= [:mementum/context :fs/read :fs/glob :fs/grep] (:tools a))
+          "read-only — the plan stage never writes")
+        (is (str/includes? (:prompt a) "λ plan.") "the document shape lives in the body")))
+    (testing "builder genome — the coding workflow's BUILD stage (first write escalation)"
+      (let [b (:builder roster)]
+        (is (= :builder (:kind b)))
+        (is (= [:coder] (:tags b)))
+        (is (= [:fs/read :fs/glob :fs/grep :fs/edit :fs/multi-edit :fs/write :dev/run-tests]
+               (:tools b))
+          "🎯 raw fs grants (human decision) + the dedicated test gate — NO :shell/run, git stays unreachable")
+        (is (str/includes? (:prompt b) "λ verify.") "the tests-GREEN gate lives in the body")))
     (testing "llm-judge genome — first genome born in the convention"
       (let [j (:llm-judge roster)]
         (is (= :judge (:kind j)))

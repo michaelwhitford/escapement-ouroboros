@@ -49,6 +49,12 @@
          genes {:doc      "Gene-DB intake — bb genes [genome-slug]: decompose an APPROVED genome into mementum/genes/ (3 gates: EBNF parse · Malli envelope · tree-hash dedupe), then AUTONOMOUS scoped commits (--only, gene-db author) for every gate-passing dirty gene."
                 :requires ([ouroboros.gene :as gene])
                 :task     (apply gene/-main *command-line-args*)}
+         author {:doc      "The AUTHOR kind (shot topology, plan stage) — bb author \"<task>\": read design pages + src, produce ONE implementation-plan document (session artifact reflection.md); next-stage gate: feed the plan path to bb builder."
+                 :requires ([ouroboros.workflow :as workflow])
+                 :task     (apply workflow/-main "author" *command-line-args*)}
+         builder {:doc      "The BUILDER kind (shot-loop, build stage) — bb builder \"<task, incl. plan path if any>\": real file edits + the dev/run-tests gate; output ≡ the UNCOMMITTED working-tree diff (prints status+diffstat); human reviews and commits."
+                  :requires ([ouroboros.workflow :as workflow])
+                  :task     (apply workflow/-main "builder" *command-line-args*)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

@@ -72,6 +72,35 @@
   (testing "malformed input against closed schema"
     (is (true? (:is-error (tp/dispatch (tools/new-registry ".") :mementum/propose-memory {:slug 5}))))))
 ;; ---------------------------------------------------------------------------
+;; :dev/run-tests — the builder's verification gate. The registry default runs
+;; the REAL suite (bb test inside bb test would recurse) — tests inject a stub
+;; command via the construction seam instead.
+;; ---------------------------------------------------------------------------
+
+(deftest run-tests-tool-is-in-the-ceiling
+  (is (contains? (tools/tool-names) :dev/run-tests)
+    "genomes can grant it — the compiler validates against this ceiling"))
+
+(deftest run-tests-tool-green-suite
+  (let [tool (tools/->RunTestsTool "." ["echo" "160 tests, 707 assertions, GREEN"])
+        r    (tp/invoke tool {})]
+    (is (false? (:is-error r)))
+    (is (str/includes? (:result r) "exit 0"))
+    (is (str/includes? (:result r) "GREEN") "the suite tail reaches the model")))
+
+(deftest run-tests-tool-red-suite-is-corrective
+  (let [tool (tools/->RunTestsTool "." ["false"])
+        r    (tp/invoke tool {})]
+    (is (true? (:is-error r)) "failing tests ⇒ corrective result — the repair nudge")
+    (is (str/includes? (:result r) "exit 1"))))
+
+(deftest run-tests-tool-launch-failure-is-corrective-not-thrown
+  (let [tool (tools/->RunTestsTool "." ["no-such-binary-xyzzy"])
+        r    (tp/invoke tool {})]
+    (is (true? (:is-error r)))
+    (is (str/includes? (:result r) "failed to launch"))))
+
+;; ---------------------------------------------------------------------------
 ;; :signal/emit — the data-plane write, through the real dispatch contract
 ;; ---------------------------------------------------------------------------
 
