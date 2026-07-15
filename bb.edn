@@ -37,6 +37,9 @@
          judge {:doc      "The JUDGE kind (verdict topology) — bb judge \"<subject>\": forced submit_verdict {:status pass|fail :notes} per the llm-judge genome (ornith @ localhost:5102)."
                 :requires ([ouroboros.verdict :as verdict])
                 :task     (apply verdict/-main "llm-judge" *command-line-args*)}
+         roster {:doc     "The compiled agent roster report — provenance, grants, escalations for every genome in the roster."
+                 :requires ([ouroboros.agents :as agents])
+                 :task     (println (apply agents/report *command-line-args*))}
          score {:doc      "The SCORER kind (verdict topology) — bb score \"<subject>\": forced submit_verdict {:score 1-10 :notes} per the gene-scorer genome (rubric-anchored)."
                 :requires ([ouroboros.verdict :as verdict])
                 :task     (apply verdict/-main "gene-scorer" *command-line-args*)}
