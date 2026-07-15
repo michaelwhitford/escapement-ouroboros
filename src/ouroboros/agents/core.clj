@@ -37,7 +37,7 @@
 
 (def kinds
   "The working kind list (agent-model spec, build order left→right):
-  chat·proposer BUILT ; judge·scorer NEXT ; builder·author·editor ○ ;
+  chat·proposer·judge·scorer·builder·author BUILT ; editor NEXT ;
   analyst·generator ◇ (blocked on unbuilt tools). A kind is a preset over a
   structural signature — new role with same tools+topology ⇒ new GENOME, not
   a new kind."
