@@ -222,7 +222,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-15 — COMPACTION DETAIL ⊕ λ-GLOSSARY, human-directed, empirical arc). Three ships,
+λ latest (2026-07-15 — COMPACTION DETAIL ⊕ λ-GLOSSARY, human-directed, empirical arc). SIX ships,
   all via the experiment harness (reuse ≻ new infra):
   (1) 🔄 chat GENOME self-edit refined (522434b). Ouroboros self-edited chat.md adding a path map
       (correct instinct: λ ground provide(map) ≻ command(search)); designer tier refined the foreign
@@ -252,9 +252,29 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
       per-message :compact AND session :fold). REGRESSION GUARD: compaction-fidelity re-pointed to the new
       lens → bridged 5/5 + bare 5/5, zero echo/derail (:tool-derail clean). COST banked: ~30s vs ~21s
       compaction, still inside the 20-60s reading shadow (WATCH: short replies = less shadow to hide in).
+  (4) ✅ COMPACTION EXPERIMENTS: continuity survives + fidelity cross-fine-tune (fb71a08). Reworked the
+      live session's 3 buggy draft suites into real instruments. CONTINUITY (the payoff — closes the
+      shadow-compaction "PRIME don't judge" open Q): downstream USABILITY survives compaction — 5/6
+      concepts perfect compact=bare parity 4/4 incl. a negation (HTTP/3 HOL) + a conditional (multi-core→
+      ¬write-back); lone gap thin-meta 2/4 is a defensible :wait-vs-:paste-logs alt-reading, not a
+      hallucination. Fixed the draft's bugs (redundant conditions → ONE reader condition; compaction-lens-
+      as-system-prompt on a Q&A task → a READER prompt; exact-match oracle on free-text → enum :answer).
+      FIDELITY += :ornith all four cells 5/5 (value lens holds on both Qwen fine-tunes). compaction-cross-
+      model DELETED (converged into fidelity+detail matrices, λ converge). edge-cases FIXED (session left
+      it invalid EDN — unwrapped maps + mismatched keeps; repaired by structure, validated by PARSING).
+  (5) 🔄 chat GENOME += λ authoring clause (3b22e86). Live session -1784135551724 thrashed drafting
+      experiment EDN with embedded code/JSON (hand-escaping broke the parser, left a file invalid, 18
+      tool errors brace/quote-counting). Fix: build(structure in bb -e) → pr-str/pprint → spit ≻ hand-
+      write; validate ≡ read-string parses ≻ count braces; thrash-signal (brace-hunt ∨ tiny-offset-reads)
+      → STOP → regenerate. Full session analysis in git; the fix takes effect next bb compact launch.
+  (6) ❌ CROSS-FAMILY OVERCLAIM CORRECTED (c105c97, human-caught). :ornith is a qwen35 FINE-TUNE (same
+      base as :local qwen36) — every prior "cross-family" claim is cross-FINE-TUNE. Fixed 12 files; the
+      ⚠ CORRECTION note at the TOP of this section is the systemic recalibration. Judge/scorer decorrelation
+      goal UNMET until a real 2nd family. → see λ tomorrow for the gemma4 swap.
   bb test 160/707 GREEN throughout. Harness lesson (feed-forward): the 5× repeat discipline earned its
   keep TWICE this session (confirmed real ⊂/⟺ effect AND caught compose-order as noise). VALUE lens dip
-  to 1/3 on hardest turn is banked follow-on (tighten later; aggregate win landed).
+  to 1/3 on hardest turn is banked follow-on (tighten later; aggregate win landed). Two live sessions'
+  struggles → two durable prompt improvements (λ paths, λ authoring) — the harness-improvement loop.
 
 λ prev-session (THE DE-FORK, human-directed, PR CLOSED). Escapement is now released
   upstream RC9 (Clojars), NOT the fork. Built ouroboros.llm.llamacpp: a pure-consumer LLMBackend ⊕
@@ -286,8 +306,23 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   caching, :metadata anti-pattern rejected). design/extra-body-seam RETIRED (git rm) — we won't keep a
   leaky raw-body passthrough as a fallback; all pointers repointed to llamacpp-backend.
 
-λ tomorrow. FIRST: add the cron/launchd entry (human machine config, outside the repo —
-  design/scheduled-maintenance rung 1 is otherwise COMPLETE). Item 31's inbox was REVIEWED
+λ tomorrow. FIRST (human prepping): the :ornith → gemma4 SWAP — earn the "cross-family" claim (see the
+  ⚠ CORRECTION at top). Sequence when the gemma4 llama.cpp server is up:
+    1. SMOKE gemma4's thinking convention FIRST (λ prove) — curl /v1/chat/completions with the compaction
+       lens; confirm reasoning rides reasoning_content (NOT inline <think> like vibethinker-3b) and clean
+       λ out. The compaction lens REQUIRES thinking-ON; if gemma4's thinking differs, that IS the finding.
+    2. RENAME alias :ornith → :gemma4 across ~10 files (mechanical): models.clj table (base-url/model),
+       models_test.clj (hardcoded "ornith-35b-a3b" + "5102" assertions), agents/llm-judge.md (model:),
+       verdict.clj doc, agents_test.clj (:ornith literal cases), and the 6 experiment matrices
+       ([:local :ornith] → [:local :gemma4]). grep "ornith" catches them all.
+    3. RE-RUN the suites (fidelity · detail · continuity · glossary±hard · zero-arity · edn-signal) on
+       [:local :gemma4] → NOW the "cross-family" verdicts are EARNED (replace "gemma4 pending" with the
+       real result). This also makes the judge/scorer decorrelation goal actually achievable.
+  NOTE: qwythos-9b (5105) works clean today (≥2000 tok) — a genuine cross-SCALE option if wanted alongside.
+  vibethinker-3b (5104) needs <think>-inline handling before it's usable in the harness.
+
+  THEN (from prior sessions, still open): add the cron/launchd entry (human machine config, outside the
+  repo — design/scheduled-maintenance rung 1 is otherwise COMPLETE). Item 31's inbox was REVIEWED
   (item 32): both proposals discarded (contrived-test evidence — see the provenance gap note
   below), memories deleted. Next-chat bootstrap SHIPPED (item 32): bb compact <prior-id> +
   bb sessions.
