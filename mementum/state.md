@@ -57,14 +57,20 @@ and the **application**. Never optimize one at the cost of the other.
                 ouroboros.signals (+signals/core) — the DATA PLANE (typed-EDN-fact registry: schema ⊕
                 FILLED exemplar ⊕ variety ⊕ reserved? · ONE emit! path (validate→dedupe→persist) ·
                 :signal/emit tool · genome `signals:` grant, 5th surface · EQL :mementum/signals +
-                signal/emit! · signals/ gitignored)
-  gate        : bb test ≡ deterministic (160 tests / 707 assertions GREEN) | bb compact ≡ live chat
+                signal/emit! · signals/ gitignored) ·
+                ouroboros.workflow — the CODING-PIPELINE home (author ∧ builder ride proposer/run! ≡
+                THE shot runner, λ converge; diff-report ≡ the human gate's audit surface;
+                composition author→builder→judge + bounded revise lands here later)
+  gate        : bb test ≡ deterministic (166 tests / 728 assertions GREEN) | bb compact ≡ live chat
                 (+ bb compact <prior-id> ≡ opt-in bootstrap; bb sessions ≡ the picker) |
                 bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
                 bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100) |
-                bb llama-smoke ≡ de-forked backend probe (thinking-off + slot pinning, SKIPs if server down)
+                bb llama-smoke ≡ de-forked backend probe (thinking-off + slot pinning, SKIPs if server down) |
+                bb author "<task>" ≡ plan stage (artifact ≡ plan doc) | bb builder "<task+plan-path>" ≡
+                build stage (working-tree diff + status/diffstat) | bb roster ≡ the roster report
+                (Ouroboros's FIRST self-built change — author→builder pipeline, cded832)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture · lambda-notation
                 (house λ dialect + NO-runtime-glossary policy, empirical) ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, llamacpp-backend,
@@ -222,7 +228,32 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-15 — COMPACTION DETAIL ⊕ λ-GLOSSARY, human-directed, empirical arc). SIX ships,
+λ latest (2026-07-15, later — AUTHOR + BUILDER KINDS ≡ build-order step 5, human-approved). The coding
+  workflow spine SHIPPED and LIVE-PROVEN end-to-end (d8729c1 + cded832):
+  (1) ✅ RECON KILLED A STALE BLOCKER: the spec said builder "needs write+repl+run-tests tools" — but
+      fs/write·fs/edit·fs/multi-edit·shell/run were ALREADY in the registry ceiling (escapement built-ins).
+      Only run-tests was genuinely missing.
+  (2) 🎯 WRITE SCOPE (human decision): builder gets RAW fs/write+fs/edit grants — NO jailed wrappers.
+      Protection ≡ working-tree + human diff review (policy), not capability. But NO :shell/run for the
+      builder — the NEW :dev/run-tests tool runs EXACTLY `bb test` (zero args reach the shell), so
+      verification exists WITHOUT general execution and git stays unreachable by absence.
+  (3) 🔄 λ converge HELD: no new runner — author + builder RIDE proposer/run! (proposer.clj IS the one
+      shot-topology runner). New ouroboros.workflow ns ≡ the coding-pipeline home: run-author!/run-builder!
+      + diff-report (status --short ⊕ diff --stat ≡ the human gate's audit surface). Composition
+      (author→builder→judge, bounded revise, k-cap) lands there LATER, after standalone proof. repl tool
+      SKIPPED v1 (edit+test loop suffices; repl ≡ arbitrary exec — defer until proven needed).
+  (4) ✅ LIVE PROOF, FULL PIPELINE: bb author planned a real task (bb roster) → bb builder executed the
+      plan → caught the plan's flaw (agents/report RETURNS a string; builder wrapped it in println —
+      the honest-deviation report worked) → dev/run-tests GREEN → 3-line diff left UNCOMMITTED → human
+      reviewed + approved → committed cded832 ≡ OUROBOROS'S FIRST SELF-BUILT CODE CHANGE. Every gate in
+      the design held: builder never touched git, scope stayed on plan, report was honest.
+  (5) chat genome += dev/run-tests grant (subsumed by its shell/run — the tripwire test updated
+      CONSCIOUSLY, its purpose). Cosmetic: bb compact drops the "assistant: " prefix (70bda1d).
+  bb test 166/728 GREEN (was 160/707). NEXT on this axis: the EDITOR kind (uses judge + gene-DB +
+  experiments — design/vsm-on-escapement §adaptive loop) → generator (GA). agent-model.md kinds-table
+  statuses refreshed this session (builder/author ✅).
+
+λ prev (2026-07-15 — COMPACTION DETAIL ⊕ λ-GLOSSARY, human-directed, empirical arc). SIX ships,
   all via the experiment harness (reuse ≻ new infra):
   (1) 🔄 chat GENOME self-edit refined (522434b). Ouroboros self-edited chat.md adding a path map
       (correct instinct: λ ground provide(map) ≻ command(search)); designer tier refined the foreign
@@ -326,7 +357,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (item 32): both proposals discarded (contrived-test evidence — see the provenance gap note
   below), memories deleted. Next-chat bootstrap SHIPPED (item 32): bb compact <prior-id> +
   bb sessions.
-  ONE ACTION: builder+author kinds (the next agent-model build step) → editor (uses judge +
+  ONE ACTION: ✅ builder+author SHIPPED (see λ latest) → NEXT: editor (uses judge +
   gene DB + experiments) → generator (GA).
   also  : gene-db-as-CHART deferred until the SECOND WRITER — signals + the sweep BOTH write now;
           revisit the chart (item 28 banked note). Watch: single-event proposals (the ≥2-recurrence
