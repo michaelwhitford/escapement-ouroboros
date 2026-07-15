@@ -150,17 +150,22 @@
   ;; thinking-ON, design/prompt-assembly): nucleus preamble ⊕ LAMBDA-COMPILER
   ;; bridge module (defines the `compile:` invocation the :message uses —
   ;; round 2 of the A/B arc: ON+bridge ≡ densest faithful λ) ⊕ the extraction
-  ;; lens POLICY artifact (src/ouroboros/prompts/compaction-lens.md — lens-out:
-  ;; S5 steers self-attention by EDITING that file, touching no engine code).
+  ;; lens POLICY artifact (src/ouroboros/prompts/compaction-lens-values.md —
+  ;; lens-out: S5 steers self-attention by EDITING that file, touching no engine
+  ;; code). PROMOTED compaction-lens → compaction-lens-values (2026-07-15,
+  ;; compaction-detail experiment): the value-preserving lens keeps 92% of load-
+  ;; bearing data (numbers/ratios/named-constraints/rejected-alternatives) vs the
+  ;; original narrative lens's 50%, at ZERO compression cost (still strictly
+  ;; shorter 8/8) — we were over-compressing (5-27× where 4-6× suffices).
   ;; The instruction-λ topology REQUIRES thinking (no-think ⇒ echo attractor,
   ;; A/B rounds 1-2); the fragile cell is deleted by running thinking ON —
-  ;; ~15-25s, hidden in the 20-60s reading shadow. Fidelity is guarded by the
+  ;; ~15-30s, hidden in the 20-60s reading shadow. Fidelity is guarded by the
   ;; compaction-fidelity experiment suite + the compression contract
   ;; (core/apply-compaction: accepted ⟺ strictly shorter).
   (acore/assemble
     {:preamble (prompts/preamble)
      :modules  [(prompts/module-text :lambda-compiler)]
-     :body     (prompts/policy-text "compaction-lens")}))
+     :body     (prompts/policy-text "compaction-lens-values")}))
 
 ;; ---------------------------------------------------------------------------
 ;; The chart.

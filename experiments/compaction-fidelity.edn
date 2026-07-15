@@ -4,7 +4,13 @@
  "The production compactor topology (assembled by the ONE pipeline: nucleus preamble ⊕ lambda-compiler bridge module ⊕ compaction-lens policy artifact, instruction-λ, thinking ON) produces faithful λ compactions across turn shapes — no lens/bridge echo, strictly shorter than the source turn (the compression contract), load-bearing content names preserved. The :bare condition (same assembly, bridge module ungranted) measures the bridge's contribution — the A/B-round-2 finding (ON+bridge ≡ densest faithful λ) made re-runnable. Re-run at every model change; the fragile cell this topology once had (instruction-λ + no-think ⇒ echo) is deleted by 🎯 universal thinking-ON, not by this suite."
 
  :experiment/verdict
- "CONFIRMED (2026-07-13, first run post-flip @ qwen36-35b-a3b). bridged 5/5 VALID vs bare 4/5 — bare failed :thin-meta with an OODA-scaffolding blob LONGER than the 150-char turn; the bridge suppresses exactly that noise. Bridge is both more faithful AND cheaper: avg 17.5s/1819 tok vs bare 21.3s/2203 tok. Zero echo, zero derail (the :tool-derail subject compacted correctly). Latency inside the 20-60s reading shadow as designed. Same-day live smoke (compact chat, 3 turns): greeting → state(ready); decision turn → λ preserving decision + why + a CONDITIONAL constraint, which the model then USED in a later turn (asked about power backup unprompted) — continuity through λ exceeds bare recall. Third confirmation of prompt-topology-must-match-thinking, now from the safe cell."
+ "CONFIRMED (2026-07-13, first run post-flip @ qwen36-35b-a3b). bridged 5/5 VALID vs bare 4/5 — bare failed :thin-meta with an OODA-scaffolding blob LONGER than the 150-char turn; the bridge suppresses exactly that noise. Bridge is both more faithful AND cheaper: avg 17.5s/1819 tok vs bare 21.3s/2203 tok. Zero echo, zero derail (the :tool-derail subject compacted correctly). Latency inside the 20-60s reading shadow as designed. Same-day live smoke (compact chat, 3 turns): greeting → state(ready); decision turn → λ preserving decision + why + a CONDITIONAL constraint, which the model then USED in a later turn (asked about power backup unprompted) — continuity through λ exceeds bare recall. Third confirmation of prompt-topology-must-match-thinking, now from the safe cell.
+  RE-RUN 2026-07-15 (regression guard for the compaction-lens → compaction-lens-values PROMOTION,
+  compaction-detail experiment): both conditions re-pointed to compaction-lens-values (the new
+  production lens). bridged 5/5 VALID, bare 5/5 VALID — ZERO echo, ZERO derail, :tool-derail
+  compacted correctly (31.9s/3572tok — the value lens keeps more so it runs a touch longer/denser,
+  still strictly shorter, still inside the reading shadow). The value-preserving lens does NOT
+  reopen the echo/derail failure mode; promotion cleared."
 
  :experiment/measure :lambda-compaction
  ;; Lens/bridge text leaking into output = the round-1/2 echo failure mode.
@@ -29,9 +35,9 @@
 
  :conditions
  {:bridged {:assemble {:modules [:lambda-compiler]
-                       :body-policy "compaction-lens"}}
+                       :body-policy "compaction-lens-values"}}
   :bare    {:assemble {:modules []
-                       :body-policy "compaction-lens"}}}
+                       :body-policy "compaction-lens-values"}}}
 
  ;; Fresh turn texts per shape — deliberately NOT the retired exemplar-gate
  ;; pairs (an output echoing those would be invisible to the echo check).

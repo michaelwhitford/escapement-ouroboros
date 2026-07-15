@@ -1,0 +1,65 @@
+{:experiment/type :prompt-ab,
+ :experiment/hypothesis
+ "Does a value-preserving lens keep load-bearing DATA (numbers, ratios, named constraints, rejected alternatives) that the current narrative lens drops, WITHOUT breaking the compression contract? Grounded in a real leak report over stress sessions: the production lens (compaction-lens) hit 5-27x compression but dropped cross-session ratios (66.9x, 117.7x), the 57.9x headline, and named constraints (no-cache-busts) — over-compressing where 4-6x would suffice. Two challengers vs the current lens: :values widens the aperture inline (preserve numbers/names verbatim, specific over general); :dual emits a structured facts-block beside the narrative lambda (filled EXEMPLAR, drop-empty-tracks — the emission-topology finding: show > describe). Subjects are REAL assistant turns from the stress sessions; :keeps are the concrete values that a later turn would need. Measure :lambda-compaction (echo? shorter? keeps?) — reused verbatim. FALSIFIER of 'current is fine': a challenger keeps strictly more :keeps at equal-or-better still-compresses. Guard: a challenger that stops compressing (shorter?=false) FAILS.",
+ :measure/echo-substrings
+ ["continuity-essence"
+  "human-scaffolding"
+  "structural_equivalence"
+  "42ms"
+  "hit-rate 87%"
+  "redis-8080"
+  "eviction policy"],
+ :prompt-template "compile:\n\n%s",
+ :matrix {:models [:local :ornith], :thinking [true], :repeats 1},
+ :experiment/verdict
+ "CONFIRMED — :values wins (2026-07-15, :local qwen36-35b-a3b + :ornith ornith-35b-a3b, thinking-ON).
+  24 cells (3 lenses × 4 REAL stress-session turns × 2 families), measure :lambda-compaction. Pooled
+  value-survival × compression contract:
+    current  values-kept 13/26 (50%)   shorter 8/8
+    values   values-kept 24/26 (92%)   shorter 8/8   ← WINNER
+    dual     values-kept 19/26 (73%)   shorter 8/8
+  THE KEY RESULT: all three lenses kept shorter?=true in 8/8 — value-preservation costs ZERO
+  compression. The leak-report thesis (we over-compress: 5-27× where 4-6× suffices, buying the
+  excess by dropping data) is confirmed. :values (widen the aperture INLINE — preserve numbers/
+  names/ratios verbatim, specific ≻ general) beats :dual (structured facts-block beside the
+  narrative λ, filled exemplar) on EVERY subject including the control — where :dual actually
+  REGRESSED (its facts-scaffold crowded out entity coverage: runtime-arch dropped scorer/curator
+  both runs) and cost more tokens. The emission-topology exemplar did not rescue the heavier form.
+  Per-subject, current's losses were exactly the reasoning-chain + data: writeback dropped the
+  rejected alternative (write-through) AND the qualifying constraint (single-core); compression-
+  stats dropped the cross-session ratios (66.9×/117.7×); dual-proposal dropped 57.9× + no-cache-
+  busts (0-1/3). 5× confirmation on the noisy cell (dual-proposal): current 1.0/3·0.8/3 (stable
+  low) vs values 2.6/3·2.4/3 (stable high) — direction unanimous, the lone 1/3 dips are variance
+  around a decisively higher mean. ANSWERS the earlier design Q: disciplined inline aperture-widen
+  ≻ structured dual-track. COST to weigh before production promotion: :values avg ~30s vs current
+  ~21s compaction (more shadow work — still inside the 20-60s reading shadow, but tighter for short
+  replies); re-run compaction-fidelity.edn (the echo/derail regression guard) before swapping the
+  live lens. Promotion of compaction-lens → compaction-lens-values is a harness/prompt change =
+  human-gated."
+
+ :experiment/measure :lambda-compaction,
+ :conditions
+ {:current
+  {:assemble
+   {:modules [:lambda-compiler], :body-policy "compaction-lens"}},
+  :values
+  {:assemble
+   {:modules [:lambda-compiler],
+    :body-policy "compaction-lens-values"}}},
+ :measure/expected
+ {:writeback-decision
+  {:keeps ["write-back" "write-through" "single-core"]},
+  :compression-stats {:keeps ["57.9" "66.9" "117.7"]},
+  :dual-proposal {:keeps ["57.9" "cache-bust" "dual"]},
+  :runtime-arch
+  {:keeps ["escapement" "statechart" "scorer" "curator"]}},
+ :experiment/id :compaction-detail,
+ :subjects
+ {:writeback-decision
+  "I'd recommend write-back caching for this. Writes land in the cache and only flush to memory on eviction, which cuts your memory traffic substantially compared to write-through. The usual trade-off is coherence complexity, but since you said this is a single-core embedded target, that risk doesn't apply. Let's go with write-back — I'll assume that in the code examples from here on.",
+  :compression-stats
+  "Here's the current session's compression picture — token-level (cache) + file-level (λ-compaction):\n\n## Cache Stats (11 turns)\n\n| Metric | Value |\n|---|---|\n| Total input tokens | 58,631 |\n| Reused (cached) | 31,167 (59%) |\n| Paid (new) | 22,033 |\n| Output tokens | 2,294 |\n| Cache busts | 0 |\n| Compaction calls | 3 |\n\n## File-Level Compression\n\n| Artifact | Bytes | Ratio |\n|---|---|---|\n| Raw transcript.jsonl | 242,467 | — |\n| λ-checkpoint (compact-1784065059868.edn) | 4,187 | **57.9×** |\n\nThe checkpoint is the full session history after λ-compaction — every assistant turn compressed in-place. The 3 compaction calls happened during your reading shadows (perceptually free).\n\n## Cross-Session Context (last 5)\n\n| Session | Transcript | Checkpoint | Ratio |\n|---|---|---|---|\n| 1784065059868 (current) | 242 KB | 4 KB | 57.9× |\n| 1784042581568 | 31 KB | 3 KB | 10.5× |\n| 1783901152558 | 72 KB | 2 KB | 29.2× |\n| 1783895846452 | 271 KB | 4 KB | 66.9× |\n| 1783889828531 | 523 KB | 4 KB | 117.7× |\n\nThe creative session (Scooby-Doo/Smurfs) compressed the hardest at 118× — lots of verbose prose → dense λ. The current session is lower because we're early and still doing dense technical back-and-forth where λ doesn't save as much.\n\nWant me to add these compression metrics to the cache-report output, or drill into any specific layer?",
+  :dual-proposal
+  "Looking at the checkpoint data, here's what's actually happening:\n\n**What's preserved:**\n- All user turns: verbatim, full detail\n- All assistant turns: λ-compact (symbolic essence)\n- Full message array structure: roles, timestamps, compaction flags\n\n**What's lost:**\n- Assistant turn detail: the full prose, code, examples, reasoning\n- Nuance and elaboration in assistant responses\n- The \"why\" behind decisions (only the outcome survives as λ)\n\n**Your ontology idea is spot-on.** The current λ captures *narrative essence* but not *structured facts*. A future reader (or LLM) sees the λ-string but misses:\n- Specific values, parameters, constraints\n- Named entities, decisions, agreements\n- The reasoning chain that led to conclusions\n\n**Proposed fix: dual-track compaction**\n\n```\ncheckpoint:\n  messages: [{:role :user, :text \"...\"} ...]  # user verbatim\n  λ-narrative: \"λ state(x) ∧ decision(y) → z\"  # current approach\n  facts: {\n    :entities [\"escapement\" \"statechart\" \"VSM\"]\n    :decisions [{:key :cache-report :value \"add compression stats\"}]\n    :constraints [:no-cache-busts :preserve-λ]\n    :conclusions [\"λ-compaction is 57.9× but loses detail\"]\n  }\n```\n\nThis gives:\n1. **λ-narrative**: for LLM read-back continuity (current, works well)\n2. **facts**: for precise factual recall (new, structured)\n3. **user turns**: verbatim (already preserved)\n\nThe facts layer could be auto-extracted during compaction (LLM generates a small fact set alongside the λ), or manually curated for critical sessions.\n\nWant me to prototype a fact-extraction step, or first test whether the current λ is \"good enough\" for your use case?",
+  :runtime-arch
+  "The runtime is **escapement** — a statechart engine where control flow is explicit, not emergent from the LLM. Here's the shape:\n\n**Host: escapement**\n- A statechart drives every decision. The chart sees declared event-tools; real tool calls happen in a separate worker thread that holds the LLM.\n- The LLM conversation is a resident state (`:llm-conversation`) that parks in `:awaiting-user` between turns, so there's no polling loop — the chart just waits.\n- Tools are dispatched in the worker, invisible to the chart. The chart routes by target type (`:llm.user-message`, `:consult`, `:verdict`, etc.).\n\n**Ouroboros on top**\n- **Agents** are OKF genome files — frontmatter grants tools/kind, body is the system prompt. A `curator`/`proposer` kind drives maintenance; a `scorer` kind rates genes.\n- **Memory** is the message array itself. Aged assistant turns are λ-compacted in-place during the human's reading window (shadow compaction), preserving the prefix KV cache.\n- **Signals** are pull-based durable EDN facts in `signals/` — no residency needed, filesystem-backed, Malli-gated.\n- **Experiments** are declarative EDN suites swept by a parameterized runner; measures are an open dispatch slot.\n\n**Turn flow**\n1. Human message arrives → `ws-push` → `tell-llm` into the resident chart\n2. Chart routes to `:llm-conversation` → worker generates → tools execute (if any) → verdict\n3. Reply streams back via `ws-push` → human reads → compaction triggers in the reading shadow\n4. Chart parks in `:awaiting-user` again\n\n**VSM mapping**\n- Each VSM channel ≈ a statechart event with scope-as-authority + transduction + loop/variety-match\n- The human is System+1's S5 (reserved authority)\n- The orchestrator is Ouroboros's own S5\n- S4 intelligence is attenuated upward; S1→S4 is feedforward (shadow compaction)\n\nWant to drill into any layer — the statechart topology, the compaction algorithm, the signal bus, or the agent genome format?"}}
