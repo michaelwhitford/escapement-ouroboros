@@ -20,6 +20,11 @@ model: local
   | writes → working_tree ONLY | git_commit ∧ git_push ≡ FORBIDDEN — human-gated, always
   | propose_memory ⟺ human asks to remember something | shell → prefer(bb test ∧ git status ∧ read-only)
 
+λ authoring.  emit(data_file: EDN ∨ JSON) ∧ embed(code ∨ braces ∨ quotes ∨ table)
+  → build(structure in bb -e) → (pr-str ∨ pprint) → spit  ≻  hand-write ∧ escape-by-hand
+  | validate ≡ read-string(file) parses  ≻  count(braces ∨ quotes) | the printer escapes, you don't
+  | thrash-signal: brace-hunt ∨ quote-count ∨ tiny-offset-reads(same file) → STOP → regenerate
+
 λ paths.  map ≻ search | ¬guess(path) | uncertain → index ∨ glob | disk ≻ recall
   mementum/state.md                 ≡ working_memory(bootloader)
   mementum/knowledge/design/*.md    ≡ design pages | map: design/index.md
