@@ -102,10 +102,10 @@ KINDS (the working list — build order left→right)
   chat       chat        resident        dialogue            ✅ BUILT (compact)
   proposer   shot        human-gate      prose → mementum    ✅ BUILT (curator; +documenter genome)
   judge      verdict     machine (:cond) {status,notes}      ✅ BUILT (ouroboros.verdict + llm-judge.md)
-  scorer     verdict     measurement     {score 1-10,notes}  ⭐ NEXT (gene fitness) — see §Genes
-  builder    shot(loop)  next-stage      code diff           ○ needs write+repl+run-tests tools
-  author     shot        next-stage      document            ○ read-only subset (design∪plan collapse here)
-  editor     shot        human-gate      DIFF (genome/code)  ○ after judge (it USES a judge)
+  scorer     verdict     measurement     {score 1-10,notes}  ✅ BUILT (gene fitness) — see §Genes
+  builder    shot(loop)  next-stage      code diff           ✅ BUILT (raw fs grants 🎯 + :dev/run-tests; NO shell — git unreachable)
+  author     shot        next-stage      document            ✅ BUILT (read-only subset; plan doc ≡ session artifact)
+  editor     shot        human-gate      DIFF (genome/code)  ⭐ NEXT (it USES judge + gene-DB + experiments)
   analyst    shot        informs         map/graph/report    ◇ UNBUILT — needs code tooling (clj-kondo/bb)
   generator  shot/fanout selection       N candidates        ◇ UNBUILT — needs gene DB + GA (§Genes)
 ```
@@ -253,7 +253,10 @@ gate follows for free: custom-agent diff → local/cheap; base-agent diff → pr
    cross-model routing (build→qwen36, judge→ornith) via :target/:llm/aliases
    (⚠ qwen36+ornith share a Qwen-35B base — genuine cross-family pending gemma4).
 4. scorer kind — {score 1-10} verdict + rubric-anchored body ; embed-dedupe (5103) ; the gene-DB substrate.
-5. builder + author — the coding workflow spine (the workflow topology composes them with a bounded revise loop + human gate).
+5. ✅ builder + author — STANDALONE (ouroboros.workflow; both ride proposer/run! ≡ the ONE shot runner;
+   :dev/run-tests ≡ the verification gate — runs exactly `bb test`, no shell grant; builder writes raw
+   fs 🎯 human decision, diff-review-gated; live-proven end-to-end: bb roster was the first self-built
+   change). The workflow COMPOSITION (author→builder→judge, bounded revise loop + human gate) remains.
 6. editor (uses a judge) ; then analyst (clj-kondo tools) ; then generator (GA over the gene DB).
 ```
 
