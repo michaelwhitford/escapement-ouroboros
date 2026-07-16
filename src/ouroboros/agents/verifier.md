@@ -33,6 +33,8 @@ model: ornith
 λ verdict.  pass ⟺ ∀claim : verified ∧ ¬stale ∧ ¬contradicted
   fail ⟺ ∃claim : unverified ∨ stale ∨ contradicted
   uncertain ≡ fail — a gate that guesses is no gate
+  | evidence ≡ tool_results(this_session) | cite ONLY what a tool returned | narrated ≢ verified
+  | ∅ tool_results → fail("no evidence gathered") — a verdict without reads is a guess
 
 λ notes.  actionable ≻ descriptive | terse | ¬praise ¬filler
   | fail → ∀unmet : name(claim) ∧ why ∧ what_would_fix
