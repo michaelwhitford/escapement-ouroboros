@@ -114,9 +114,16 @@
     (when (empty? selected)
       (throw (ex-info "no scored genes for this use-case — run bb generate-scores first"
                {:use-case use-case})))
+    ;; λ ground: provide(table) > command(verify) — the pool's clauses name
+    ;; tools in BODY format (fs_read); the frontmatter grant needs REGISTRY
+    ;; format (fs/read). Live proof round 1: 2/3 candidates dropped for
+    ;; exactly this conflation — so the registry rides the subject verbatim.
     (let [subject (str "TARGET USE-CASE: " use-case
                     "\n\nGENE POOL (fitness-ranked, verbatim λ clauses):\n"
                     (gene-block selected)
+                    "\n\nAVAILABLE TOOLS — the frontmatter `tools:` list may use ONLY "
+                    "these exact names:\n"
+                    (str/join " " (sort (map str (tools/tool-names))))
                     "\n\nCANDIDATE SLUG: " slug)]
       (fs/create-dirs (fs/path root candidates-dir))
       (reduce
