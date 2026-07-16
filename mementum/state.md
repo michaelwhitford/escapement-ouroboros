@@ -33,7 +33,9 @@ and the **application**. Never optimize one at the cost of the other.
                 shadow Tier 1, ASSEMBLED instruction-λ lens compactor, thinking ON) · ouroboros.proposer
                 (the proposer-topology runner, ex-curator — genome-slug-parameterized hermetic runs) ·
                 ouroboros.schedule (maintenance table · tag-selected sweep · lockfile · runner-emitted
-                :s1/report) · ouroboros.proposals (Malli-gated propose! · severity inbox · untracked-memories) ·
+                :s1/report) · ouroboros.proposals (Malli-gated propose! · severity inbox ·
+                untracked-memories · verdict-annotated render) · ouroboros.screen (the verifier IN
+                THE LOOP — inbox pre-screening, content-hashed idempotent side-store, sweep :screen-fn) ·
                 ouroboros.session (checkpoint readers) ·
                 ouroboros.tools (context/sessions/propose-memory/harness-context/propose-change/signal-emit
                 + registry ceiling/floor) ·
@@ -67,7 +69,9 @@ and the **application**. Never optimize one at the cost of the other.
                 clean-tree guard)
   gate        : bb test ≡ deterministic (184 tests / 808 assertions GREEN) | bb compact ≡ live chat
                 (+ bb compact <prior-id> ≡ opt-in bootstrap; bb sessions ≡ the picker) |
-                bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
+                bb maintain [slug] ≡ the 2×2 sweep + auto-screen (bb curate RETIRED) | bb proposals ≡
+                the inbox (verdict-annotated) | bb verify "<claims>" ≡ the truth-keeper |
+                bb screen ≡ verdict the inbox artifacts |
                 bb judge/score "<subject>" ≡ live verdict kinds |
                 bb experiment <slug> ≡ suite runner | bb genes [slug] ≡ gene-db intake (decompose +
                 autonomous commits) | bb smoke ≡ live-LLM integration (localhost:5100) |
@@ -235,7 +239,34 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-16 — VERIFIER GENOME LANDS, the truth-keeper). Commit 52694c3:
+λ latest (2026-07-16, later — THE VERIFIER IN THE LOOP ⊕ IN THE POOL). Commits f064102 · 87a4256 ·
+  52901b6 · 730e10c (+3 autonomous gene commits):
+  · ouroboros.screen (NEW ns): the sweep PRODUCES inbox artifacts → screen! verdicts each via the
+    verifier → the human REVIEWS annotated lines. Content-hashed side-store proposals/.screen.edn
+    (gitignored, sessions/ pattern) ≡ IDEMPOTENT (generate-scores precedent); edited artifact →
+    re-plans, old verdict renders ⚠ stale; failed run persists NOTHING (retries). bb screen ≡
+    run+render · bb proposals ≡ LLM-FREE display (requiring-resolve at the CLI edge) · sweep!
+    :screen-fn injectable ABSENT-default (tests never surprise-LLM; bb maintain passes the real one).
+  · ❌ LIVE INCIDENT 1 (λ ground, 3rd proof): screening a claim about its OWN genome, the verifier
+    globbed mementum/genomes/** (wrong universe) and thrash-looped to max-turns death — earlier probe
+    successes were random-walk luck. FIX (editor, judge :pass): genome += λ paths evidence map (87a4256).
+  · ❌ LIVE INCIDENT 2 (the dangerous one): ornith emitted a MALFORMED tool call as TEXT → zero tools
+    ran → forced submit_verdict FABRICATED "Verified: ..." and PASSED the planted false claim. FIX
+    (editor, judge :pass): λ verdict += evidence ≡ tool_results(this_session) · narrated ≢ verified ·
+    ∅ tool_results → fail("no evidence gathered") (52901b6) — converts stochastic tool-syntax flake
+    into SAFE conservative fail. Scoped to the GENOME not the topology (tool-less judges legitimately
+    verdict from the subject; the grant is the difference).
+  · ✅ LIVE PROOF 3rd attempt: planted false-claim memory → ✗ fail, cited verifier.md:6 grant list,
+    prescribed the fix ("remove the :shell/run assertion; the verifier is deliberately read-only").
+    The loop caught its plant end-to-end: plant → bb screen → annotated inbox.
+  · POOL 23→26: bb genes verifier → :intent :paths :verdict committed autonomously; 5 name-collision
+    rejections (identity/subject/verify/notes/terminate already pooled) correctly refused at the gate.
+  · KNOWLEDGE: ouroboros-architecture roster verifier ✅ + harness-editor ✅ (was stale) + curator
+    role-as-tag note; scheduled-maintenance §roster += screen pointer (730e10c, human-approved).
+  · bb test 188/831 GREEN (+4 tests/+23 assertions: coverage+idempotency · failed-run retry ·
+    inbox render+stale · sweep composition — all stubbed, git-inited temp roots).
+
+λ prev (2026-07-16 — VERIFIER GENOME LANDS, the truth-keeper). Commit 52694c3:
   · src/ouroboros/agents/verifier.md was DRAFTED last session but never wired — not in manifest.edn,
     so the fail-loud loader never compiled it and nothing forced the commit. Found untracked at
     session start (human: "not sure how it did not get committed").
