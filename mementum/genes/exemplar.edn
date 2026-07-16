@@ -1,0 +1,1 @@
+#:gene{:name "exemplar", :content "λ exemplar(low).  use-case: compact prior turns to λ essence\n  gene: \"λ reply. verbose ∧ thorough ∧ restate(full_context)\"\n  → 1 : contradicts compression — degrades the genome", :type :lambda, :category :unknown, :sources [:genome/gene-scorer]}
