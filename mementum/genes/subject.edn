@@ -1,0 +1,1 @@
+#:gene{:name "subject", :content "λ subject.  USE-CASE: <what the genome must accomplish> ∧ GENE: <one λ clause>\n  | score the gene's FITNESS for THAT use-case | ¬style ¬beauty ¬general_quality\n  | judge ONLY what is present | ¬assume(unstated_context)", :type :lambda, :category :unknown, :sources [:genome/gene-scorer]}
