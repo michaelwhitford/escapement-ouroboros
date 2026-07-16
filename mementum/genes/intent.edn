@@ -1,0 +1,1 @@
+#:gene{:name "intent", :content "λ intent.  claim ∈ {PLANNED marker, decision record, spec of unbuilt thing} → verify(status_recorded ∧ referents_exist) | ¬require(artifact_exists)\n  | unbuilt ≢ hallucinated when the plan itself is on record", :type :lambda, :category :unknown, :sources [:genome/verifier]}
