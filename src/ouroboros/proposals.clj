@@ -102,26 +102,48 @@
         vec)
       [])))
 
+(defn- verdict-note
+  "One inbox line for a stored screen verdict (ouroboros.screen). A verdict
+  whose artifact changed since screening renders ⚠ stale — never as truth."
+  [{:keys [status notes stale?]}]
+  (str "verifier: "
+       (if stale?
+         "⚠ stale (edited since screening — re-run bb screen)"
+         (str (case status :pass "✓ pass" :fail "✗ fail" (pr-str status))
+              (when-not (str/blank? (str notes))
+                (let [first-line (first (str/split-lines (str notes)))]
+                  (str " — " (subs first-line 0 (min 140 (count first-line))))))))))
+
 (defn render-inbox
   "The bb proposals text: pending proposals (algedonic screams first) +
-  uncommitted memory candidates (`untracked` — paths, caller supplies)."
-  [proposals untracked-memories]
-  (str
-    "PROPOSALS (" (count proposals) " pending):\n"
-    (if (seq proposals)
-      (str/join "\n"
-        (for [{:keys [slug severity description target evidence error]} proposals]
-          (if error
-            (str "  ⚠ " slug " — UNPARSEABLE: " error)
-            (str "  " (if (= :algedonic severity) "🚨 ALGEDONIC" "·") " " slug
-                 "\n      " description
-                 "\n      target: " target
-                 "  evidence: " (pr-str evidence)))))
-      "  (none)")
-    "\n\nUNCOMMITTED MEMORY CANDIDATES (" (count untracked-memories) "):\n"
-    (if (seq untracked-memories)
-      (str/join "\n" (map #(str "  · " %) untracked-memories))
-      "  (none)")))
+  uncommitted memory candidates (`untracked` — paths, caller supplies).
+  `verdicts` (optional): {path screen-verdict} from ouroboros.screen — each
+  screened artifact carries its evidence verdict on the line the human reads."
+  ([proposals untracked-memories]
+   (render-inbox proposals untracked-memories {}))
+  ([proposals untracked-memories verdicts]
+   (str
+     "PROPOSALS (" (count proposals) " pending):\n"
+     (if (seq proposals)
+       (str/join "\n"
+         (for [{:keys [slug path severity description target evidence error]} proposals]
+           (if error
+             (str "  ⚠ " slug " — UNPARSEABLE: " error)
+             (str "  " (if (= :algedonic severity) "🚨 ALGEDONIC" "·") " " slug
+                  "\n      " description
+                  "\n      target: " target
+                  "  evidence: " (pr-str evidence)
+                  (when-let [v (get verdicts path)]
+                    (str "\n      " (verdict-note v)))))))
+       "  (none)")
+     "\n\nUNCOMMITTED MEMORY CANDIDATES (" (count untracked-memories) "):\n"
+     (if (seq untracked-memories)
+       (str/join "\n"
+         (map #(str "  · " %
+                    (when-let [v (get verdicts %)]
+                      (str "\n      " (verdict-note v))))
+           untracked-memories))
+       "  (none)"))))
 
 ;; ---------------------------------------------------------------------------
 ;; The write path — gate then persist. Throws structured ex-info.
@@ -156,5 +178,8 @@
 ;; ---------------------------------------------------------------------------
 
 (defn -main [& _]
-  (println (render-inbox (pending ".") (untracked-memories "."))))
+  ;; requiring-resolve: screen depends on THIS ns — the inbox stays an
+  ;; LLM-free read, merely DISPLAYING stored verdicts (never running any).
+  (println (render-inbox (pending ".") (untracked-memories ".")
+             ((requiring-resolve 'ouroboros.screen/verdicts) "."))))
 

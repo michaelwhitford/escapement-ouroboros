@@ -49,6 +49,9 @@
          verify {:doc      "The VERIFIER (judge kind, evidence-reading) — bb verify \"<proposed memory ∨ knowledge claim>\": reads live src/sessions/mementum, tests each claim (stale/hallucinated/contradicted; uncertain ≡ fail), forced submit_verdict {:status pass|fail :notes} per the verifier genome."
                  :requires ([ouroboros.verdict :as verdict])
                  :task     (apply verdict/-main "verifier" *command-line-args*)}
+         screen {:doc      "The VERIFIER IN THE LOOP — bb screen: evidence-verdict every pending proposal + uncommitted memory candidate (idempotent — content-hashed side-store in proposals/.screen.edn; verdicts render in bb proposals; bb maintain screens automatically)."
+                 :requires ([ouroboros.screen :as screen])
+                 :task     (screen/-main)}
          cache-report {:doc      "KV-cache reuse report for a session — bb cache-report [session-id] (default: latest). Flags mid-session BUSTs (slot evicted → full re-prefill)."
                        :requires ([ouroboros.cache-report :as cache-report])
                        :task     (apply cache-report/-main *command-line-args*)}

@@ -26,6 +26,7 @@
     [ouroboros.signals-test]
     [ouroboros.proposals-test]
     [ouroboros.schedule-test]
+    [ouroboros.screen-test]
     [ouroboros.workflow-test]
     [ouroboros.generator-core-test]))
 
@@ -54,6 +55,7 @@
           'ouroboros.signals-test
           'ouroboros.proposals-test
           'ouroboros.schedule-test
+          'ouroboros.screen-test
           'ouroboros.workflow-test
           'ouroboros.generator-core-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))

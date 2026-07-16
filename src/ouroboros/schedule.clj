@@ -167,7 +167,7 @@
   tests (default: the real proposer runner, resolved lazily).
   Returns the outcome vector."
   ([root] (sweep! root {}))
-  ([root {:keys [runner entries quiet?]
+  ([root {:keys [runner entries quiet? screen-fn]
           :or   {entries table}}]
    (let [runner (or runner
                     (fn [slug opts]
@@ -175,25 +175,38 @@
          plan   (sweep-plan (agents/compile-roster root) entries)]
      (acquire-lock! root (System/currentTimeMillis))
      (try
-       (vec
-         (for [{:keys [agent subject budget-ms]} plan]
-           (let [t0     (System/currentTimeMillis)
-                 p0     (count (proposals/pending root))
-                 m0     (count (proposals/untracked-memories root))
-                 status (try
-                          (:status (runner agent {:root root :subject subject
-                                                  :budget-ms budget-ms :quiet? quiet?}))
-                          (catch Exception e
-                            (println (str "⚠ " (name agent) " run threw: " (ex-message e)))
-                            :fail))
-                 outcome {:agent         agent
-                          :status        status
-                          :wall-ms       (- (System/currentTimeMillis) t0)
-                          :new-proposals (- (count (proposals/pending root)) p0)
-                          :new-memories  (- (count (proposals/untracked-memories root)) m0)}]
-             (emit-report! root outcome)
-             (println (summary-line outcome))
-             outcome)))
+       (let [outcomes
+             (vec
+               (for [{:keys [agent subject budget-ms]} plan]
+                 (let [t0     (System/currentTimeMillis)
+                       p0     (count (proposals/pending root))
+                       m0     (count (proposals/untracked-memories root))
+                       status (try
+                                (:status (runner agent {:root root :subject subject
+                                                        :budget-ms budget-ms :quiet? quiet?}))
+                                (catch Exception e
+                                  (println (str "⚠ " (name agent) " run threw: " (ex-message e)))
+                                  :fail))
+                       outcome {:agent         agent
+                                :status        status
+                                :wall-ms       (- (System/currentTimeMillis) t0)
+                                :new-proposals (- (count (proposals/pending root)) p0)
+                                :new-memories  (- (count (proposals/untracked-memories root)) m0)}]
+                   (emit-report! root outcome)
+                   (println (summary-line outcome))
+                   outcome)))]
+         ;; The verifier IN THE LOOP (ouroboros.screen): after the sweep
+         ;; produces its artifacts, `screen-fn` verdicts each one before the
+         ;; human reads the inbox. Injectable, ABSENT default (λ extend:
+         ;; option > detection — direct sweep! callers/tests never
+         ;; surprise-run an LLM; bb maintain passes the real thing). A
+         ;; screening failure must not fail the sweep — its artifacts are
+         ;; already safe on disk (λ escalate: warn, continue).
+         (when screen-fn
+           (try (screen-fn root)
+             (catch Exception e
+               (println (str "⚠ screen pass threw: " (ex-message e))))))
+         outcomes)
        (finally (release-lock! root))))))
 
 ;; ---------------------------------------------------------------------------
@@ -206,7 +219,9 @@
                            enabled entry whose selection includes it, else
                            the proposer default)."
   [& args]
-  (let [outcomes
+  (let [screen-fn (fn [root]
+                    ((requiring-resolve 'ouroboros.screen/screen!) root {}))
+        outcomes
         (if-let [slug (first args)]
           (let [id      (keyword slug)
                 roster  (agents/compile-roster ".")
@@ -215,10 +230,11 @@
                                  table))
                 entries [(merge {:id :adhoc :select {:slug slug} :enabled true}
                            (select-keys entry [:subject :budget-ms]))]]
-            (sweep! "." {:entries entries}))
-          (sweep! "." {:quiet? true}))]
+            (sweep! "." {:entries entries :screen-fn screen-fn}))
+          (sweep! "." {:quiet? true :screen-fn screen-fn}))]
     (println)
     (println (proposals/render-inbox (proposals/pending ".")
-               (proposals/untracked-memories ".")))
+               (proposals/untracked-memories ".")
+               ((requiring-resolve 'ouroboros.screen/verdicts) ".")))
     (shutdown-agents)
     (System/exit (if (every? #(= :done (:status %)) outcomes) 0 1))))
