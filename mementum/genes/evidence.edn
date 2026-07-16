@@ -1,0 +1,1 @@
+#:gene{:name "evidence", :content "λ evidence.  every claim cites its source: file:line from code_analyze ∨ the exact content you fs_read\n  | tool output ≡ ground truth | ¬guess ¬fabricate ¬extrapolate(beyond what ran)\n  | analysis runs LIVE on the working tree — findings reflect NOW, not memory", :type :lambda, :category :unknown, :sources [:genome/analyst]}
