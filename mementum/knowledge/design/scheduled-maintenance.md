@@ -53,6 +53,8 @@ metabolize memories/knowledge, improve docs — each producing human-gated propo
   | the agent-model rule "new role ⇒ new genome, not new kind" pays off: 4 .md files, 0 new kinds
   | stage 2: the coder column graduates to editor kind (diffs, judge-gated, gene-DB era)
   | verifier stays OUTSIDE the matrix — different role (claims vs live truth), serves all four
+    (BUILT: ouroboros.screen — the sweep's :screen-fn verdicts every inbox artifact post-run;
+     content-hashed idempotent side-store proposals/.screen.edn; bb screen ∨ bb maintain)
 ```
 
 ## Naming decisions (🎯 human, this session)

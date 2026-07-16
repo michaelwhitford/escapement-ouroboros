@@ -162,13 +162,16 @@ round-trip: memory lives in the data-model, not a file two workers rewrite.
 
 Ouroboros is not one improver; it is a SYSTEM of self-improving agents, each metabolizing a
 different facet of the project. All share the same invariant: **AI proposes → human approves →
-AI commits**. Only the curator is built so far.
+AI commits**.
 
 ```
 curator          ← BUILT     metabolize sessions + mementum → propose memory (∧ knowledge, next). Curates the mementum store.
-harness-editor   ← PLANNED   propose changes to the harness code (Layer-2 agents/*.md prompts, escapement config).
+                             (Role now lives as the :curator TAG on harness-knowledge + app-knowledge.)
+harness-editor   ← BUILT     judge-gated genome edits — bb editor ≡ workflow/run-editor! (clean-tree guard, bounded revise).
 app-editor       ← PLANNED   propose changes to the application code.
-verifier(s)      ← PLANNED   verify claims held in memory & knowledge (and code claims) against live truth.
+verifier         ← BUILT     verify claims (memory · knowledge · docs · code) against live evidence — bb verify.
+                             IN THE LOOP: ouroboros.screen pre-screens the inbox (bb screen; bb maintain screens
+                             automatically; verdicts render in bb proposals, content-hashed idempotent).
 documenter       ← PLANNED   comb memory + knowledge + past sessions → produce documentation.
 ```
 
@@ -303,6 +306,7 @@ never in `mementum/`. The curator proposes *into* `mementum/` (human-gated). Cha
    continuity answer correct. KNOWN COST: the fold is a thinking-ON call at LAUNCH (~15-25s, no
    reading shadow to hide in).
 6. curator synthesize! path — the ≥3→knowledge-page WRITE channel (propose-knowledge tool), not just memories.
-7. NEW AGENTS (each human-gated, per the design/agent-model KIND model): editor (harness/app code),
-   verifier(s) (check memory/knowledge claims), documenter (memory+knowledge+sessions → docs).
+7. NEW AGENTS (each human-gated, per the design/agent-model KIND model): editor (harness ✅; app
+   code pending), verifier ✅ (bb verify + bb screen — in the loop), documenter (memory+knowledge+
+   sessions → docs; a generated candidate exists, bb generate documenter).
 ```
