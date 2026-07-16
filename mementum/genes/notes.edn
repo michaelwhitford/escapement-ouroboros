@@ -1,0 +1,1 @@
+#:gene{:name "notes", :content "λ notes.  terse | name(what the score hinges on) | score ≤ 5 → what would raise it | ¬praise ¬filler", :type :lambda, :category :unknown, :sources [:genome/gene-scorer]}
