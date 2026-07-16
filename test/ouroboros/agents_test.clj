@@ -124,7 +124,8 @@
         (core/verdict-schema :scorer))
     "scorer MEASURES: {:score 1-10 :notes}")
   (is (nil? (core/verdict-schema :chat)) "non-verdict kinds idle free-text")
-  (is (nil? (core/verdict-schema :proposer))))
+  (is (nil? (core/verdict-schema :proposer)))
+  (is (some? (core/verdict-schema :comparator)) "comparator has a verdict schema"))
 
 ;; ---------------------------------------------------------------------------
 ;; merge-roster — custom wins by slug, replace-whole, visible provenance
@@ -224,6 +225,15 @@
         (is (= [] (:tools j)) "the subject carries everything; no grant")
         (is (str/starts-with? (:prompt j) "λ engage(nucleus)."))
         (is (not (str/includes? (:prompt j) "submit_verdict"))
+          "verdict SCHEMA is kind-owned wiring — the body carries only semantics")))
+    (testing "comparator genome — pairwise tournament selector"
+      (let [c (:comparator roster)]
+        (is (= :comparator (:kind c)))
+        (is (= :local (:model c)))
+        (is (= [] (:tools c)))
+        (is (str/starts-with? (:prompt c) "λ engage(nucleus)."))
+        (is (str/includes? (:prompt c) "λ comparator."))
+        (is (not (str/includes? (:prompt c) "submit_verdict"))
           "verdict SCHEMA is kind-owned wiring — the body carries only semantics")))))
 
 (deftest custom-tier-adds-and-overrides
@@ -308,7 +318,7 @@
           "raw body preserved for body-level consumers (gene decomposition)")))))
 
 (deftest base-genomes-carry-no-inline-preamble
-  (doseq [id [:chat :harness-knowledge :app-knowledge :harness-coder :app-coder :gene-scorer :llm-judge]]
+  (doseq [id [:chat :harness-knowledge :app-knowledge :harness-coder :app-coder :gene-scorer :llm-judge :comparator]]
     (let [a (agents/genome id ".")]
       (is (not (str/includes? (:body a) "engage(nucleus)"))
         (str id " body migrated — preamble is the assembler's job"))

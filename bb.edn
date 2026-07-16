@@ -43,6 +43,9 @@
          score {:doc      "The SCORER kind (verdict topology) — bb score \"<subject>\": forced submit_verdict {:score 1-10 :notes} per the gene-scorer genome (rubric-anchored)."
                 :requires ([ouroboros.verdict :as verdict])
                 :task     (apply verdict/-main "gene-scorer" *command-line-args*)}
+         compare {:doc      "The COMPARATOR kind (pairwise tournament) — bb compare \"<subject>\": forced submit_verdict {:winner a|b :notes} per the comparator genome."
+                  :requires ([ouroboros.verdict :as verdict])
+                  :task     (apply verdict/-main "comparator" *command-line-args*)}
          cache-report {:doc      "KV-cache reuse report for a session — bb cache-report [session-id] (default: latest). Flags mid-session BUSTs (slot evicted → full re-prefill)."
                        :requires ([ouroboros.cache-report :as cache-report])
                        :task     (apply cache-report/-main *command-line-args*)}

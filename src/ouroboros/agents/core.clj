@@ -36,12 +36,12 @@
   "ouroboros/agent")
 
 (def kinds
-  "The working kind list (agent-model spec, build order left→right):
-  chat·proposer·judge·scorer·builder·author BUILT ; editor NEXT ;
-  analyst·generator ◇ (blocked on unbuilt tools). A kind is a preset over a
-  structural signature — new role with same tools+topology ⇒ new GENOME, not
-  a new kind."
-  #{:chat :proposer :judge :scorer :builder :author :editor :analyst :generator})
+  "The working kind list (agent-model spec, build order left→right): ALL
+  BUILT — chat·proposer·judge·scorer·builder·author·editor·analyst·generator,
+  plus comparator (pairwise tournament selector, the generator's selection
+  operator). A kind is a preset over a structural signature — new role with
+  same tools+topology ⇒ new GENOME, not a new kind."
+  #{:chat :proposer :judge :scorer :builder :author :editor :analyst :generator :comparator})
 
 (def verdict-schemas
   "SCHEMA lives with the KIND (uniform per kind); SEMANTICS (when pass/fail,
@@ -61,7 +61,12 @@
             [:notes :string]]
    :scorer [:map
             [:score [:int {:min 1 :max 10}]]
-            [:notes :string]]})
+            [:notes :string]]
+   ;; comparator → CHOOSES between two seated candidates (A vs B); the
+   ;; tournament runner seats each pair BOTH ways — position bias cancels.
+   :comparator [:map
+                [:winner [:enum :a :b]]
+                [:notes :string]]})
 
 (defn verdict-schema
   "The forced-submit_verdict Malli schema for `kind`, or nil (free-text idle)."
