@@ -9,6 +9,7 @@ tags: [ouroboros, design, vsm, cybernetics, statecharts, escapement, channels, f
 related:
   - ouroboros-architecture
   - design/agent-model
+  - self-improvement-as-reduction
   - design/shadow-compaction
   - upstream/escapement-multi-agent-and-services
   - upstream/escapement-statechart-model
