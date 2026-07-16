@@ -46,6 +46,9 @@
          compare {:doc      "The COMPARATOR kind (pairwise tournament) — bb compare \"<subject>\": forced submit_verdict {:winner a|b :notes} per the comparator genome."
                   :requires ([ouroboros.verdict :as verdict])
                   :task     (apply verdict/-main "comparator" *command-line-args*)}
+         verify {:doc      "The VERIFIER (judge kind, evidence-reading) — bb verify \"<proposed memory ∨ knowledge claim>\": reads live src/sessions/mementum, tests each claim (stale/hallucinated/contradicted; uncertain ≡ fail), forced submit_verdict {:status pass|fail :notes} per the verifier genome."
+                 :requires ([ouroboros.verdict :as verdict])
+                 :task     (apply verdict/-main "verifier" *command-line-args*)}
          cache-report {:doc      "KV-cache reuse report for a session — bb cache-report [session-id] (default: latest). Flags mid-session BUSTs (slot evicted → full re-prefill)."
                        :requires ([ouroboros.cache-report :as cache-report])
                        :task     (apply cache-report/-main *command-line-args*)}

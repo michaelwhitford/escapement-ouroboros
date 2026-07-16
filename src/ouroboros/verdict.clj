@@ -56,7 +56,13 @@
          :stream?        false
          :real-tools     (:tools genome)
          :verdict-schema (core/verdict-schema (:kind genome))
-         :max-turns      3
+         ;; Tool-less verdicts (llm-judge, gene-scorer) decide from the
+         ;; subject alone — 3 turns is plenty. An evidence-READING verdict
+         ;; agent (verifier: fs/read·grep·glob) spends turns gathering before
+         ;; the forced submit — 3 clips it mid-read (live-proven: max-turns
+         ;; death, first verifier run). Turns follow the GRANT; budget-ms
+         ;; stays the runaway guard.
+         :max-turns      (if (seq (:tools genome)) 12 3)
          :budget-ms      240000
          :message        subject})
       (transition {:event :llm.idle :target :done}
