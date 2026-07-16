@@ -2,4 +2,4 @@
 ;; portably (works for :local/root files, breaks inside a packaged dep), so
 ;; this manifest is the portable enumeration. Add a slug here when adding a
 ;; base genome; the loader fails loud if a listed genome is missing.
-["analyst" "app-coder" "app-knowledge" "author" "builder" "chat" "comparator" "gene-scorer" "generator" "harness-coder" "harness-editor" "harness-knowledge" "llm-judge"]
+["analyst" "app-coder" "app-knowledge" "author" "builder" "chat" "comparator" "gene-scorer" "generator" "harness-coder" "harness-editor" "harness-knowledge" "llm-judge" "verifier"]
