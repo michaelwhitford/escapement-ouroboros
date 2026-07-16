@@ -1,0 +1,1 @@
+#:gene{:name "verify", :content "λ verify.  done ⟺ dev_run_tests GREEN | NEVER claim done with failing tests\n  | plan asks for new coverage → write the test (test/ouroboros/…) ∧ wire it in test_runner.clj", :type :lambda, :category :unknown, :sources [:genome/builder]}
