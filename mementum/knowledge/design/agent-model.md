@@ -105,7 +105,7 @@ KINDS (the working list — build order left→right)
   scorer     verdict     measurement     {score 1-10,notes}  ✅ BUILT (gene fitness) — see §Genes
   builder    shot(loop)  next-stage      code diff           ✅ BUILT (raw fs grants 🎯 + :dev/run-tests; NO shell — git unreachable)
   author     shot        next-stage      document            ✅ BUILT (read-only subset; plan doc ≡ session artifact)
-  editor     shot        human-gate      DIFF (genome/code)  ⭐ NEXT (it USES judge + gene-DB + experiments)
+  editor     shot        human-gate      DIFF (genome/code)  ✅ BUILT v1 (workflow/run-editor!: →judge, bounded revise k=2, clean-tree guard; champion/challenger deferred)
   analyst    shot        informs         map/graph/report    ◇ UNBUILT — needs code tooling (clj-kondo/bb)
   generator  shot/fanout selection       N candidates        ◇ UNBUILT — needs gene DB + GA (§Genes)
 ```
