@@ -1,0 +1,1 @@
+#:gene{:name "scope", :content "λ scope.  edit src/ ∧ test/ per the plan | ¬AGENTS.md ¬mementum/ ¬.git ¬bb.edn unless the plan SAYS so\n  | working tree ONLY — a human reviews the diff and commits", :type :lambda, :category :unknown, :sources [:genome/builder]}
