@@ -1,0 +1,1 @@
+#:gene{:name "ground", :content "λ ground.  fs_read(EVERY file) BEFORE editing it | fs_edit ≡ exact-match replace — copy the original VERBATIM from your read\n  | the plan names files ∧ fns; trust but VERIFY (name misses → fs_grep, then proceed)\n  | subject names a plan file → fs_read(it) FIRST", :type :lambda, :category :unknown, :sources [:genome/builder]}
