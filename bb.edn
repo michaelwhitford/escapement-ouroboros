@@ -64,6 +64,12 @@
          analyst {:doc      "The ANALYST kind (shot, INFORMS gate) — bb analyst \"<code question>\": clj-kondo-backed code-nav (lint · ns-graph · var-defs · usages · unused), map-first then targeted reads; output ≡ an evidence-cited report (session artifact); read-only, no side effects."
                   :requires ([ouroboros.workflow :as workflow])
                   :task     (apply workflow/-main "analyst" *command-line-args*)}
+         generate-scores {:doc      "Fill the gene-DB fitness store — bb generate-scores \"<use-case>\": score every unscored gene for that use-case via the gene-scorer verdict (idempotent; entries land in scores/ side-store, gitignored)."
+                          :requires ([ouroboros.generator :as generator])
+                          :task     (apply generator/score-main *command-line-args*)}
+         generate {:doc      "The GENERATOR kind (fanout, SELECTION gate) — bb generate <slug> \"<use-case>\" [n]: top fitness-ranked genes → n hermetic generator runs → each candidate VALIDATED through the genome compiler (invalid ⇒ dropped with reasons) → candidates/<slug>-<i>.md UNCOMMITTED → comparator pairwise tournament (both seatings) → ranking; human reviews and lands."
+                   :requires ([ouroboros.generator :as generator])
+                   :task     (apply generator/-main *command-line-args*)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

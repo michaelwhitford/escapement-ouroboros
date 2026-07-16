@@ -34,6 +34,9 @@ experiments/results/
 # (design/gene-db.md: scores side-stored, joined at query via :gene/scores;
 # settled summaries PROMOTE into the tracked gene file through the human gate).
 scores/
+# generator fanout output — candidates are PROPOSALS (human reviews, lands the
+# winner as a normal agents/*.md commit; the candidate file itself never lands)
+candidates/
 
 # The human's private scratch pad — standing instruction: NEVER commit,
 # never read unless asked. Ignored so a blind `git add` can't catch it.
