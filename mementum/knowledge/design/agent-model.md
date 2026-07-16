@@ -107,7 +107,8 @@ KINDS (the working list — build order left→right)
   author     shot        next-stage      document            ✅ BUILT (read-only subset; plan doc ≡ session artifact)
   editor     shot        human-gate      DIFF (genome/code)  ✅ BUILT v1 (workflow/run-editor!: →judge, bounded revise k=2, clean-tree guard; champion/challenger deferred)
   analyst    shot        informs         map/graph/report    ✅ BUILT (:code/analyze — pinned clj-kondo pod; lib route impossible in bb, empirical)
-  generator  shot/fanout selection       N candidates        ◇ UNBUILT — needs gene DB + GA (§Genes)
+  generator  shot/fanout selection       N candidates        ✅ BUILT (fitness→select→fanout→parse-gate→comparator tournament; live-proven)
+  comparator verdict     selection       {winner a|b,notes}  ✅ BUILT (the generator's pairwise selector; DOGFOODED via author→builder)
 ```
 Concrete roles map onto kinds: `curator`+`documenter`→**proposer**; `llm-judge`+`critique`→**judge**
 (a critic is a judge whose `notes` are actionable); `design`+`plan`→**author**;
