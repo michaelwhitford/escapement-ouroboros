@@ -62,7 +62,7 @@ and the **application**. Never optimize one at the cost of the other.
                 proposer/run! ≡ THE shot runner, λ converge; diff-report ≡ the human gate's audit
                 surface; run-editor! ≡ the FIRST composition: editor→judge, bounded revise k=2,
                 clean-tree guard)
-  gate        : bb test ≡ deterministic (169 tests / 742 assertions GREEN) | bb compact ≡ live chat
+  gate        : bb test ≡ deterministic (179 tests / 783 assertions GREEN) | bb compact ≡ live chat
                 (+ bb compact <prior-id> ≡ opt-in bootstrap; bb sessions ≡ the picker) |
                 bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
                 bb judge/score "<subject>" ≡ live verdict kinds |
@@ -73,7 +73,8 @@ and the **application**. Never optimize one at the cost of the other.
                 build stage (working-tree diff + status/diffstat) | bb roster ≡ the roster report
                 (Ouroboros's FIRST self-built change — author→builder pipeline, cded832) |
                 bb editor "<recommendation>" ≡ judge-gated genome edits (clean tree REQUIRED;
-                first landed change bd990f5)
+                first landed change bd990f5) | bb analyst "<question>" ≡ evidence-cited code report
+                (clj-kondo pod, INFORMS)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture · lambda-notation
                 (house λ dialect + NO-runtime-glossary policy, empirical) ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, llamacpp-backend,
@@ -231,7 +232,27 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-15, latest — EDITOR KIND v1 ≡ THE FIRST COMPOSITION, human-approved). The S4→S5
+λ latest (2026-07-15, latest — ANALYST KIND, human-directed: "build it so it works, dogfood the NEXT
+  agent"). 8 of 9 kinds BUILT — only generator remains. ec4b382:
+  · 🎯 POD PINNED (registry 2024.08.01): clj-kondo CANNOT be a bb library dep — EMPIRICAL (human asked;
+    probe: vendored tools.reader deftype implements java.io.Closeable → SCI rejects interface impls).
+    The pod mirrors clj-kondo.core/run! 1:1 (:lint/:config → {:findings :analysis}); lazy delay —
+    compile/test never spawn it. ouroboros.analysis ≡ pure bounded digests (max-lines 60, elision tail).
+  · :code/analyze op enum {lint · ns-graph · var-defs · usages · unused} | new lens ≡ new op (λ extend)
+    | run-fn injectable (RunTestsTool precedent) → tool tests deterministic, no pod.
+  · analyst genome: INFORMS gate (¬write ¬propose), map-first discipline (analyze BEFORE fs_read),
+    evidence-cited report ≡ session artifact. bb analyst "<question>".
+  · LIVE-PROVEN: correct dep map (ouroboros.tools ← agents/compact/proposer/verdict) + 2 unresolved-var
+    findings HEDGED correctly by the agent (verified: statecharts promise/await! resolves at runtime —
+    kondo lacks the DEP CLASSPATH when linting src/ alone; known noise source, tolerable at n=2).
+  · gotcha re-proven: hand-authored YAML frontmatter with an inner ": " broke the roster compile
+    (fail-loud held, ugly error) — the λ authoring lesson applies to the DESIGNER too.
+  · DOGFOOD DECISION (human): the analyst was designer-built (prompt quality); the NEXT agent build
+    goes through the author→builder pipeline instead.
+  bb test 179/783 GREEN. Kind ledger: chat·proposer·judge·scorer·builder·author·editor·analyst ✅ |
+  generator ◇ (needs gene-DB fitness loop exercised).
+
+λ prev (2026-07-15 — EDITOR KIND v1 ≡ THE FIRST COMPOSITION, human-approved). The S4→S5
   adaptive channel is LIVE (4c75540 + bd990f5): harness-editor genome (edit-only escalation: NO
   fs/write ⇒ cannot CREATE genomes, NO shell) + workflow/run-editor! ≡ editor → git-diff → llm-judge
   GATES (pass→stop | fail→bounded revise with the judge's actionable notes, k=2) → human diff review.
@@ -378,8 +399,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (item 32): both proposals discarded (contrived-test evidence — see the provenance gap note
   below), memories deleted. Next-chat bootstrap SHIPPED (item 32): bb compact <prior-id> +
   bb sessions.
-  ONE ACTION: ✅ builder+author ✅ editor-v1 SHIPPED (see λ latest) → NEXT: analyst
-  (clj-kondo tools) → generator (GA).
+  ONE ACTION: ✅ builder+author ✅ editor-v1 ✅ analyst SHIPPED (see λ latest) → LAST KIND:
+  generator (GA over the gene DB — needs the scorer fitness loop exercised).
   also  : gene-db-as-CHART deferred until the SECOND WRITER — signals + the sweep BOTH write now;
           revisit the chart (item 28 banked note). Watch: single-event proposals (the ≥2-recurrence
           damper is prompt-soft, item 31 observation); agent-held signal grants (s4/proposal for
