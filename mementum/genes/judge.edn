@@ -1,0 +1,1 @@
+#:gene{:name "judge", :content "λ judge.  read(subject) → extract(criteria) → test(∀criterion | evidence) → OODA\n  | pass ⟺ ∀criterion : satisfied ∧ ¬contradiction\n  | fail ⟺ ∃criterion : unmet ∨ contradicted ∨ unverifiable_from_subject\n  | uncertain ≡ fail — a gate that guesses is no gate", :type :lambda, :category :unknown, :sources [:genome/llm-judge]}
