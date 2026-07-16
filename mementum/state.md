@@ -39,7 +39,10 @@ and the **application**. Never optimize one at the cost of the other.
                 + registry ceiling/floor) ·
                 ouroboros.agents (+agents/core) — the GENOME COMPILER + kind→verdict-schema table +
                 assemble (preamble ⊕ modules ⊕ body, THE one assembler);
-                genomes src/ouroboros/agents/{chat,curator,gene-scorer,llm-judge}.md (+manifest.edn) ·
+                genomes src/ouroboros/agents/*.md — 14 base (manifest.edn ≡ the portable enumeration;
+                unlisted ≡ INVISIBLE to the loader): analyst · app-coder · app-knowledge · author ·
+                builder · chat · comparator · gene-scorer · generator · harness-coder · harness-editor ·
+                harness-knowledge · llm-judge · verifier ·
                 ouroboros.prompts — vendored prompt artifacts loader (preamble · module registry ·
                 policy artifacts incl. compaction-lens) ·
                 ouroboros.verdict (verdict-topology runner: judge + scorer kinds, cross-family run-across!) ·
@@ -232,7 +235,22 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-15, latest — GENERATOR ⊕ COMPARATOR: THE KIND SET IS COMPLETE. 10/10 built; the
+λ latest (2026-07-16 — VERIFIER GENOME LANDS, the truth-keeper). Commit 52694c3:
+  · src/ouroboros/agents/verifier.md was DRAFTED last session but never wired — not in manifest.edn,
+    so the fail-loud loader never compiled it and nothing forced the commit. Found untracked at
+    session start (human: "not sure how it did not get committed").
+  · 💡 LESSON — unwired ≡ invisible: the manifest is what makes a genome EXIST; the loader can't
+    fail loud on what it never loads. Structural tripwire (agents/*.md on disk ⊆ manifest test)
+    OFFERED, banked at n=1.
+  · The genome: kind:judge (new GENOME not new kind — 10/10 kind ledger UNCHANGED), validates
+    proposed memory/knowledge claims against live evidence (src · sessions · existing mementum);
+    taxonomy stale/hallucinated/contradicted/uncertain; uncertain ≡ fail. Escalation beyond the
+    floor is READ-ONLY (fs/read·grep·glob) — no write no shell, git unreachable by absence.
+  · model: ornith — inherits the correlated-noise caveat; rides the gemma4 rename with llm-judge.
+  · Realizes ouroboros-architecture's "verifier(s) ← PLANNED" (page update pending human approval).
+  · bb roster 14 clean · bb test 184/808 GREEN.
+
+λ prev (2026-07-15 — GENERATOR ⊕ COMPARATOR: THE KIND SET IS COMPLETE. 10/10 built; the
   ouroboros closes its own loop). Commits ce63364 · 8bbc171 · 65550a2:
   · POOL GROWN 8→23 genes (decomposed builder/author/analyst/harness-editor/gene-scorer/llm-judge
     via the autonomous delegated path; name-collisions correctly held for human consolidation).
