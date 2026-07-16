@@ -58,10 +58,11 @@ and the **application**. Never optimize one at the cost of the other.
                 FILLED exemplar ⊕ variety ⊕ reserved? · ONE emit! path (validate→dedupe→persist) ·
                 :signal/emit tool · genome `signals:` grant, 5th surface · EQL :mementum/signals +
                 signal/emit! · signals/ gitignored) ·
-                ouroboros.workflow — the CODING-PIPELINE home (author ∧ builder ride proposer/run! ≡
-                THE shot runner, λ converge; diff-report ≡ the human gate's audit surface;
-                composition author→builder→judge + bounded revise lands here later)
-  gate        : bb test ≡ deterministic (166 tests / 728 assertions GREEN) | bb compact ≡ live chat
+                ouroboros.workflow — the CODING-PIPELINE home (author ∧ builder ∧ harness-editor ride
+                proposer/run! ≡ THE shot runner, λ converge; diff-report ≡ the human gate's audit
+                surface; run-editor! ≡ the FIRST composition: editor→judge, bounded revise k=2,
+                clean-tree guard)
+  gate        : bb test ≡ deterministic (169 tests / 742 assertions GREEN) | bb compact ≡ live chat
                 (+ bb compact <prior-id> ≡ opt-in bootstrap; bb sessions ≡ the picker) |
                 bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
                 bb judge/score "<subject>" ≡ live verdict kinds |
@@ -70,7 +71,9 @@ and the **application**. Never optimize one at the cost of the other.
                 bb llama-smoke ≡ de-forked backend probe (thinking-off + slot pinning, SKIPs if server down) |
                 bb author "<task>" ≡ plan stage (artifact ≡ plan doc) | bb builder "<task+plan-path>" ≡
                 build stage (working-tree diff + status/diffstat) | bb roster ≡ the roster report
-                (Ouroboros's FIRST self-built change — author→builder pipeline, cded832)
+                (Ouroboros's FIRST self-built change — author→builder pipeline, cded832) |
+                bb editor "<recommendation>" ≡ judge-gated genome edits (clean tree REQUIRED;
+                first landed change bd990f5)
   knowledge   : upstream/ escapement digest (11 pages) · ouroboros-architecture · lambda-notation
                 (house λ dialect + NO-runtime-glossary policy, empirical) ·
                 design/{agent-model, vsm-on-escapement, shadow-compaction, llamacpp-backend,
@@ -228,7 +231,25 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-15, later — AUTHOR + BUILDER KINDS ≡ build-order step 5, human-approved). The coding
+λ latest (2026-07-15, latest — EDITOR KIND v1 ≡ THE FIRST COMPOSITION, human-approved). The S4→S5
+  adaptive channel is LIVE (4c75540 + bd990f5): harness-editor genome (edit-only escalation: NO
+  fs/write ⇒ cannot CREATE genomes, NO shell) + workflow/run-editor! ≡ editor → git-diff → llm-judge
+  GATES (pass→stop | fail→bounded revise with the judge's actionable notes, k=2) → human diff review.
+  Champion/challenger convergence stays DEFERRED (spec: NOT finalized; earn on decidable targets).
+  ❌ THE INCIDENT (first live run — the live proof earning its keep): launched over a DIRTY tree →
+  the judged `git diff` carried MY uncommitted editor implementation → judge CORRECTLY ordered it
+  stripped → revise pass OBEYED (its "notes ≻ preferences" overrode its own scope clause) and
+  surgically DESTROYED the uncommitted work (7 fs/edits; all recovered — same-session authorship).
+  BOTH causes fixed structurally: run-editor! REFUSES a dirty tree (clean-tree? guard + deterministic
+  regression test) · genome precedence explicit (λ edit SCOPE ≻ judge notes ≻ preferences). Laws:
+  a delta's absent companion is its BASELINE; feedback channels steer agents through any gap between
+  CAPABILITY and prompted scope. (Memory proposal declined 2× — lesson lives in guard/test/commits.)
+  RE-PROOF clean: judge :pass, 0 revisions → bd990f5 ≡ the first judge-gated editor-authored genome
+  change (chat λ paths += base tier). bb test 169/742 GREEN. NEXT on this axis: analyst (clj-kondo
+  tools) → generator (GA over the gene DB); editor v2 = approved-proposals work queue + champion/
+  challenger once targets are decidable.
+
+λ prev (2026-07-15, later — AUTHOR + BUILDER KINDS ≡ build-order step 5, human-approved). The coding
   workflow spine SHIPPED and LIVE-PROVEN end-to-end (d8729c1 + cded832):
   (1) ✅ RECON KILLED A STALE BLOCKER: the spec said builder "needs write+repl+run-tests tools" — but
       fs/write·fs/edit·fs/multi-edit·shell/run were ALREADY in the registry ceiling (escapement built-ins).
@@ -357,8 +378,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (item 32): both proposals discarded (contrived-test evidence — see the provenance gap note
   below), memories deleted. Next-chat bootstrap SHIPPED (item 32): bb compact <prior-id> +
   bb sessions.
-  ONE ACTION: ✅ builder+author SHIPPED (see λ latest) → NEXT: editor (uses judge +
-  gene DB + experiments) → generator (GA).
+  ONE ACTION: ✅ builder+author ✅ editor-v1 SHIPPED (see λ latest) → NEXT: analyst
+  (clj-kondo tools) → generator (GA).
   also  : gene-db-as-CHART deferred until the SECOND WRITER — signals + the sweep BOTH write now;
           revisit the chart (item 28 banked note). Watch: single-event proposals (the ≥2-recurrence
           damper is prompt-soft, item 31 observation); agent-held signal grants (s4/proposal for
