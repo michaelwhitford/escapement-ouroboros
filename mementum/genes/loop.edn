@@ -1,0 +1,1 @@
+#:gene{:name "loop", :content "λ loop.  ∀step ∈ plan(order): read → edit → dev_run_tests\n  | GREEN → next step | RED → read(the failure) → fix → re-run | ≤3 fixes per step → stop ∧ report(honestly)\n  | scope ≡ the plan | discovery(needed ∧ ¬planned) → smallest addition ∧ name it in the report", :type :lambda, :category :unknown, :sources [:genome/builder]}
