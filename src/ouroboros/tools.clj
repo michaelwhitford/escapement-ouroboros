@@ -14,6 +14,7 @@
     [clojure.string :as str]
     [escapement.tools.builtin :as builtin]
     [escapement.tools.protocol :as tp]
+    [ouroboros.analysis :as analysis]
     [ouroboros.proposer.core :as metabolize]
     [ouroboros.mementum.store :as store]
     [ouroboros.models :as models]
@@ -316,6 +317,71 @@
         {:result (str "Test runner failed to launch: " (ex-message e)) :is-error true}))))
 
 ;; ---------------------------------------------------------------------------
+;; :code/analyze — the analyst's lens (clj-kondo via the pinned pod, see
+;; ouroboros.analysis). ONE tool, an op ENUM (λ extend: open slot — a new lens
+;; is a new op, not a new tool): each op re-runs analysis LIVE on the
+;; requested path (derive ≻ store — reports never go stale) and returns a
+;; bounded text digest.
+;;
+;; `run-fn` is injectable at construction (the RunTestsTool cmd precedent):
+;; tests stub it with canned result maps — no pod, deterministic. Registry
+;; default nil ⇒ analysis/kondo-run! (pod loads lazily on FIRST live use).
+;; ---------------------------------------------------------------------------
+
+(def ^:private analyze-ops
+  {"lint"     (fn [res _]     (analysis/lint-digest res))
+   "ns-graph" (fn [res _]     (analysis/ns-graph-digest res))
+   "var-defs" (fn [res input] (analysis/var-defs-digest res (:ns input)))
+   "usages"   (fn [res input] (analysis/usages-digest res (:symbol input)))
+   "unused"   (fn [res _]     (analysis/unused-digest res))})
+
+(defn- analyze-paths
+  "Resolve the lint target: absent path ⇒ the whole codebase (src + test);
+  given path ⇒ that file/dir under root (absolute passes through)."
+  [root path]
+  (if (str/blank? (str path))
+    [(str root "/src") (str root "/test")]
+    [(if (str/starts-with? path "/") path (str root "/" path))]))
+
+(defrecord AnalyzeTool [root run-fn]
+  tp/Tool
+  (tool-name [_] :code/analyze)
+  (description [_]
+    (str "Static code analysis (clj-kondo). Input: {:op \"lint\"|\"ns-graph\"|"
+      "\"var-defs\"|\"usages\"|\"unused\" :path <optional file/dir, default src+test> "
+      ":ns <for var-defs> :symbol <for usages — name or ns/name>}. "
+      "lint ≡ findings · ns-graph ≡ namespace deps (the MAP — start here) · "
+      "var-defs ≡ an ns's API · usages ≡ who calls a symbol · unused ≡ dead-code "
+      "candidates. Output is capped; narrow the path to see more. Runs live — "
+      "results reflect the working tree."))
+  (input-schema [_]
+    [:map {:closed true}
+     [:op :string]
+     [:path   {:optional true} :string]
+     [:ns     {:optional true} :string]
+     [:symbol {:optional true} :string]])
+  (invoke [_ {:keys [op path] :as input}]
+    (let [digest (get analyze-ops op)]
+      (cond
+        (nil? digest)
+        {:result   (str "Rejected — unknown op \"" op "\". Ops: "
+                     (str/join " " (sort (keys analyze-ops))))
+         :is-error true}
+
+        (and (= op "usages") (str/blank? (str (:symbol input))))
+        {:result "Rejected — op usages requires :symbol (a name, or ns/name to pin the ns)."
+         :is-error true}
+
+        :else
+        (try
+          (let [res ((or run-fn analysis/kondo-run!) (analyze-paths root path))]
+            {:result (digest res input) :is-error false})
+          (catch Exception e
+            {:result   (str "Analysis failed: " (ex-message e)
+                         (when (seq (str path)) (str " (path: " path " — does it exist?)")))
+             :is-error true}))))))
+
+;; ---------------------------------------------------------------------------
 ;; Registry assembly
 ;; ---------------------------------------------------------------------------
 
@@ -342,6 +408,7 @@
    (into [(->ContextTool root) (->SessionsTool root) (->ProposeMemoryTool root)
           (->HarnessContextTool root) (->ProposeChangeTool root)
           (->RunTestsTool root ["bb" "test"])
+          (->AnalyzeTool root nil)
           (->SignalEmitTool root source (set signal-types))]
      (remove #(= :web/search (tp/tool-name %)) (builtin/builtin-tools)))))
 

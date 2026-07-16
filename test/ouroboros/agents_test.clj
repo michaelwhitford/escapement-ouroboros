@@ -200,6 +200,14 @@
                (:tools b))
           "🎯 raw fs grants (human decision) + the dedicated test gate — NO :shell/run, git stays unreachable")
         (is (str/includes? (:prompt b) "λ verify.") "the tests-GREEN gate lives in the body")))
+    (testing "analyst genome — the analyst kind's first genome (code-nav)"
+      (let [a (:analyst roster)]
+        (is (= :analyst (:kind a)))
+        (is (= [:analyst] (:tags a)))
+        (is (= [:code/analyze :fs/read :fs/glob :fs/grep] (:tools a))
+          "read-only + the kondo lens — INFORMS gate, no writes anywhere")
+        (is (str/includes? (:prompt a) "map ≻ read")
+          "the map-first discipline lives in the body")))
     (testing "harness-editor genome — the editor kind's first genome (v1)"
       (let [e (:harness-editor roster)]
         (is (= :editor (:kind e)))

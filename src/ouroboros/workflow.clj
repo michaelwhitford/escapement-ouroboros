@@ -35,6 +35,7 @@
 (def author-budget-ms  300000)
 (def builder-budget-ms 600000)
 (def editor-budget-ms  480000)
+(def analyst-budget-ms 300000)
 
 (def max-revisions
   "The editor→judge revise loop's k-cap (vsm-on-escapement §adaptive loop: an
@@ -73,6 +74,13 @@
   ([task] (run-builder! task {}))
   ([task opts]
    (proposer/run! :builder (merge {:subject task :budget-ms builder-budget-ms} opts))))
+
+(defn run-analyst!
+  "Run the analyst genome on `question` (INFORMS gate — read-only, the report
+  is the session artifact). Returns proposer/run!'s map."
+  ([question] (run-analyst! question {}))
+  ([question opts]
+   (proposer/run! :analyst (merge {:subject question :budget-ms analyst-budget-ms} opts))))
 
 ;; ---------------------------------------------------------------------------
 ;; Editor — the FIRST composition (editor→judge, bounded revise loop).
@@ -163,7 +171,8 @@
   (let [task (str/join " " task-args)]
     (when (str/blank? task)
       (println (str "usage: bb author \"<task>\"  |  bb builder \"<task, incl. plan "
-                 "path if any>\"  |  bb editor \"<recommendation ∨ proposal path>\""))
+                 "path if any>\"  |  bb editor \"<recommendation ∨ proposal path>\""
+                 "  |  bb analyst \"<code question>\""))
       (System/exit 2))
     (if (= kind "editor")
       (let [{:keys [outcome verdicts revisions]} (run-editor! task)]
@@ -179,11 +188,13 @@
       (let [{:keys [status session-dir]}
             (case kind
               "author"  (run-author! task)
-              "builder" (run-builder! task))]
+              "builder" (run-builder! task)
+              "analyst" (run-analyst! task))]
         (println)
         (println "status  :" status)
         (case kind
           "author"  (println "plan    :" (str session-dir "/artifacts/reflection.md"))
+          "analyst" (println "report  :" (str session-dir "/artifacts/reflection.md"))
           "builder" (println (diff-report ".")))
         (shutdown-agents)
         (System/exit (if (= :done status) 0 1))))))

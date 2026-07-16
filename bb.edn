@@ -61,6 +61,9 @@
          editor {:doc      "The EDITOR kind (S4→S5 adaptive channel, v1) — bb editor \"<recommendation ∨ proposal path>\": harness-editor edits Layer-2 genome files, llm-judge GATES the diff (fail ⇒ bounded revise with notes, k=2); REQUIRES a clean tree; output ≡ the UNCOMMITTED diff + judge trail; human reviews and commits."
                  :requires ([ouroboros.workflow :as workflow])
                  :task     (apply workflow/-main "editor" *command-line-args*)}
+         analyst {:doc      "The ANALYST kind (shot, INFORMS gate) — bb analyst \"<code question>\": clj-kondo-backed code-nav (lint · ns-graph · var-defs · usages · unused), map-first then targeted reads; output ≡ an evidence-cited report (session artifact); read-only, no side effects."
+                  :requires ([ouroboros.workflow :as workflow])
+                  :task     (apply workflow/-main "analyst" *command-line-args*)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

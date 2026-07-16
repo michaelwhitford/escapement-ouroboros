@@ -101,6 +101,46 @@
     (is (str/includes? (:result r) "failed to launch"))))
 
 ;; ---------------------------------------------------------------------------
+;; :code/analyze — the analyst's lens. run-fn injected (no pod, deterministic);
+;; digest correctness itself lives in ouroboros.analysis-test.
+;; ---------------------------------------------------------------------------
+
+(def ^:private canned-analysis
+  {:findings [{:filename "src/x.clj" :row 1 :col 1 :level :warning
+               :type :unused-binding :message "unused binding q"}]
+   :analysis {:namespace-usages [{:from 'x.core :to 'x.util}]}})
+
+(deftest analyze-tool-is-in-the-ceiling
+  (is (contains? (tools/tool-names) :code/analyze)))
+
+(deftest analyze-tool-dispatches-ops-via-stub
+  (let [tool (tools/->AnalyzeTool "." (fn [paths] (assoc canned-analysis ::paths paths)))]
+    (testing "lint digest flows"
+      (let [r (tp/invoke tool {:op "lint"})]
+        (is (false? (:is-error r)))
+        (is (str/includes? (:result r) "FINDINGS (1)"))))
+    (testing "ns-graph digest flows"
+      (is (str/includes? (:result (tp/invoke tool {:op "ns-graph"})) "x.core → x.util")))))
+
+(deftest analyze-tool-rejections-are-corrective
+  (let [tool (tools/->AnalyzeTool "." (constantly canned-analysis))]
+    (testing "unknown op names the op set"
+      (let [r (tp/invoke tool {:op "nope"})]
+        (is (true? (:is-error r)))
+        (is (str/includes? (:result r) "lint ns-graph unused usages var-defs")
+          "sorted op list reaches the model")))
+    (testing "usages without :symbol"
+      (let [r (tp/invoke tool {:op "usages"})]
+        (is (true? (:is-error r)))
+        (is (str/includes? (:result r) "requires :symbol"))))
+    (testing "run-fn explosion is corrective, not thrown"
+      (let [boom (tools/->AnalyzeTool "." (fn [_] (throw (ex-info "kaboom" {}))))
+            r    (tp/invoke boom {:op "lint" :path "no/such"})]
+        (is (true? (:is-error r)))
+        (is (str/includes? (:result r) "kaboom"))
+        (is (str/includes? (:result r) "no/such"))))))
+
+;; ---------------------------------------------------------------------------
 ;; :signal/emit — the data-plane write, through the real dispatch contract
 ;; ---------------------------------------------------------------------------
 

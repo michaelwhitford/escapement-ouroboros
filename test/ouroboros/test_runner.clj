@@ -9,6 +9,7 @@
     [ouroboros.mementum.store-test]
     [ouroboros.mementum.eql-test]
     [ouroboros.session-test]
+    [ouroboros.analysis-test]
     [ouroboros.proposer.core-test]
     [ouroboros.tools-test]
     [ouroboros.compact.core-test]
@@ -35,6 +36,7 @@
           'ouroboros.mementum.store-test
           'ouroboros.mementum.eql-test
           'ouroboros.session-test
+          'ouroboros.analysis-test
           'ouroboros.proposer.core-test
           'ouroboros.tools-test
           'ouroboros.compact.core-test
