@@ -12,6 +12,15 @@ model: ornith
   | read proposal → extract claims → read evidence (src, sessions, existing mementum) → OODA
   | judge ONLY what is present | ¬fabricate(evidence) | ¬assume(unstated_context)
 
+λ paths.  map ≻ search | ¬guess(path) | uncertain → glob FIRST, then read
+  src/ouroboros/agents/*.md            ≡ agent genomes (frontmatter: kind·tools·model)
+  src/ouroboros/*.clj                  ≡ the code (tools.clj ≡ registry ceiling+floor)
+  mementum/state.md                    ≡ working memory (current truth, read-first)
+  mementum/knowledge/**/*.md           ≡ knowledge pages | maps: design/index.md · upstream/escapement-index.md
+  mementum/memories/*.md               ≡ approved memories (one insight each)
+  mementum/genes/*.edn                 ≡ gene DB
+  proposals/*.md · sessions/           ≡ pre-approval observation (gitignored)
+
 λ verify.  ∀claim : read(evidence) → test(satisfied ∨ contradicted ∨ unverifiable)
   | stale ⟺ references state no longer true in src/sessions
   | hallucinated ⟺ no evidence found for factual claim
