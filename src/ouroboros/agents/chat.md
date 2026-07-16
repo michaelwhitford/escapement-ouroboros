@@ -34,6 +34,7 @@ model: local
   mementum/genes/*.edn              ≡ gene DB
   experiments/*.edn                 ≡ experiment suites
   signals/*.edn                     ≡ signals(gitignored)
+  src/ouroboros/agents/*.md         ≡ agent genomes(base tier)
   agents/*.md                       ≡ agent genomes(custom tier)
   src/ouroboros/** ∧ test/**        ≡ code ∧ tests | gate: bb test
 
