@@ -248,6 +248,16 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
     floor is READ-ONLY (fs/read·grep·glob) — no write no shell, git unreachable by absence.
   · model: ornith — inherits the correlated-noise caveat; rides the gemma4 rename with llm-judge.
   · Realizes ouroboros-architecture's "verifier(s) ← PLANNED" (page update pending human approval).
+  · LIVE-PROVEN BOTH CELLS (4c7ebaa): mixed subject (2 true·1 stale·1 false) → :fail naming BOTH
+    bad claims with cited evidence (glob-miss curator.md · builder grant list quoted); all-true
+    control → :pass per-claim citations — it independently recovered the "tools: [] ≡ explicit
+    empty, not the floor" compiler semantics from source. bb verify "<claims>" ≡ the task.
+  · ❌→🔄 FIRST RUN CLIPPED — the verifier is the FIRST tool-granted verdict agent; max-turns 3
+    (tuned for tool-less judge/scorer) killed the worker mid-evidence-read. Fix in the TOPOLOGY:
+    :max-turns (if (seq tools) 12 3) — turns follow the GRANT; budget-ms stays the runaway guard.
+    (Also confirmed: :failed is a top-level final ⇒ lib/run reports :done either way — nil verdict
+    is the failure signal; -main's exit code already encodes this at the CLI seam.)
+  · gotcha: verdict/run! genome-id is a KEYWORD (:verifier); -main keywordizes its string arg.
   · bb roster 14 clean · bb test 184/808 GREEN.
 
 λ prev (2026-07-15 — GENERATOR ⊕ COMPARATOR: THE KIND SET IS COMPLETE. 10/10 built; the
