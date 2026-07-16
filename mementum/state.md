@@ -258,6 +258,16 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
     (Also confirmed: :failed is a top-level final ⇒ lib/run reports :done either way — nil verdict
     is the failure signal; -main's exit code already encodes this at the CLI seam.)
   · gotcha: verdict/run! genome-id is a KEYWORD (:verifier); -main keywordizes its string arg.
+  · FOUR-USE-CASE QUESTION (human: "good for code, docs, memory, knowledge?") settled by λ prove —
+    2 more live probes: docs-with-intent (PLANNED marker + decision record) → :pass verifying the
+    RECORDED status, ¬demanding the artifact; code claims (docstring-vs-impl) → :fail correctly,
+    caught aggregate-scores' "fail loud" docstring vs soft-nil implementation (a real doc ambiguity,
+    free). 4/4 probes correct. BUT behavior lived in ornith's DISPOSITION ¬the genome CONTRACT →
+    would not necessarily survive the gemma4 swap. Codified via bb editor (2nd judge-gated genome
+    change, :pass 0 revisions, c57ca30): λ subject += documentation ∨ code claim · λ intent (NEW) —
+    intent claims verify(status_recorded ∧ referents_exist) ¬require(artifact_exists). Post-edit
+    probe re-run :pass. Runtime claims ("tests GREEN") stay uncertain≡fail under the read-only
+    grant — grant dev/run-tests only when a real subject demands it.
   · bb roster 14 clean · bb test 184/808 GREEN.
 
 λ prev (2026-07-15 — GENERATOR ⊕ COMPARATOR: THE KIND SET IS COMPLETE. 10/10 built; the
