@@ -62,7 +62,7 @@ and the **application**. Never optimize one at the cost of the other.
                 proposer/run! ≡ THE shot runner, λ converge; diff-report ≡ the human gate's audit
                 surface; run-editor! ≡ the FIRST composition: editor→judge, bounded revise k=2,
                 clean-tree guard)
-  gate        : bb test ≡ deterministic (179 tests / 783 assertions GREEN) | bb compact ≡ live chat
+  gate        : bb test ≡ deterministic (184 tests / 808 assertions GREEN) | bb compact ≡ live chat
                 (+ bb compact <prior-id> ≡ opt-in bootstrap; bb sessions ≡ the picker) |
                 bb maintain [slug] ≡ the 2×2 sweep (bb curate RETIRED) | bb proposals ≡ the inbox |
                 bb judge/score "<subject>" ≡ live verdict kinds |
@@ -232,7 +232,33 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-15, latest — ANALYST KIND, human-directed: "build it so it works, dogfood the NEXT
+λ latest (2026-07-15, latest — GENERATOR ⊕ COMPARATOR: THE KIND SET IS COMPLETE. 10/10 built; the
+  ouroboros closes its own loop). Commits ce63364 · 8bbc171 · 65550a2:
+  · POOL GROWN 8→23 genes (decomposed builder/author/analyst/harness-editor/gene-scorer/llm-judge
+    via the autonomous delegated path; name-collisions correctly held for human consolidation).
+  · FITNESS LOOP EXERCISED FOR REAL (first time): scored all 23 genes × the "documenter" use-case via
+    gene-scorer verdicts → scores/ side-store. RUBRIC DISCRIMINATES: evidence+report 10 · most work-genes
+    7 · engage/notes/rubric/subject 3 · verify 1 (correctly — "tests GREEN" is anti-fit for a documenter).
+    NOT all-5s — the fitness signal is real. ⚠ single-family noise until gemma4 (decorrelation still unmet).
+  · GENERATOR machinery (ouroboros.generator + /core): fitness ≡ per-(gene,use-case) mean, unscored
+    EXCLUDED never defaulted · select top-k · fanout n hermetic runs · EACH candidate validated through
+    parse-genome (the SAME fail-loud roster gate) — invalid ⇒ dropped with reasons · candidates/ gitignored
+    ≡ proposals · comparator pairwise tournament (both seatings, position bias cancels).
+  · COMPARATOR kind DOGFOODED (the human's standing instruction realized): bb author planned the slice
+    (caught the hardcoded preamble-test id vector unprompted) → bb builder executed all 5 steps GREEN in
+    one pass → designer refined at the gate (docstring/title/brace). The pipeline built a piece of itself.
+  · LIVE PROOF (the ouroboros eating its tail): bb generate documenter → 2/3 candidates valid → tournament
+    → WINNER documenter-3, a proposer recombining `evidence`(from analyst)+`report`+`observe`(from curator)
+    +`ground`(from builder) — genes from FOUR different genomes composed into an agent that never existed.
+    Round 1 taught λ ground: pass the REGISTRY tool table into the subject (model conflated fs_read body-form
+    with fs/read grant-form) — fixed 65550a2.
+  · ❌ concurrency lesson (free): scoring ∥ builder on ONE tree crashed the scorer when the builder's
+    half-written genome hit the fail-loud compile. Hermetic runs share the TREE — sequence writers. Scoring
+    is idempotent so restart was free.
+  bb test 184/808 GREEN. KIND LEDGER COMPLETE: chat·proposer·judge·scorer·builder·author·editor·analyst·
+  generator·comparator ✅ — all 10. The agent-model build is DONE.
+
+λ prev (2026-07-15 — ANALYST KIND, human-directed: "build it so it works, dogfood the NEXT
   agent"). 8 of 9 kinds BUILT — only generator remains. ec4b382:
   · 🎯 POD PINNED (registry 2024.08.01): clj-kondo CANNOT be a bb library dep — EMPIRICAL (human asked;
     probe: vendored tools.reader deftype implements java.io.Closeable → SCI rejects interface impls).
@@ -399,8 +425,12 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   (item 32): both proposals discarded (contrived-test evidence — see the provenance gap note
   below), memories deleted. Next-chat bootstrap SHIPPED (item 32): bb compact <prior-id> +
   bb sessions.
-  ONE ACTION: ✅ builder+author ✅ editor-v1 ✅ analyst SHIPPED (see λ latest) → LAST KIND:
-  generator (GA over the gene DB — needs the scorer fitness loop exercised).
+  ONE ACTION: ✅ ALL 10 KINDS BUILT (agent-model build COMPLETE). Next arcs are DEEPENING, not
+  new kinds: (a) gemma4 swap → RE-SCORE the pool + re-run suites (earns decorrelation, the fitness
+  signal becomes statistical not just directional) → (b) generator/editor CONVERGENCE — champion/
+  challenger + patience (vsm §adaptive loop, still deferred) now that the pool + comparator exist →
+  (c) close the FULL genetic cycle: land a generated candidate → bb genes it → its genes re-enter the
+  pool. Also standing: cron/launchd (your machine).
   also  : gene-db-as-CHART deferred until the SECOND WRITER — signals + the sweep BOTH write now;
           revisit the chart (item 28 banked note). Watch: single-event proposals (the ≥2-recurrence
           damper is prompt-soft, item 31 observation); agent-held signal grants (s4/proposal for
