@@ -259,8 +259,21 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   · ❌ λ authoring 3rd proof (f3a7c93): the game-arena.md DESCRIPTION carried inner ": " → YAML
     "mapping values not allowed" → broke OKF parse → eql/tools tests. Designer-authored frontmatter
     scalars: NO colon+space inside; ": " → "—"/"≡". Caught by bb test, not by eye.
-  · NEXT ACTION: build step 2+3 — action registry entry (schema ⊕ filled exemplar) → arena runner
-    (decide/loop/forfeit, stubbed decide-fn tests) → then :player kind + genomes + bb poker.
+  · ✅ STEPS 2+3 BUILT same-session (cdbb8b3, bb test 229/1087 GREEN): action contract ≡ ENGINE
+    KEYS (:game/action-schema — Malli enum NARROWED to legal-now, illegal cannot validate, the
+    third gate; :game/action-exemplar FILLED) — no registry ns, the engine map IS the entry
+    (λ converge). ouroboros.game.arena ≡ game-agnostic runner: run-hand! (injectable decide-fn;
+    throw/garbage → forfeit decay, recorded + counted per seat) · run-match! (:reset benchmark ·
+    :carry · :elimination until one survivor; :level-fn ≡ blind escalation as arena POLICY —
+    day-1-stacks decision paid off, zero engine surgery; transcripts → /games/ gitignored,
+    replayable from :seed, decks never persisted). Live smoke seed 2026: 3-seat elimination,
+    both raisers felted by the passive bot in 3 hands — content generator confirmed.
+  · gotcha (free): `git commit --only <path>` SKIPS untracked files silently — new files need
+    git add first (caught by stat size, amended once).
+  · NEXT ACTION: step 4 — :player kind (verdict-schema-fn per decision, tools: [] floor) +
+    2 style genomes (tight/aggressive) + real decide-fn (hermetic verdict shot per decision,
+    per-seat :conversation/id → id_slot) + bb poker ≡ FIRST LLM HAND. Then step 5 duplicate
+    seating + benchmark report, step 6 fitness → scores/.
     Also still open from the gemma4 arc: 6 suite verdicts "gemma4 pending"→EARNED · gene-pool
     re-score on [:local :gemma4].
 
