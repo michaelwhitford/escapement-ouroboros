@@ -225,7 +225,8 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 
 ```
 λ latest (2026-07-17, GEMMA4 LANDS — the second family, the cross-family arc, and a compaction
-  redesign. Rename committed b16a1ed; the rest UNCOMMITTED, awaiting the human commit gate).
+  redesign. ALL COMMITTED: rename b16a1ed · experiment knob 83a0020 · compaction redesign 4155d8f ·
+  state 27c3877 — the commit gate passed same-session; a later session verified the tree clean).
   🎯 THE ⚠ CORRECTION BELOW IS NOW RESOLVED: gemma-4-31b-it (30.7B Q8_0, 262k ctx) is up on 5102
   (ornith's old port; ornith RETIRED). A GENUINE second family — judge/verifier decorrelation is REAL.
   Servers now: 5100 qwen36 · 5102 gemma4 · 5103 qwen3-embed.
@@ -268,7 +269,7 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
       :disabled} on the :compact AND fold nodes. Repointed compaction-fidelity guard → bounded/think-OFF
       (clean re-run: local bridged 10/10 · gemma4 bridged 10/10, ~0.8-4s). REOPENED the 🎯 universal
       thinking-ON decision (below in the de-fork entry) — SUPERSEDED for compaction: think-OFF + bridge.
-      bb test 196/858 GREEN. UNCOMMITTED (harness = human-gated): compact.clj · experiment.clj ·
+      bb test 196/858 GREEN. COMMITTED (83a0020 · 4155d8f, human-gated): compact.clj · experiment.clj ·
       experiment/core.clj + test · compaction-fidelity.edn (repoint) · NEW compaction-lens-values-bounded.md ·
       NEW compaction-lens-bounded.edn · compaction-exhaustion-fix.edn.
   · STILL OPEN: (1) update the OTHER 6 suite verdicts + knowledge pages (agent-model, lambda-notation,
