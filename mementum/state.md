@@ -224,7 +224,34 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ latest (2026-07-17, GEMMA4 LANDS — the second family, the cross-family arc, and a compaction
+λ latest (2026-07-17, later — THE GAME ARENA, human idea: "poker agents vs each other; adaptable
+  to new games; benchmark + content generator"). DESIGNED, committed 5fb7897:
+  · NEW design/game-arena.md (+ index row): game-agnostic adversarial arena. Pure-engine protocol
+    (init·to-move·legal-actions·apply-action·visible·terminal?·payoffs·forfeit-default) — visible(state,
+    seat) ≡ THE hidden-info projection (hole cards UNREACHABLE, λ emerge). to-move returns a SET:
+    singleton ≡ sequential (poker) | set ≡ simultaneous (diplomacy) — one protocol, both geometries.
+  · decisions ≡ shot-per-decision on EXISTING runner (λ converge, ¬residency): per-game Malli action
+    schema ≡ :verdict-schema, shape→legality gates, invalid/illegal/death → forfeit-default (arena
+    NEVER wedges; illegal-rate ≡ benchmark metric). Per-seat :conversation/id → id_slot cache.
+  · THREE payoffs: chips ≡ ARITHMETIC ≡ first fully DECIDABLE fitness (GA/converge get real selection
+    pressure, no LLM-judge noise) · benchmark seat ≡ genome×model (fix one, vary other; duplicate
+    seating cancels luck ≡ comparator both-seatings generalized; cross-family qwen vs gemma4 REAL) ·
+    content (games/ gitignored EDN transcripts → decision-spot experiment fixtures).
+  · 🎯 HUMAN DECISIONS: limit hold'em FIRST (validate loop, then widen action space) · ELIMINATION
+    tournament ≡ wanted flagship (starting cash · stacks CARRY · escalating blinds · last agent
+    standing — "N models sat down, one walked away") · engine supports BOTH bankroll modes from
+    day 1 (reset ≡ match-loop policy, ¬engine concern).
+  · kind ledger 10→11 planned: :player (verdict schema-fn per game-phase ¬static, tools: [] floor).
+  · diplomacy ≡ game #2: forces protocol extraction (λ build: pattern ∃ twice) + EARNS resident-table
+    v2 (λ comm channels — negotiation press is the interactive forcing case). Poker builds CONCRETE.
+  · BUILD ORDER (on the page): 1 pure poker engine+tests (zero LLM) → 2 action registry entry →
+    3 arena runner (stubbed decide-fn tests) → 4 :player kind + 2 style genomes + bb poker →
+    5 duplicate+report → 6 fitness bridge (scores/) → 7 spots→fixtures · diplomacy page · v2.
+  · NEXT ACTION: build step 1 — ouroboros.game.poker (deck · 7-card eval · betting FSM · pots ·
+    showdown), deterministic, seeded, bb test. Also still open from the gemma4 arc: 6 suite verdicts
+    "gemma4 pending"→EARNED · gene-pool re-score on [:local :gemma4].
+
+λ prev (2026-07-17, GEMMA4 LANDS — the second family, the cross-family arc, and a compaction
   redesign. ALL COMMITTED: rename b16a1ed · experiment knob 83a0020 · compaction redesign 4155d8f ·
   state 27c3877 — the commit gate passed same-session; a later session verified the tree clean).
   🎯 THE ⚠ CORRECTION BELOW IS NOW RESOLVED: gemma-4-31b-it (30.7B Q8_0, 262k ctx) is up on 5102
