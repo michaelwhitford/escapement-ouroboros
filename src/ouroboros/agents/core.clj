@@ -39,9 +39,14 @@
   "The working kind list (agent-model spec, build order left→right): ALL
   BUILT — chat·proposer·judge·scorer·builder·author·editor·analyst·generator,
   plus comparator (pairwise tournament selector, the generator's selection
-  operator). A kind is a preset over a structural signature — new role with
-  same tools+topology ⇒ new GENOME, not a new kind."
-  #{:chat :proposer :judge :scorer :builder :author :editor :analyst :generator :comparator})
+  operator), plus player (design/game-arena.md — a game-arena decision agent
+  whose forced verdict schema is DYNAMIC, supplied per decision by the game
+  engine's :game/action-schema rather than this table; the honest 11th kind:
+  a real semantic difference in where the schema comes from, not a new role
+  on an old shape). A kind is a preset over a structural signature — new role
+  with same tools+topology ⇒ new GENOME, not a new kind."
+  #{:chat :proposer :judge :scorer :builder :author :editor :analyst :generator :comparator
+    :player})
 
 (def verdict-schemas
   "SCHEMA lives with the KIND (uniform per kind); SEMANTICS (when pass/fail,
@@ -55,7 +60,12 @@
   (\"pass\" → :pass).
 
     judge  → GATES  — consumed by a :cond transition (pass→continue, fail→loop)
-    scorer → MEASURES — consumed as a measurement (rank · accumulate · fitness)"
+    scorer → MEASURES — consumed as a measurement (rank · accumulate · fitness)
+
+  :player is DELIBERATELY absent — its schema is per-DECISION (the game
+  engine's :game/action-schema, legality-narrowed each turn); the arena's
+  decide seam passes it explicitly (ouroboros.game.llm). A static row here
+  would be wrong twice: wrong game, wrong turn."
   {:judge  [:map
             [:status [:enum :pass :fail]]
             [:notes :string]]

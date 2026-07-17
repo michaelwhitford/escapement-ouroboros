@@ -57,7 +57,15 @@
         :else
         (let [eidx  (first (to-move st))
               spec  (nth hand-seats eidx)
-              obs   (visible st eidx)
+              ;; the ACTION CONTRACT rides the observation: seat-scoped
+              ;; decision context (legality-narrowed schema + filled
+              ;; exemplar) for decide-fns that force verdicts (game.llm);
+              ;; bots ignore it
+              obs   (cond-> (visible st eidx)
+                      (:game/action-schema engine)
+                      (assoc :action-schema ((:game/action-schema engine) st eidx))
+                      (:game/action-exemplar engine)
+                      (assoc :action-exemplar ((:game/action-exemplar engine) st eidx)))
               t0    (System/currentTimeMillis)
               [action err] (try [(decide-fn spec obs) nil]
                                 (catch Exception e [nil (ex-message e)]))
