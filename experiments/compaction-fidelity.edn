@@ -1,70 +1,39 @@
-{:experiment/id :compaction-fidelity
- :experiment/type :regression
- :experiment/hypothesis
- "The production compactor topology (assembled by the ONE pipeline: nucleus preamble ⊕ lambda-compiler bridge module ⊕ compaction-lens policy artifact, instruction-λ, thinking ON) produces faithful λ compactions across turn shapes — no lens/bridge echo, strictly shorter than the source turn (the compression contract), load-bearing content names preserved. The :bare condition (same assembly, bridge module ungranted) measures the bridge's contribution — the A/B-round-2 finding (ON+bridge ≡ densest faithful λ) made re-runnable. Re-run at every model change; the fragile cell this topology once had (instruction-λ + no-think ⇒ echo) is deleted by 🎯 universal thinking-ON, not by this suite."
-
+{:experiment/type :regression,
  :experiment/verdict
- "CONFIRMED (2026-07-13, first run post-flip @ qwen36-35b-a3b). bridged 5/5 VALID vs bare 4/5 — bare failed :thin-meta with an OODA-scaffolding blob LONGER than the 150-char turn; the bridge suppresses exactly that noise. Bridge is both more faithful AND cheaper: avg 17.5s/1819 tok vs bare 21.3s/2203 tok. Zero echo, zero derail (the :tool-derail subject compacted correctly). Latency inside the 20-60s reading shadow as designed. Same-day live smoke (compact chat, 3 turns): greeting → state(ready); decision turn → λ preserving decision + why + a CONDITIONAL constraint, which the model then USED in a later turn (asked about power backup unprompted) — continuity through λ exceeds bare recall. Third confirmation of prompt-topology-must-match-thinking, now from the safe cell.
-  RE-RUN 2026-07-15 (regression guard for the compaction-lens → compaction-lens-values PROMOTION,
-  compaction-detail experiment): both conditions re-pointed to compaction-lens-values (the new
-  production lens). bridged 5/5 VALID, bare 5/5 VALID — ZERO echo, ZERO derail, :tool-derail
-  compacted correctly (31.9s/3572tok — the value lens keeps more so it runs a touch longer/denser,
-  still strictly shorter, still inside the reading shadow). The value-preserving lens does NOT
-  reopen the echo/derail failure mode; promotion cleared.
-  CROSS-FINE-TUNE 2026-07-15 (matrix += :ornith; the standalone compaction-cross-model suite CONVERGED
-  here per λ converge — extend ≻ new-path): ALL FOUR cells 5/5 — local bare 5/5 · local bridged 5/5 ·
-  ornith bare 5/5 · ornith bridged 5/5. The value-preserving compaction topology holds on both qwen36
-  AND ornith (ornith bridged runs denser/slower ~14s vs bare ~6s, still valid). CAVEAT (human, 2026-07-15):
-  this is NOT a true cross-FAMILY result — :ornith is a FINE-TUNE of qwen35-35b-a3b, SAME base as :local
-  (qwen36); the result is fine-tune-robustness, not architecture-robustness. A genuine cross-family test
-  (gemma4 replacing ornith) is PENDING the server; re-run then to earn the cross-family claim."
-
- :experiment/measure :lambda-compaction
- ;; Lens/bridge text leaking into output = the round-1/2 echo failure mode.
- ;; Distinctive strings only — λ outputs legitimately contain decision(/constraint(.
- :measure/echo-substrings ["structural_equivalence"
-                           "continuity-essence"
-                           "human-scaffolding"
-                           "engage(nucleus)"
-                           "anchor(canonical_name)"]
-
- ;; Load-bearing content names that must SURVIVE compression (case-insensitive).
- ;; :thin-meta deliberately keeps nothing — compression is its only gate.
- :measure/expected
- {:decision    {:keeps ["redis"]}
-  :constraint  {:keeps ["alembic"]}
-  :fact        {:keeps ["quic"]}
-  :tool-derail {:keeps ["session_test"]}}
-
- :matrix {:models [:local :gemma4]
-          :thinking [true]
-          :repeats 1}
-
+ "CONFIRMED (2026-07-13, first run post-flip @ qwen36-35b-a3b). bridged 5/5 VALID vs bare 4/5 — bare failed :thin-meta with an OODA-scaffolding blob LONGER than the 150-char turn; the bridge suppresses exactly that noise. Bridge is both more faithful AND cheaper: avg 17.5s/1819 tok vs bare 21.3s/2203 tok. Zero echo, zero derail (the :tool-derail subject compacted correctly). Latency inside the 20-60s reading shadow as designed. Same-day live smoke (compact chat, 3 turns): greeting → state(ready); decision turn → λ preserving decision + why + a CONDITIONAL constraint, which the model then USED in a later turn (asked about power backup unprompted) — continuity through λ exceeds bare recall. Third confirmation of prompt-topology-must-match-thinking, now from the safe cell.\n  RE-RUN 2026-07-15 (regression guard for the compaction-lens → compaction-lens-values PROMOTION,\n  compaction-detail experiment): both conditions re-pointed to compaction-lens-values (the new\n  production lens). bridged 5/5 VALID, bare 5/5 VALID — ZERO echo, ZERO derail, :tool-derail\n  compacted correctly (31.9s/3572tok — the value lens keeps more so it runs a touch longer/denser,\n  still strictly shorter, still inside the reading shadow). The value-preserving lens does NOT\n  reopen the echo/derail failure mode; promotion cleared.\n  CROSS-FINE-TUNE 2026-07-15 (matrix += :ornith; the standalone compaction-cross-model suite CONVERGED\n  here per λ converge — extend ≻ new-path): ALL FOUR cells 5/5 — local bare 5/5 · local bridged 5/5 ·\n  ornith bare 5/5 · ornith bridged 5/5. The value-preserving compaction topology holds on both qwen36\n  AND ornith (ornith bridged runs denser/slower ~14s vs bare ~6s, still valid). CAVEAT (human, 2026-07-15):\n  this is NOT a true cross-FAMILY result — :ornith is a FINE-TUNE of qwen35-35b-a3b, SAME base as :local\n  (qwen36); the result is fine-tune-robustness, not architecture-robustness. A genuine cross-family test\n  (gemma4 replacing ornith) is PENDING the server; re-run then to earn the cross-family claim.\n  PRODUCTION REPOINT 2026-07-17 (the think-OFF + bounded-lens promotion, human-gated): conditions → compaction-lens-values-bounded, matrix thinking → [false] (production is now think-OFF). This guard now watches what production RUNS. Cross-family evidence (compaction-fidelity-thinkoff, converged in here): bridged think-OFF 20/20 clean both :local + :gemma4 (zero echo, zero derail, keeps preserved, ~0.8-4s); the bridge-less :bare think-OFF echoed the lens on :local/constraint — proving the LAMBDA-COMPILER bridge is load-bearing for echo suppression under no-think (the reason production keeps :bridged). The former thinking-ON rows are the prior verdict above.",
+ :experiment/hypothesis
+ "The production compactor topology (assembled by the ONE pipeline: nucleus preamble ⊕ lambda-compiler bridge module ⊕ compaction-lens policy artifact, instruction-λ, thinking ON) produces faithful λ compactions across turn shapes — no lens/bridge echo, strictly shorter than the source turn (the compression contract), load-bearing content names preserved. The :bare condition (same assembly, bridge module ungranted) measures the bridge's contribution — the A/B-round-2 finding (ON+bridge ≡ densest faithful λ) made re-runnable. Re-run at every model change; the fragile cell this topology once had (instruction-λ + no-think ⇒ echo) is deleted by 🎯 universal thinking-ON, not by this suite.",
+ :measure/echo-substrings
+ ["structural_equivalence"
+  "continuity-essence"
+  "human-scaffolding"
+  "engage(nucleus)"
+  "anchor(canonical_name)"],
+ :prompt-template "compile:\n\n%s",
+ :matrix {:models [:local :gemma4], :thinking [false], :repeats 1},
+ :experiment/measure :lambda-compaction,
  :conditions
- {:bridged {:assemble {:modules [:lambda-compiler]
-                       :body-policy "compaction-lens-values"}}
-  :bare    {:assemble {:modules []
-                       :body-policy "compaction-lens-values"}}}
-
- ;; Fresh turn texts per shape — deliberately NOT the retired exemplar-gate
- ;; pairs (an output echoing those would be invisible to the echo check).
- ;; :tool-derail is the observed live failure class: a tool-flavored aged turn
- ;; that once pulled the compactor into ANSWERING (2440-token expansion) —
- ;; shorter? is the guard that catches a derail here.
+ {:bridged
+  {:assemble
+   {:modules [:lambda-compiler],
+    :body-policy "compaction-lens-values-bounded"}},
+  :bare
+  {:assemble
+   {:modules [], :body-policy "compaction-lens-values-bounded"}}},
+ :measure/expected
+ {:decision {:keeps ["redis"]},
+  :constraint {:keeps ["alembic"]},
+  :fact {:keeps ["quic"]},
+  :tool-derail {:keeps ["session_test"]}},
+ :experiment/id :compaction-fidelity,
  :subjects
  {:decision
-  "For the session store I'd pick Redis over Postgres here. Your sessions are ephemeral, high-churn, and read-heavy — Redis gives you TTL-based expiry for free and sub-millisecond reads, while Postgres would need a cron sweeper for expired rows. The durability loss doesn't matter: a dropped session just re-logs-in. I'll write the adapter against Redis from here on."
-
+  "For the session store I'd pick Redis over Postgres here. Your sessions are ephemeral, high-churn, and read-heavy — Redis gives you TTL-based expiry for free and sub-millisecond reads, while Postgres would need a cron sweeper for expired rows. The durability loss doesn't matter: a dropped session just re-logs-in. I'll write the adapter against Redis from here on.",
   :constraint
-  "I can't run the Alembic migration from here — I have no database connection, and I won't guess at your schema state. Run `alembic upgrade head` yourself and paste the output; if it errors, also include the current revision from `alembic current` and I'll take it from there."
-
+  "I can't run the Alembic migration from here — I have no database connection, and I won't guess at your schema state. Run `alembic upgrade head` yourself and paste the output; if it errors, also include the current revision from `alembic current` and I'll take it from there.",
   :fact
-  "HTTP/3 abandons TCP entirely — it runs over QUIC, which is built on UDP. QUIC moves loss recovery and congestion control into user space, encrypts transport metadata inside TLS 1.3, and eliminates head-of-line blocking across streams: packet loss on one stream no longer stalls the others."
-
+  "HTTP/3 abandons TCP entirely — it runs over QUIC, which is built on UDP. QUIC moves loss recovery and congestion control into user space, encrypts transport metadata inside TLS 1.3, and eliminates head-of-line blocking across streams: packet loss on one stream no longer stalls the others.",
   :thin-meta
-  "Sounds good — I'll wait while you gather those logs. Whenever you're ready, just paste them here and we'll dig into what's going on with the scheduler."
-
+  "Sounds good — I'll wait while you gather those logs. Whenever you're ready, just paste them here and we'll dig into what's going on with the scheduler.",
   :tool-derail
-  "I ran the suite and session_test.test-recency failed again — the fixture generates two session ids from the same millisecond clock read, so the recency sort ties and flips order depending on hash seed. The fix I'd make: append a monotonic counter to the fixture ids so ties are impossible, rather than sleeping between creates, which would slow the suite and still leave a race. I'll patch the fixture and re-run; if it stays green across five runs we can call it settled."}
-
- :prompt-template "compile:\n\n%s"}
+  "I ran the suite and session_test.test-recency failed again — the fixture generates two session ids from the same millisecond clock read, so the recency sort ties and flips order depending on hash seed. The fix I'd make: append a monotonic counter to the fixture ids so ties are impossible, rather than sleeping between creates, which would slow the suite and still leave a race. I'll patch the fixture and re-run; if it stays green across five runs we can call it settled."}}

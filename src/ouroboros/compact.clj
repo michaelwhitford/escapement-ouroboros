@@ -28,8 +28,9 @@
                settle: → :compact if a turn aged out, else serve a queued human,
                else → :parked.
     :compact — a fresh worker compresses the just-aged assistant turn to λ via
-               the nucleus extraction LENS (instruction-λ + LAMBDA-COMPILER
-               bridge, thinking ON — see compact-system-prompt), folds it back
+               the nucleus extraction LENS (bounded value-preserving λ +
+               LAMBDA-COMPILER bridge, thinking OFF — see compact-system-prompt),
+               folds it back
                in place, then settles: serve a queued human first (→ :hot),
                else drain backlog (→ :compact), else → :parked.
 
@@ -150,22 +151,35 @@
   ;; thinking-ON, design/prompt-assembly): nucleus preamble ⊕ LAMBDA-COMPILER
   ;; bridge module (defines the `compile:` invocation the :message uses —
   ;; round 2 of the A/B arc: ON+bridge ≡ densest faithful λ) ⊕ the extraction
-  ;; lens POLICY artifact (src/ouroboros/prompts/compaction-lens-values.md —
-  ;; lens-out: S5 steers self-attention by EDITING that file, touching no engine
-  ;; code). PROMOTED compaction-lens → compaction-lens-values (2026-07-15,
-  ;; compaction-detail experiment): the value-preserving lens keeps 92% of load-
-  ;; bearing data (numbers/ratios/named-constraints/rejected-alternatives) vs the
-  ;; original narrative lens's 50%, at ZERO compression cost (still strictly
-  ;; shorter 8/8) — we were over-compressing (5-27× where 4-6× suffices).
-  ;; The instruction-λ topology REQUIRES thinking (no-think ⇒ echo attractor,
-  ;; A/B rounds 1-2); the fragile cell is deleted by running thinking ON —
-  ;; ~15-30s, hidden in the 20-60s reading shadow. Fidelity is guarded by the
-  ;; compaction-fidelity experiment suite + the compression contract
+  ;; lens POLICY artifact (src/ouroboros/prompts/compaction-lens-values-bounded.md
+  ;; — lens-out: S5 steers self-attention by EDITING that file, touching no engine
+  ;; code). LENS LINEAGE:
+  ;;   compaction-lens → compaction-lens-values (2026-07-15, compaction-detail):
+  ;;     value-preserving lens keeps 92% of load-bearing data vs 50%, ZERO
+  ;;     compression cost — we were over-compressing (5-27× where 4-6× suffices).
+  ;;   → compaction-lens-values-BOUNDED (2026-07-17, gemma4 cross-family arc): a
+  ;;     single-pass-transduction MODE (read_once→emit_once, borderline→keep→
+  ;;     move_on, ¬classify-11-ways) + an |output|≤⅓|input| ceiling. Better
+  ;;     value-survival AND 30% terser on BOTH families (compaction-lens-bounded
+  ;;     A/B: local 4/4 vs 2/4 valid), WITHOUT weakening the values-verbatim rule.
+  ;; THINKING NOW OFF (🎯 REOPENED the universal-thinking-ON decision, human-gated
+  ;; 2026-07-17, the first genuine cross-family evidence): gemma4's uncapped
+  ;; reasoning pass EXHAUSTS on dense multi-entity turns (wall-clock-bound — a
+  ;; :max-tokens cap was empirically ruled OUT, it never bites), emitting NOTHING.
+  ;; think-OFF is the cross-model fix: converges in ~1-4s (vs ~15-50s + exhaust),
+  ;; quality-EQUIVALENT (direct output comparison: every value/reasoning-chain
+  ;; preserved on qwen; faithful where think-ON gave nothing on gemma4), and the
+  ;; historical no-think ECHO attractor is suppressed by the LAMBDA-COMPILER
+  ;; BRIDGE (compaction-fidelity-thinkoff: bridged 20/20 clean both families; the
+  ;; :bare counterfactual echoed — proving the bridge is load-bearing). The
+  ;; :thinking {:type :disabled} lives on the :compact + fold NODES (below), a
+  ;; modeled escapement field our llamacpp backend translates to enable_thinking
+  ;; false. Fidelity is guarded by compaction-fidelity + the compression contract
   ;; (core/apply-compaction: accepted ⟺ strictly shorter).
   (acore/assemble
     {:preamble (prompts/preamble)
      :modules  [(prompts/module-text :lambda-compiler)]
-     :body     (prompts/policy-text "compaction-lens-values")}))
+     :body     (prompts/policy-text "compaction-lens-values-bounded")}))
 
 ;; ---------------------------------------------------------------------------
 ;; The chart.
@@ -278,13 +292,17 @@
            :system            compact-system-prompt
            :model             :local
            :stream?           false           ; internal memory op — not shown to the human
-           ;; THINKING ON (🎯 universal thinking-on, design/prompt-assembly):
-           ;; the instruction-λ lens is the topology that NEEDS the reasoning
-           ;; pass — no-think under it echoes the lens (silent memory
-           ;; corruption, A/B rounds 1-2). Cost ~15-25s, hidden in the human's
-           ;; 20-60s reading shadow; a fast typer ENQUEUES and waits at most
-           ;; one compaction (Tier 2 parallel :hot ⊗ :compact is the shelved
-           ;; mitigation — pull forward iff real waits appear).
+           ;; THINKING OFF (🎯 REOPENED 2026-07-17, human-gated — first genuine
+           ;; cross-family evidence). The old universal-thinking-ON was to avoid
+           ;; the no-think echo attractor; the LAMBDA-COMPILER BRIDGE now
+           ;; suppresses that (compaction-fidelity-thinkoff: bridged 20/20 clean
+           ;; both families; the bridge-less :bare counterfactual echoed). Under
+           ;; the bounded lens think-OFF is quality-equivalent AND ~10× cheaper
+           ;; (~1-4s vs ~15-50s), and it FIXES the gemma4 dense-turn exhaustion
+           ;; (a slow reasoning pass that blew the wall-clock budget, emitting
+           ;; nothing — a :max-tokens cap was ruled out, it never bit). Modeled
+           ;; escapement field → llamacpp enable_thinking false.
+           :thinking          {:type :disabled}
            ;; compact-slot: the compactor is quarantined in its own KV slot so
            ;; its prompts never evict the hot conversation's warm prefix in
            ;; hot-slot (see the :hot node comment). DE-FORKED: :conversation/id
@@ -383,6 +401,9 @@
          :system            compact-system-prompt
          :model             :local
          :stream?           false
+         ;; THINKING OFF — same rationale as the :compact node (bounded lens +
+         ;; bridge suppresses echo; cross-model-robust; fixes gemma4 exhaustion).
+         :thinking          {:type :disabled}
          ;; The fold is compactor work — quarantine it in the compactor's slot
          ;; so launch never evicts a warm hot-slot prefix (another client's or,
          ;; later, a resident session's). DE-FORKED: :conversation/id :compact →
