@@ -234,12 +234,27 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   same-base fine-tunes share CORRELATED noise, so the cross-family decorrelation GOAL (uncorrelated LLM
   scores cancel) is UNMET today. FIX (human, prepping): replace :ornith → gemma4 (a real different family)
   once its llama.cpp server is up, then RE-RUN the suites to earn the claim. The forward-looking verdicts
-  now carry "gemma4 pending". Available servers meanwhile: 5100 qwen36 · 5102 ornith · 5103 qwen3-embed ·
-  5104 vibethinker-3b (inlines <think> in content — harness assumes reasoning_content) · 5105 qwythos-9b
-  (works clean w/ ≥2000 tok — a genuine cross-SCALE option today). Smoke a new model's thinking convention
+  now carry "gemma4 pending". Available servers (UPDATED 2026-07-17, human): 5100 qwen36 · 5103 qwen3-embed
+  ONLY — ornith/vibethinker/qwythos RETIRED (see λ latest below). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-16, later — THE VERIFIER IN THE LOOP ⊕ IN THE POOL). Commits f064102 · 87a4256 ·
+λ latest (2026-07-17 — MODEL ROSTER SHRUNK, GEMMA4 ON HOLD, human-directed):
+  · Servers now: 5100 (qwen36-35b-a3b) + 5103 (qwen3-embedding-8b) ONLY. 5102 ornith · 5104
+    vibethinker · 5105 qwythos all RETIRED.
+  · 🎯 GEMMA4 HOLD (human): gemma 4 announced a BIG UPDATE landing in ~1-2 weeks — do NOT bring
+    up the gemma4 server until that update ships (λ prove: smoking pre-update weights would be
+    wasted work). The whole λ tomorrow swap sequence (smoke → rename → re-run suites) WAITS on it.
+  · 🔄 STOPGAP: llm-judge.md + verifier.md `model: ornith → local` (dead endpoint would break
+    bb judge/verify/screen/maintain/editor). CAVEAT: judge ≡ worker model ⇒ FULLY correlated —
+    verdicts remain useful as format/consistency gates, but decorrelation is at its weakest until
+    gemma4. agents_test genome pin moved consciously (tripwire purpose); models.clj :ornith table
+    entry KEPT + annotated as the rename target; models_test untouched (tests routing data, not
+    liveness). bb test 188/831 GREEN.
+  · REVERT AT SWAP TIME: the two genome `model:` lines rejoin the ~10-file :ornith→:gemma4 rename
+    (grep "ornith" still catches them all — they now also grep as "local", so use the λ tomorrow
+    file list, which is unchanged).
+
+λ prev (2026-07-16, later — THE VERIFIER IN THE LOOP ⊕ IN THE POOL). Commits f064102 · 87a4256 ·
   52901b6 · 730e10c (+3 autonomous gene commits):
   · ouroboros.screen (NEW ns): the sweep PRODUCES inbox artifacts → screen! verdicts each via the
     verifier → the human REVIEWS annotated lines. Content-hashed side-store proposals/.screen.edn
@@ -474,8 +489,9 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   caching, :metadata anti-pattern rejected). design/extra-body-seam RETIRED (git rm) — we won't keep a
   leaky raw-body passthrough as a fallback; all pointers repointed to llamacpp-backend.
 
-λ tomorrow. FIRST (human prepping): the :ornith → gemma4 SWAP — earn the "cross-family" claim (see the
-  ⚠ CORRECTION at top). Sequence when the gemma4 llama.cpp server is up:
+λ tomorrow. FIRST (human prepping — ⏸ ON HOLD until the announced gemma4 update ships, ~1-2 weeks,
+  see λ latest): the :ornith → gemma4 SWAP — earn the "cross-family" claim (see the
+  ⚠ CORRECTION at top). Sequence when the POST-UPDATE gemma4 llama.cpp server is up:
     1. SMOKE gemma4's thinking convention FIRST (λ prove) — curl /v1/chat/completions with the compaction
        lens; confirm reasoning rides reasoning_content (NOT inline <think> like vibethinker-3b) and clean
        λ out. The compaction lens REQUIRES thinking-ON; if gemma4's thinking differs, that IS the finding.
