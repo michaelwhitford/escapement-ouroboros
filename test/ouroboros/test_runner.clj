@@ -28,7 +28,10 @@
     [ouroboros.schedule-test]
     [ouroboros.screen-test]
     [ouroboros.workflow-test]
-    [ouroboros.generator-core-test]))
+    [ouroboros.generator-core-test]
+    [ouroboros.game.cards-test]
+    [ouroboros.game.poker.eval-test]
+    [ouroboros.game.poker-test]))
 
 (defn run! [& _]
   (let [{:keys [fail error]}
@@ -57,5 +60,8 @@
           'ouroboros.schedule-test
           'ouroboros.screen-test
           'ouroboros.workflow-test
-          'ouroboros.generator-core-test)]
+          'ouroboros.generator-core-test
+          'ouroboros.game.cards-test
+          'ouroboros.game.poker.eval-test
+          'ouroboros.game.poker-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))
