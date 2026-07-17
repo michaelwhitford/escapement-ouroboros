@@ -18,6 +18,7 @@ related:
   - design/scheduled-maintenance
   - design/harness-coder
   - design/prompt-assembly
+  - design/game-arena
 depends-on: []
 ---
 
@@ -60,6 +61,10 @@ harness-coder          sessions → ONE evidence-cited harness recommendation �
 prompt-assembly        preamble ⊕ modules ⊕ body (ONE pure assembler, grants ≡ 4th      DESIGNED (compact
                        ceiling use) under 🎯 UNIVERSAL THINKING-ON — deletes the         flip queued w/
                        fragile topology cell; exemplars demote to boosters              verification suite)
+game-arena             game-agnostic adversarial arena (poker → diplomacy): pure        DESIGNING (v1 =
+                       engine protocol w/ visible-projection (hidden info               poker engine,
+                       UNREACHABLE), shot-per-decision verdicts, ARITHMETIC payoffs     :player kind,
+                       ≡ first DECIDABLE fitness + cross-family benchmark + content     shot runner)
 ```
 
 ## Reading paths
