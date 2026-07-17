@@ -24,7 +24,7 @@
   genome can be run across model families (`run-across!`) — uncorrelated
   scoring noise cancels in the aggregate (spec §scorer-hazard).
 
-  Run: bb judge \"<subject>\"   (llm-judge genome, ornith @5102)
+  Run: bb judge \"<subject>\"   (llm-judge genome, :local stopgap until gemma4)
        bb score \"<subject>\"   (gene-scorer genome, rubric-anchored)"
   (:refer-clojure :exclude [run!])
   (:require

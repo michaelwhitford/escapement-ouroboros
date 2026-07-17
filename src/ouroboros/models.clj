@@ -19,6 +19,9 @@
 (def table
   "alias → live endpoint. Extend when a genome routes to a new server."
   {:local  {:base-url "http://localhost:5100/v1" :model "qwen36-35b-a3b"}
+   ;; SERVER RETIRED (2026-07-17, human): only 5100 (qwen36) + 5103 (qwen3-embed)
+   ;; run today. Entry kept as the rename target — :ornith → :gemma4 once the
+   ;; announced gemma4 update lands (~1-2 weeks) and its server comes up.
    :ornith {:base-url "http://localhost:5102/v1" :model "ornith-35b-a3b"}})
 
 (defn llm-config

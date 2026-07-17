@@ -221,7 +221,8 @@
     (testing "llm-judge genome — first genome born in the convention"
       (let [j (:llm-judge roster)]
         (is (= :judge (:kind j)))
-        (is (= :ornith (:model j)) "first non-:local genome — cross-family routing")
+        (is (= :local (:model j))
+          "STOPGAP: ornith server retired pre-gemma4; judge rides :local (fully correlated) until the gemma4 swap")
         (is (= [] (:tools j)) "the subject carries everything; no grant")
         (is (str/starts-with? (:prompt j) "λ engage(nucleus)."))
         (is (not (str/includes? (:prompt j) "submit_verdict"))
