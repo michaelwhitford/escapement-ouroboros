@@ -270,10 +270,25 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
     both raisers felted by the passive bot in 3 hands — content generator confirmed.
   · gotcha (free): `git commit --only <path>` SKIPS untracked files silently — new files need
     git add first (caught by stat size, amended once).
-  · NEXT ACTION: step 4 — :player kind (verdict-schema-fn per decision, tools: [] floor) +
-    2 style genomes (tight/aggressive) + real decide-fn (hermetic verdict shot per decision,
-    per-seat :conversation/id → id_slot) + bb poker ≡ FIRST LLM HAND. Then step 5 duplicate
-    seating + benchmark report, step 6 fitness → scores/.
+  · ✅ STEP 4 BUILT + LIVE-PROVEN (844bc08, bb test 235/1128 GREEN) — THE FIRST LLM POKER HANDS:
+    :player ≡ 11th kind (in `kinds`, DELIBERATELY absent from verdict-schemas — schema is
+    per-DECISION, engine-supplied; static row would be wrong twice). Arena rides the contract on
+    the obs (:action-schema/:action-exemplar). ouroboros.game.llm ≡ decide seam (1 decision ≡ 1
+    hermetic verdict shot; run-fn injectable; nil→forfeit). Genomes poker-tight(:local) +
+    poker-aggro(:gemma4) — cross-family table BY DEFAULT, style ≡ prompt, tools: []. bb poker ≡
+    narrated live CLI, record → games/.
+  · 🎯 LIVE RESULTS (both servers): hand 1 — qwen36 folded Q3o SB, correct tight talk. 3-hand
+    match: tight +35 / aggro -35; showdown story (44 set-mine call-down beats J3 triple-barrel);
+    STYLES MANIFEST per genome (tight folds trash + set-mines; aggro needles: "Let's see how
+    much you actually like that limp"). FINDINGS: (a) gemma4 think-ON ≡ 1 wall-clock forfeit —
+    the compaction-arc pattern AT THE TABLE → per-genome/per-node THINKING KNOB is the next
+    lever (players likely think-OFF for gemma4, mirror the compact fix); (b) qwen hallucinated
+    "raising for value with my set" holding 44 on a T-high board (won anyway) — FIRST
+    decision-spot fixture candidate; (c) gemma4 decisions ~2-4 min think-ON — match wall-time
+    dominated by reasoning, another knob argument.
+  · NEXT ACTION: thinking knob at the decide seam (per-genome frontmatter? per-seat spec?) →
+    step 5 duplicate seating + benchmark report → step 6 fitness bridge → scores/. Then
+    decision-spot fixtures from games/ transcripts (finding b is the seed).
     Also still open from the gemma4 arc: 6 suite verdicts "gemma4 pending"→EARNED · gene-pool
     re-score on [:local :gemma4].
 
