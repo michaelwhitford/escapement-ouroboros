@@ -286,9 +286,14 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
     "raising for value with my set" holding 44 on a T-high board (won anyway) — FIRST
     decision-spot fixture candidate; (c) gemma4 decisions ~2-4 min think-ON — match wall-time
     dominated by reasoning, another knob argument.
-  · NEXT ACTION: thinking knob at the decide seam (per-genome frontmatter? per-seat spec?) →
-    step 5 duplicate seating + benchmark report → step 6 fitness bridge → scores/. Then
-    decision-spot fixtures from games/ transcripts (finding b is the seed).
+  · 🎯 SUPERSEDED (human, same day, 20e7b34): NO think-OFF knob for poker — thinking stays ON,
+    budget 120s → 600s (game.llm/default-budget-ms, :budget-ms threaded through decide-fn).
+    Reasoning quality IS the benchmark axis; the gemma4 forfeit was OUR budget artifact.
+    Opposite geometry to the compaction think-OFF (infra ≡ speed; table ≡ deliberation).
+    Thinking-trace capture (reasoning_content per decision) raised in priority on the page.
+  · NEXT ACTION: step 5 duplicate seating + benchmark report → step 6 fitness bridge → scores/.
+    Then decision-spot fixtures from games/ transcripts (finding b is the seed) + consider
+    reasoning_content capture at the decide seam (the raised open question).
     Also still open from the gemma4 arc: 6 suite verdicts "gemma4 pending"→EARNED · gene-pool
     re-score on [:local :gemma4].
 
