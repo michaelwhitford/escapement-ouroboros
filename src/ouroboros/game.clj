@@ -25,6 +25,13 @@
     :game/forfeit-default (state seat)         → action  ; the no-op/penalty action
     :game/render          (observation)        → string  ; engine owns its narration
 
+  Optional — the ACTION CONTRACT (the verdict-schema surface; games that
+  agents play via forced-verdict decisions provide these):
+
+    :game/action-schema   (state seat) → malli|nil  ; narrowed to what is legal
+                                                    ; NOW — illegal ≡ unvalidatable
+    :game/action-exemplar (state seat) → action|nil ; FILLED exemplar (λ mirror)
+
   This ns stays THIN until game #2 (diplomacy) exists — λ build: the shared
   runner/match machinery extracts when the pattern exists twice."
   )

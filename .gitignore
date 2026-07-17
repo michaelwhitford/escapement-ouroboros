@@ -38,6 +38,13 @@ scores/
 # winner as a normal agents/*.md commit; the candidate file itself never lands)
 candidates/
 
+# Game transcripts — the arena's side-store (design/game-arena.md): EDN
+# match records, machine observation, replayable from :seed. Research
+# content promotes into experiments/knowledge through the human gate
+# (decision-spot fixtures), like sessions/ → mementum/. Root-anchored
+# (the /signals/ lesson — src/ouroboros/game/ must stay visible).
+/games/
+
 # The human's private scratch pad — standing instruction: NEVER commit,
 # never read unless asked. Ignored so a blind `git add` can't catch it.
 human_ideas.md

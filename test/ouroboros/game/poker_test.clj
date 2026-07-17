@@ -10,6 +10,7 @@
   (:require
     [clojure.string :as str]
     [clojure.test :refer [deftest is testing]]
+    [malli.core :as m]
     [ouroboros.game :as game]
     [ouroboros.game.poker :as poker]))
 
@@ -205,6 +206,24 @@
   (let [st (-> (poker/init {:seats 2} 42)
                (poker/apply-action 0 {:action :call :why "pot odds"}))]
     (is (some #(= "pot odds" (:why %)) (:history st)))))
+
+(deftest action-contract
+  (let [st (poker/init {:seats 2} 42)]
+    (testing "schema narrows to what is legal NOW — illegal cannot validate"
+      (let [schema (poker/action-schema st 0)]
+        (is (m/validate schema {:action :call}))
+        (is (m/validate schema {:action :raise :why "value"}))
+        (is (not (m/validate schema {:action :check}))
+            "check is not legal facing a bet — not even in the enum")
+        (is (not (m/validate schema {:action :jam})))))
+    (testing "exemplar is itself valid (λ mirror — the filled example parses)"
+      (is (m/validate (poker/action-schema st 0) (poker/action-exemplar st 0))))
+    (testing "no decision pending → no contract"
+      (is (nil? (poker/action-schema st 1)))
+      (is (nil? (poker/action-exemplar st 1))))
+    (testing "the engine map carries the contract"
+      (is (fn? (:game/action-schema poker/engine)))
+      (is (fn? (:game/action-exemplar poker/engine))))))
 
 (deftest random-playout-conservation
   (testing "20 seeded random 3-handed playouts: terminal, zero-sum, conserved"

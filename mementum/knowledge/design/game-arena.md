@@ -19,10 +19,12 @@ depends-on:
 
 # Game Arena — adversarial games as decidable benchmark + content generator
 
-> DESIGNING (2026-07-17). Nothing built. Durable names (planned): `ouroboros.game`
-> (protocol + arena runner) · `ouroboros.game.poker` (first engine) · `ouroboros.game.registry`
-> (per-game action contracts) · genome kind `:player`. Verify by grepping names against src/
-> once built; grep-miss ≡ this page is ahead of the code (expected while `status: designing`).
+> DESIGNING (2026-07-17); steps 1-3 BUILT. Durable names: `ouroboros.game` (protocol) ·
+> `ouroboros.game.cards` (generic substrate) · `ouroboros.game.poker` (+ `.eval`) — carries the
+> action contract as engine keys `:game/action-schema` (legality-narrowed enum) +
+> `:game/action-exemplar` (no separate registry ns — λ converge, the engine map IS the registry
+> entry) · `ouroboros.game.arena` (hand/match runner, bankroll modes, games/ transcripts).
+> Still planned: genome kind `:player` (step 4). Verify by grepping names against src/.
 
 ## Why (three payoffs, one build)
 

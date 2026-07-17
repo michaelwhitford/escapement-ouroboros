@@ -419,6 +419,30 @@
                                (sort-by :action legal))))
            (if result (str "Hand over: " (name (:ending result))) "Waiting.")))))
 
+;; ── action contract (the verdict-schema surface) ───────────────────────────
+
+(defn action-schema
+  "Malli schema for the seat's CURRENT decision — the :action enum is narrowed
+  to the actions that are legal RIGHT NOW, so an illegal choice cannot even
+  validate (λ emerge, third gate: schema ⊕ engine legality ⊕ forfeit decay).
+  nil when the seat has no decision pending. Open map: agent extras (:why)
+  pass; escapement drives this as the :verdict-schema."
+  [state seat-id]
+  (when-let [legal (seq (legal-actions state seat-id))]
+    [:map
+     [:action (into [:enum] (sort (map :action legal)))]
+     [:why {:optional true} :string]]))
+
+(defn action-exemplar
+  "A FILLED exemplar for the seat's current decision (λ mirror — exemplar
+  primes format; the signals-registry pattern). Picks a legal action
+  deterministically; the :why shows the table-talk slot."
+  [state seat-id]
+  (when-let [legal (seq (legal-actions state seat-id))]
+    (let [names (set (map :action legal))]
+      {:action (some names [:call :check :raise :fold])
+       :why    "one short sentence of table-talk explaining your choice"})))
+
 (def engine
   "The ouroboros.game protocol instance (see ouroboros.game for the contract)."
   {:game/id              :poker-limit-holdem
@@ -430,4 +454,6 @@
    :game/terminal?       terminal?
    :game/payoffs         payoffs
    :game/forfeit-default forfeit-default
-   :game/render          render})
+   :game/render          render
+   :game/action-schema   action-schema
+   :game/action-exemplar action-exemplar})
