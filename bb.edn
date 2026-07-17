@@ -79,6 +79,9 @@
          generate {:doc      "The GENERATOR kind (fanout, SELECTION gate) — bb generate <slug> \"<use-case>\" [n]: top fitness-ranked genes → n hermetic generator runs → each candidate VALIDATED through the genome compiler (invalid ⇒ dropped with reasons) → candidates/<slug>-<i>.md UNCOMMITTED → comparator pairwise tournament (both seatings) → ranking; human reviews and lands."
                    :requires ([ouroboros.generator :as generator])
                    :task     (apply generator/-main *command-line-args*)}
+         converge {:doc      "CHAMPION/CHALLENGER convergence (vsm §adaptive loop) — bb converge <genome-slug> \"<use-case>\": champion ≡ agents/<slug>.md; each round a generator challenger (compiler-validated) duels it via comparator (both seatings); winner stays; STOP ≡ 2 consecutive challenger losses (plateau) ∨ 3 rounds; promotion ≡ UNCOMMITTED diff (human gate). Requires scored genes (bb generate-scores) + a clean champion path."
+                   :requires ([ouroboros.workflow :as workflow])
+                   :task     (apply workflow/converge-main *command-line-args*)}
          test  {:doc         "Run unit tests under test/ (deterministic, no network)."
                 :extra-paths ["test"]
                 :requires    ([ouroboros.test-runner :as tr])

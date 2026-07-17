@@ -27,8 +27,11 @@
   PROPOSAL ONLY: this namespace never WRITES git — it reads status/diffstat to
   REPORT what the builder changed (the human gate's audit surface)."
   (:require
+    [babashka.fs :as fs]
     [babashka.process :as proc]
     [clojure.string :as str]
+    [ouroboros.generator :as generator]
+    [ouroboros.generator.core :as generator.core]
     [ouroboros.proposer :as proposer]
     [ouroboros.verdict :as verdict]))
 
@@ -162,6 +165,127 @@
                :give-up {:outcome :gave-up  :verdicts verdicts :revisions n}
                :revise  (recur (revise-subject recommendation (:notes verdict))
                           verdicts (inc n))))))))))
+
+;; ---------------------------------------------------------------------------
+;; Convergence — champion/challenger + patience (vsm-on-escapement §adaptive
+;; loop): the SECOND composition. A TERMINATING hill-climb over ONE genome:
+;; champion ≡ the current agents/<slug>.md text; each round the challenger-fn
+;; proposes a full candidate genome (v1: the generator recombining scored
+;; λ-genes; an editor revision plugs into the same seam later); the comparator
+;; duels the TEXTS (both seatings — position bias cancels); the winner stays
+;; champion. STOP ≡ `patience` consecutive challenger losses (plateau — never
+;; "good enough?") ∨ the max-rounds budget cap. Promotion writes the winning
+;; text to the genome path as an UNCOMMITTED worktree diff — the human gate is
+;; the lifecycle, exactly as builder/editor.
+;;
+;; Regression guard v1 ≡ the compiler gate: every generated challenger already
+;; passed parse-genome inside generate! (a drop ≡ a challenger LOSS). The full
+;; regression-set + human-decision calibration stay DEFERRED with the
+;; decidability rollout (vsm §adaptive loop — not finalized).
+;;
+;; ⚠ single-model caveat until gemma4: comparator noise is self-correlated —
+;; duels are directional, not statistical truth.
+;; ---------------------------------------------------------------------------
+
+(def default-patience
+  "K consecutive challenger losses ≡ plateau — the loop's termination signal."
+  2)
+
+(def default-max-conv-rounds
+  "Hard budget cap — each round ≡ one generator run + two comparator runs."
+  3)
+
+(defn genome-path
+  "Repo-relative path of a base genome — the champion's identity."
+  [slug]
+  (str "src/ouroboros/agents/" slug ".md"))
+
+(defn duel!
+  "One duel: comparator verdicts over champion/challenger TEXTS, both
+  seatings. Returns seat-labeled results for generator.core/duel-winner."
+  [root use-case champion-text challenger-text]
+  (let [text {:champion champion-text :challenger challenger-text}]
+    (vec
+      (for [[a b] [[:champion :challenger] [:challenger :champion]]]
+        (let [subject (str "USE-CASE: " use-case
+                        "\n\nCANDIDATE A:\n" (text a)
+                        "\nCANDIDATE B:\n" (text b))
+              {:keys [verdict]} (verdict/run! :comparator subject {:root root})]
+          {:pair [a b] :winner (:winner verdict) :notes (:notes verdict)})))))
+
+(defn generator-challenger
+  "The v1 challenger source: ONE generator fanout for `use-case` (validated
+  through the genome compiler inside generate!). nil ≡ the candidate failed
+  the gate — a DROP counts as a challenger loss (regression guard)."
+  [root slug use-case round]
+  (let [{:keys [written]}
+        (generator/generate! root (str slug "-conv-r" round) use-case 1)]
+    (some-> (first written) slurp)))
+
+(defn converge!
+  "The champion/challenger loop for base genome `slug` against `use-case`.
+  Returns {:outcome :promoted|:plateau|:dirty-champion :rounds n :history
+  [{:round :winner :note|:duel}]}. REFUSES a dirty champion path (the
+  promotion spit must never clobber uncommitted work — the editor-incident
+  law: a delta's absent companion is its baseline). Promotion is an
+  UNCOMMITTED diff; this namespace still never writes git."
+  ([slug use-case] (converge! slug use-case {}))
+  ([slug use-case {:keys [root patience max-rounds duel-fn challenger-fn]
+                   :or   {root          "."
+                          patience      default-patience
+                          max-rounds    default-max-conv-rounds
+                          duel-fn       duel!
+                          challenger-fn generator-challenger}}]
+   (let [rel  (genome-path slug)
+         path (str (fs/path root rel))]
+     (when-not (fs/exists? path)
+       (throw (ex-info (str "no such base genome: " rel) {:slug slug})))
+     (if-not (str/blank? (git-out root "status" "--porcelain" "--" rel))
+       {:outcome :dirty-champion :rounds 0 :history []}
+       (let [incumbent (slurp path)
+             opts      {:patience patience :max-rounds max-rounds}]
+         (loop [champ   incumbent
+                state   {:streak 0 :rounds 0}
+                history []]
+           (if (generator.core/converged? state opts)
+             (let [promoted? (not= champ incumbent)]
+               (when promoted? (spit path champ))
+               {:outcome (if promoted? :promoted :plateau)
+                :rounds  (:rounds state)
+                :history history})
+             (let [r     (inc (:rounds state))
+                   chall (challenger-fn root slug use-case r)]
+               (if (nil? chall)
+                 (recur champ (generator.core/converge-step state :champion)
+                   (conj history {:round r :winner :champion :note :challenger-dropped}))
+                 (let [results (duel-fn root use-case champ chall)
+                       winner  (generator.core/duel-winner results)]
+                   (recur (if (= :challenger winner) chall champ)
+                     (generator.core/converge-step state winner)
+                     (conj history {:round r :winner winner :duel results}))))))))))))
+
+(defn converge-main
+  "bb converge <slug> \"<use-case>\" — run the loop, print the round trail +
+  the human gate's diff report."
+  [& [slug & use-case-args]]
+  (let [use-case (str/join " " use-case-args)]
+    (when (or (str/blank? (or slug "")) (str/blank? use-case))
+      (println "usage: bb converge <genome-slug> \"<use-case>\"")
+      (System/exit 2))
+    (let [{:keys [outcome rounds history]} (converge! slug use-case {})]
+      (println)
+      (doseq [{:keys [round winner note]} history]
+        (println (str "round " round " → " (name winner)
+                   (when note (str " (" (name note) ")")))))
+      (println "outcome :" outcome "(after" rounds "round(s))")
+      (when (= :dirty-champion outcome)
+        (println (str "champion " (genome-path slug) " has uncommitted changes — "
+                   "commit or revert them first")))
+      (when (= :promoted outcome)
+        (println (diff-report ".")))
+      (println "⚠ single-model duels until gemma4 — directional, not statistical")
+      (shutdown-agents)
+      (System/exit (if (= :dirty-champion outcome) 1 0)))))
 
 (defn -main
   "bb entry: (bb author|builder|editor \"<subject>\") → run the kind, print

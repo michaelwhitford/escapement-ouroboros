@@ -71,3 +71,42 @@
     frequencies
     (sort-by (juxt (comp - val) key))
     vec))
+
+;; ---------------------------------------------------------------------------
+;; Convergence — champion/challenger + patience (vsm-on-escapement §adaptive
+;; loop): the TERMINATING hill-climb. Compare PAIRWISE, keep the winner, stop
+;; after `patience` consecutive challenger losses (plateau ≠ target).
+;; ---------------------------------------------------------------------------
+
+(defn duel-winner
+  "Fold one duel's comparator results (both seatings, seat-labeled pairs of
+  :champion/:challenger) into :champion | :challenger. Majority of DECIDED
+  verdicts; a tie ∨ zero decided verdicts → :champion — the INCUMBENT holds
+  (conservative: promotion needs a strict majority, noise defaults to no-op)."
+  [results]
+  (let [wins (->> results
+               (keep (fn [{:keys [pair winner]}]
+                       (case winner :a (first pair) :b (second pair) nil)))
+               frequencies)]
+    (if (> (get wins :challenger 0) (get wins :champion 0))
+      :challenger
+      :champion)))
+
+(defn converge-step
+  "One fold of the convergence state machine: `winner` ∈ #{:champion
+  :challenger} (a DROPPED challenger — compiler-gate failure — is a
+  :champion win: the regression guard IS a loss). Challenger wins RESET the
+  loss streak; champion wins extend it."
+  [state winner]
+  (-> state
+    (update :rounds inc)
+    (update :streak (if (= :challenger winner) (constantly 0) inc))))
+
+(defn converged?
+  "Stop decision: `patience` consecutive challenger losses ≡ PLATEAU (the
+  design's termination — never \"good enough?\") ∨ the `max-rounds` budget
+  cap. Both bounds are required: patience terminates on signal, max-rounds
+  terminates regardless."
+  [{:keys [streak rounds]} {:keys [patience max-rounds]}]
+  (or (>= streak patience)
+      (>= rounds max-rounds)))

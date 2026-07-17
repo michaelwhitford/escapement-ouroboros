@@ -61,3 +61,43 @@
                              {:pair [:z :x] :winner nil}  ; dropped
                              {:pair [:y :z] :winner :a}])] ; y
     (is (= [[:x 2] [:y 1] [:z 1]] ranking))))
+
+;; ---------------------------------------------------------------------------
+;; Convergence kernel — champion/challenger + patience
+;; ---------------------------------------------------------------------------
+
+(deftest duel-winner-needs-strict-majority
+  (testing "challenger sweeps both seatings ⇒ promoted"
+    (is (= :challenger
+          (core/duel-winner [{:pair [:champion :challenger] :winner :b}
+                             {:pair [:challenger :champion] :winner :a}]))))
+  (testing "split seatings ≡ tie ⇒ incumbent holds"
+    (is (= :champion
+          (core/duel-winner [{:pair [:champion :challenger] :winner :a}
+                             {:pair [:challenger :champion] :winner :a}]))))
+  (testing "zero decided verdicts (both runs failed) ⇒ incumbent holds"
+    (is (= :champion
+          (core/duel-winner [{:pair [:champion :challenger] :winner nil}
+                             {:pair [:challenger :champion] :winner nil}]))))
+  (testing "one decided verdict is a strict majority"
+    (is (= :challenger
+          (core/duel-winner [{:pair [:champion :challenger] :winner :b}
+                             {:pair [:challenger :champion] :winner nil}])))))
+
+(deftest converge-step-tracks-streak-and-rounds
+  (let [s0 {:streak 0 :rounds 0}]
+    (testing "champion win extends the loss streak"
+      (is (= {:streak 2 :rounds 2}
+            (-> s0 (core/converge-step :champion) (core/converge-step :champion)))))
+    (testing "challenger win RESETS the streak"
+      (is (= {:streak 0 :rounds 3}
+            (-> s0
+              (core/converge-step :champion)
+              (core/converge-step :champion)
+              (core/converge-step :challenger)))))))
+
+(deftest converged-stops-on-plateau-or-budget
+  (let [opts {:patience 2 :max-rounds 4}]
+    (is (not (core/converged? {:streak 1 :rounds 3} opts)) "still climbing")
+    (is (core/converged? {:streak 2 :rounds 2} opts) "plateau: K consecutive losses")
+    (is (core/converged? {:streak 0 :rounds 4} opts) "budget cap regardless of streak")))

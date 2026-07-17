@@ -56,6 +56,95 @@
     (is (= {:outcome :dirty-tree :verdicts [] :revisions 0}
            (workflow/run-editor! "any recommendation" {:root root})))))
 
+;; ---------------------------------------------------------------------------
+;; converge! — champion/challenger + patience (the SECOND composition).
+;; All stubbed: no LLM runs, real temp git repo (the dirty-guard needs git).
+;; ---------------------------------------------------------------------------
+
+(def ^:private champ-slug "stub-genome")
+(def ^:private champ-text "---\nkind: proposer\n---\nλ champion. incumbent\n")
+(def ^:private chall-text "---\nkind: proposer\n---\nλ challenger. novel\n")
+
+(defn- repo-with-genome []
+  (let [root (temp-git-repo)
+        rel  (workflow/genome-path champ-slug)]
+    (fs/create-dirs (fs/parent (fs/path root rel)))
+    (spit (str (fs/path root rel)) champ-text)
+    (proc/shell {:dir root :out :string :err :string} "git" "add" ".")
+    (proc/shell {:dir root :out :string :err :string} "git" "commit" "-q" "-m" "genome")
+    root))
+
+(defn- throwing-fn [tag]
+  (fn [& _] (throw (ex-info (str tag " must not be called") {}))))
+
+(deftest converge-refuses-a-dirty-champion
+  ;; The editor-incident law again: the promotion spit's absent companion is
+  ;; the BASELINE — uncommitted work on the champion path must never ride.
+  (let [root (repo-with-genome)]
+    (spit (str (fs/path root (workflow/genome-path champ-slug))) "uncommitted tweak\n")
+    (is (= {:outcome :dirty-champion :rounds 0 :history []}
+           (workflow/converge! champ-slug "any use"
+             {:root root
+              :challenger-fn (throwing-fn "challenger")
+              :duel-fn       (throwing-fn "duel")}))
+      "guard fires before any LLM run")))
+
+(deftest converge-fails-loud-on-a-missing-genome
+  (is (thrown? clojure.lang.ExceptionInfo
+        (workflow/converge! "no-such-genome" "use"
+          {:root (temp-git-repo)}))))
+
+(deftest converge-plateaus-when-challengers-keep-losing
+  (let [root (repo-with-genome)
+        champion-sweep [{:pair [:champion :challenger] :winner :a}
+                        {:pair [:challenger :champion] :winner :b}]
+        {:keys [outcome rounds history]}
+        (workflow/converge! champ-slug "use"
+          {:root root :patience 2 :max-rounds 5
+           :challenger-fn (fn [_ _ _ _] chall-text)
+           :duel-fn       (fn [_ _ _ _] champion-sweep)})]
+    (is (= :plateau outcome) "K consecutive losses ⇒ stop, no write")
+    (is (= 2 rounds) "patience bounds the loop below max-rounds")
+    (is (= [:champion :champion] (mapv :winner history)))
+    (is (= champ-text (slurp (str (fs/path root (workflow/genome-path champ-slug)))))
+      "incumbent text untouched")
+    (is (str/includes? (workflow/diff-report root) "changed nothing"))))
+
+(deftest converge-promotes-a-winning-challenger-as-uncommitted-diff
+  (let [root (repo-with-genome)
+        challenger-sweep [{:pair [:champion :challenger] :winner :b}
+                          {:pair [:challenger :champion] :winner :a}]
+        champion-sweep   [{:pair [:champion :challenger] :winner :a}
+                          {:pair [:challenger :champion] :winner :b}]
+        duels (atom [challenger-sweep champion-sweep champion-sweep])
+        {:keys [outcome rounds history]}
+        (workflow/converge! champ-slug "use"
+          {:root root :patience 2 :max-rounds 5
+           :challenger-fn (fn [_ _ _ round] (str chall-text "round: " round "\n"))
+           :duel-fn       (fn [& _] (let [[d & more] @duels] (reset! duels more) d))})]
+    (is (= :promoted outcome))
+    (is (= 3 rounds) "win resets the streak; 2 losses after it ⇒ plateau reached")
+    (is (= [:challenger :champion :champion] (mapv :winner history)))
+    (is (= (str chall-text "round: 1\n")
+           (slurp (str (fs/path root (workflow/genome-path champ-slug)))))
+      "round-1 winner survives the later losing rounds")
+    (testing "promotion ≡ UNCOMMITTED worktree diff — the human gate"
+      (is (str/includes? (workflow/diff-report root)
+            (str "M " (workflow/genome-path champ-slug)))))))
+
+(deftest converge-counts-a-dropped-challenger-as-a-loss
+  ;; regression guard: a candidate that failed the compiler gate never duels —
+  ;; nil ⇒ streak++, and the duel-fn must not run.
+  (let [root (repo-with-genome)
+        {:keys [outcome rounds history]}
+        (workflow/converge! champ-slug "use"
+          {:root root :patience 2 :max-rounds 5
+           :challenger-fn (fn [& _] nil)
+           :duel-fn       (throwing-fn "duel")})]
+    (is (= :plateau outcome))
+    (is (= 2 rounds))
+    (is (= [:challenger-dropped :challenger-dropped] (mapv :note history)))))
+
 (deftest diff-report-surfaces-edits-and-new-files
   (let [root (temp-git-repo)]
     (spit (str (fs/path root "committed.txt")) "modified\n")
