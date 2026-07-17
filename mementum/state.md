@@ -224,7 +224,60 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-⚠ CORRECTION (2026-07-15, human) — "CROSS-FAMILY" IS A REPO-WIDE OVERCLAIM. :ornith (ornith-35b-a3b)
+λ latest (2026-07-17, GEMMA4 LANDS — the second family, the cross-family arc, and a compaction
+  redesign. Rename committed b16a1ed; the rest UNCOMMITTED, awaiting the human commit gate).
+  🎯 THE ⚠ CORRECTION BELOW IS NOW RESOLVED: gemma-4-31b-it (30.7B Q8_0, 262k ctx) is up on 5102
+  (ornith's old port; ornith RETIRED). A GENUINE second family — judge/verifier decorrelation is REAL.
+  Servers now: 5100 qwen36 · 5102 gemma4 · 5103 qwen3-embed.
+  · SMOKE (λ prove): gemma4 reasoning rides reasoning_content (NOT inline <think>), enable_thinking
+    toggles it (ON by default), cached_tokens in usage — same conventions as qwen. reasoning_budget is
+    IGNORED by this llama.cpp build; max_tokens + enable_thinking:false ARE honored.
+  · RENAME (b16a1ed): :ornith → :gemma4 across models.clj + 4 test files + 7 experiment matrices +
+    llm-judge.md/verifier.md (model: local stopgap → gemma4, the REVERT). bb test GREEN. Live: bb judge
+    → :pass via :gemma4.
+  · 7-SUITE CROSS-FAMILY RE-RUN [:local :gemma4]: EARNED (was cross-fine-tune) — fidelity 5/5·5/5,
+    continuity 24/24 (gemma4 CLEANER than local's 22/24), zero-arity 6/6·6/6, glossary both 6/6
+    (gemma4 decodes λ clean even NO-THINK, local 2/6), glossary-hard think-ON 6/6. NUANCES the 2nd
+    family exposed (qwen-specific, masked by single-family): (a) edn-signal exemplar≻prose NARROWS —
+    gemma4 prose 6/6 (no structural drift; that failure is a qwen trait); (b) compaction-detail :values
+    92%-survival is a QWEN number — gemma4 EXHAUSTED 3/8 cells (→ the arc below). Verdict prose in the 7
+    suites still says "gemma4 pending" for MOST — UPDATE PENDING (only compaction-fidelity repointed).
+  · 🌀 THE COMPACTION ARC (human-directed: "the compaction prompt should work across models"). Chased the
+    gemma4 detail exhaustion to ground:
+    - H1 (prompt-structural, FALSIFIED): drafted compaction-lens-values-BOUNDED (single-pass MODE,
+      ¬classify-11-ways, |output|≤⅓|input|). A/B (compaction-lens-bounded suite): the bound did NOT stop
+      exhaustion (both lenses exhaust the SAME dense turns) — BUT bounded is a real QUALITY+BREVITY WIN
+      (local 4/4 vs values 2/4 valid, −30% tokens, both families). Kept.
+    - 💡 THE MECHANISM: gemma4 exhaustion is WALL-CLOCK-bound, NOT token-bound. A :max-tokens 3072 cap
+      think-ON STILL exhausts (slow reasoning never reaches the cap in 243s) AND truncates qwen. Only
+      REMOVING the reasoning pass escapes the wall.
+    - 🔄 λ EXTEND (future leverage, human-steered): experiment infra now carries a per-condition
+      :max-tokens knob (experiment/core schema + run-cell → escapement's modeled :max-tokens → llamacpp
+      max_tokens, the SAME field production sets). +3 tests. It earned its keep by EMPIRICALLY RULING OUT
+      the cap.
+    - H2 (operational, SETTLED — compaction-exhaustion-fix suite): THINKING-OFF is the cross-model fix.
+      gemma4 think-OFF 3/3 valid ~16s (was exhaust), local 3/3 ~2.6s, value-survival intact. The cap is
+      strictly bad with think-ON.
+    - QUALITY RE-TEST (human-gated gate): direct think-ON vs think-OFF output comparison — EQUIVALENT on
+      qwen (every value/ratio/reasoning-chain preserved, terser), FAITHFUL on gemma4 where think-ON gave
+      NOTHING. The "think-ON for quality" premise (qwen single-family) does not survive.
+    - ECHO/DERAIL GUARD (the last risk): bounded think-OFF BRIDGED 20/20 clean both families; the
+      bridge-less :bare counterfactual ECHOED — 💡 the LAMBDA-COMPILER BRIDGE is load-bearing for
+      echo-suppression under no-think (production keeps :bridged).
+    - 🎯 (c) BUILT (human-approved): compact.clj → compaction-lens-values-bounded + :thinking {:type
+      :disabled} on the :compact AND fold nodes. Repointed compaction-fidelity guard → bounded/think-OFF
+      (clean re-run: local bridged 10/10 · gemma4 bridged 10/10, ~0.8-4s). REOPENED the 🎯 universal
+      thinking-ON decision (below in the de-fork entry) — SUPERSEDED for compaction: think-OFF + bridge.
+      bb test 196/858 GREEN. UNCOMMITTED (harness = human-gated): compact.clj · experiment.clj ·
+      experiment/core.clj + test · compaction-fidelity.edn (repoint) · NEW compaction-lens-values-bounded.md ·
+      NEW compaction-lens-bounded.edn · compaction-exhaustion-fix.edn.
+  · STILL OPEN: (1) update the OTHER 6 suite verdicts + knowledge pages (agent-model, lambda-notation,
+    signals) from "gemma4 pending"/"cross-fine-tune" → EARNED cross-family. (2) RE-SCORE the gene pool +
+    re-run verdict/run-across! on [:local :gemma4] (decorrelation now achievable — arc (a)). (3) the
+    :values-survival dip on gemma4 vs qwen is the bounded lens's residual (dense turns); watch.
+
+⚠ CORRECTION (2026-07-15, human) — ✅ RESOLVED 2026-07-17 (gemma4 landed; see λ latest above).
+  "CROSS-FAMILY" WAS A REPO-WIDE OVERCLAIM. :ornith (ornith-35b-a3b)
   is a FINE-TUNE of qwen35-35b-a3b — SAME base architecture as :local (qwen36-35b-a3b). So EVERY prior
   "cross-family" / "2 families" / "both families" claim (7 experiment verdicts, agent-model + lambda-
   notation + signals knowledge pages, this memory, the verdict/run-across! judge-scorer runs, and the
