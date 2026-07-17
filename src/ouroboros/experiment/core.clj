@@ -48,7 +48,16 @@
                    [:assemble {:optional true}
                     [:map {:closed true}
                      [:modules [:vector :keyword]]
-                     [:body-policy :string]]]]
+                     [:body-policy :string]]]
+                   ;; :max-tokens — an OPERATIONAL knob (λ extend). escapement's
+                   ;; modeled `:max-tokens` Request field, forwarded verbatim to
+                   ;; ellm/ask → oai/request->openai-json → llama.cpp max_tokens
+                   ;; (the SAME field production compaction can set). Lets a suite
+                   ;; A/B a total-generation cap — the cross-model lever for the
+                   ;; gemma4 dense-turn exhaustion (a slow reasoning pass that
+                   ;; blows the ask budget wall). thinking on/off is the matrix
+                   ;; axis; this bounds the reasoning+content token total.
+                   [:max-tokens {:optional true} pos-int?]]
                   [:fn {:error/message "condition needs :system or :assemble"}
                    (fn [c] (boolean (or (:system c) (:assemble c))))]]]]
    [:subjects [:map-of :keyword :string]]

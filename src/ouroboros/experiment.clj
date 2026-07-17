@@ -68,10 +68,12 @@
 (defn run-cell
   "Execute ONE matrix cell → row map (cell ⊕ status/timing ⊕ assessment)."
   [suite ctx-cache {:keys [model thinking cond subject] :as cell}]
-  (let [ctx     (get ctx-cache model)
-        system  (condition-system (get-in suite [:conditions cond]))
-        text    (get-in suite [:subjects subject])
-        assess  (get core/measures (:experiment/measure suite))
+  (let [ctx      (get ctx-cache model)
+        cond-cfg (get-in suite [:conditions cond])
+        system   (condition-system cond-cfg)
+        text     (get-in suite [:subjects subject])
+        assess   (get core/measures (:experiment/measure suite))
+        max-tok  (:max-tokens cond-cfg)
         opts    (clojure.core/cond-> {:model  :local
                                       :system system
                                       :prompt (format (:prompt-template suite) text)}
@@ -79,7 +81,13 @@
                   ;; backend translates :disabled → chat_template_kwargs). thinking
                   ;; true ⇒ no :thinking ⇒ server default (on) — contrast preserved.
                   (not thinking)
-                  (assoc :thinking {:type :disabled}))
+                  (assoc :thinking {:type :disabled})
+                  ;; the OPERATIONAL cap (λ extend): condition-set :max-tokens
+                  ;; rides escapement's modeled field straight to llama.cpp
+                  ;; max_tokens — bounds the total generation so a slow reasoning
+                  ;; pass cannot blow the ask budget wall.
+                  max-tok
+                  (assoc :max-tokens max-tok))
         t0      (System/currentTimeMillis)
         res     (ellm/ask ctx opts)
         ms      (- (System/currentTimeMillis) t0)

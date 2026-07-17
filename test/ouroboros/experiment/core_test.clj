@@ -144,7 +144,17 @@
     (is (nil? (core/validate-suite
                 (assoc-in tiny-suite [:conditions :c3]
                   {:assemble {:modules [:lambda-compiler]
-                              :body-policy "compaction-lens"}}))))))
+                              :body-policy "compaction-lens"}})))))
+  (testing "the OPERATIONAL knob: a condition may carry :max-tokens (λ extend)"
+    (is (nil? (core/validate-suite
+                (assoc-in tiny-suite [:conditions :c1 :max-tokens] 2048)))
+      "a positive :max-tokens cap validates")
+    (is (some? (core/validate-suite
+                 (assoc-in tiny-suite [:conditions :c1 :max-tokens] 0)))
+      ":max-tokens must be a positive int")
+    (is (some? (core/validate-suite
+                 (assoc-in tiny-suite [:conditions :c1 :max-tokens] "lots")))
+      ":max-tokens is an int, not a string")))
 
 (deftest embedding-suite-validation
   (testing "the embed-dedupe suite file is valid"
