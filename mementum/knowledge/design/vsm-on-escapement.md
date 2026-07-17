@@ -210,7 +210,7 @@ compaction lens (keep decision∧constraint∧state∧next ; drop observation∧
      (exactly what a healthy S5 does — minimal, high-leverage intervention). lens is a propagatable policy.
 ```
 
-## The adaptive loop (S4→S5) and how it TERMINATES — "the trick" (NOT finalized)
+## The adaptive loop (S4→S5) and how it TERMINATES — "the trick" (v1 BUILT — workflow/converge!; calibration + regression-set OPEN)
 
 The harness self-improvement loop (the `editor` kind, `design/agent-model`) is the concrete S4→S5
 adaptive channel: analyze own outputs → propose a genome/prompt diff → gate. It is a FORMALIZATION of

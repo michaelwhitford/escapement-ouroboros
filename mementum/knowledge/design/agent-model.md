@@ -105,7 +105,7 @@ KINDS (the working list — build order left→right)
   scorer     verdict     measurement     {score 1-10,notes}  ✅ BUILT (gene fitness) — see §Genes
   builder    shot(loop)  next-stage      code diff           ✅ BUILT (raw fs grants 🎯 + :dev/run-tests; NO shell — git unreachable)
   author     shot        next-stage      document            ✅ BUILT (read-only subset; plan doc ≡ session artifact)
-  editor     shot        human-gate      DIFF (genome/code)  ✅ BUILT v1 (workflow/run-editor!: →judge, bounded revise k=2, clean-tree guard; champion/challenger deferred)
+  editor     shot        human-gate      DIFF (genome/code)  ✅ BUILT v1 (workflow/run-editor!: →judge, bounded revise k=2, clean-tree guard) + champion/challenger convergence BUILT (workflow/converge! — live-proven :plateau)
   analyst    shot        informs         map/graph/report    ✅ BUILT (:code/analyze — pinned clj-kondo pod; lib route impossible in bb, empirical)
   generator  shot/fanout selection       N candidates        ✅ BUILT (fitness→select→fanout→parse-gate→comparator tournament; live-proven)
   comparator verdict     selection       {winner a|b,notes}  ✅ BUILT (the generator's pairwise selector; DOGFOODED via author→builder)
@@ -192,7 +192,11 @@ Distinct kinds because output type + downstream wiring + failure modes + body ne
   embed-dedupe     5103 embeddings collapse near-identical genes → pool stays clean (semantic-equality leveraged)
 ```
 The `editor` kind's convergence uses these: champion/challenger + PAIRWISE (not absolute) + regression-guard
-+ patience-based STOP (plateau ≠ target), calibrated against the human's recorded session decisions. Full
++ patience-based STOP (plateau ≠ target), calibrated against the human's recorded session decisions.
+STATUS: the loop is BUILT (workflow/converge! — champion ≡ the genome text, generator challengers through
+the compiler gate ≡ regression-guard v1, comparator duels both seatings, patience K=2; promotion ≡
+UNCOMMITTED diff; live-proven: analyst champion held, :plateau in 2 rounds). Human-decision CALIBRATION
++ the full regression-set stay OPEN with the decidability rollout. Full
 termination protocol → `design/vsm-on-escapement` (§The adaptive loop (S4→S5) and how it terminates).
 
 ## Genes & the genetic axis — the scorer is the missing FITNESS FUNCTION
