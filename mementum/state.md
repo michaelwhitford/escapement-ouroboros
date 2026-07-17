@@ -247,9 +247,22 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   · BUILD ORDER (on the page): 1 pure poker engine+tests (zero LLM) → 2 action registry entry →
     3 arena runner (stubbed decide-fn tests) → 4 :player kind + 2 style genomes + bb poker →
     5 duplicate+report → 6 fitness bridge (scores/) → 7 spots→fixtures · diplomacy page · v2.
-  · NEXT ACTION: build step 1 — ouroboros.game.poker (deck · 7-card eval · betting FSM · pots ·
-    showdown), deterministic, seeded, bb test. Also still open from the gemma4 arc: 6 suite verdicts
-    "gemma4 pending"→EARNED · gene-pool re-score on [:local :gemma4].
+  · ✅ STEP 1 BUILT same-session (7bde8e7, bb test 220/1051 GREEN, was 196/858): ouroboros.game
+    (protocol ≡ MAP of pure fns, engine? check) · ouroboros.game.cards (GENERIC substrate, human
+    directive "card infra serves many card games" — seeded Fisher-Yates ≡ replayable + duplicate
+    seating; zero poker knowledge) · ouroboros.game.poker.eval (length-6 value vectors — clojure
+    vector compare is length-FIRST, padding is LOAD-BEARING; wheel; C(7,5) brute force) ·
+    ouroboros.game.poker (limit FSM · heads-up button≡SB · stacks in state · side pots · uncalled
+    refund · run-outs · TOTAL apply-action → forfeit-default recorded :forfeit? · :why table-talk
+    rides history · render). 24 tests incl. 20 seeded random playouts (zero-sum + conservation +
+    stack≡initial+payoff) + pr-str leak check on visible.
+  · ❌ λ authoring 3rd proof (f3a7c93): the game-arena.md DESCRIPTION carried inner ": " → YAML
+    "mapping values not allowed" → broke OKF parse → eql/tools tests. Designer-authored frontmatter
+    scalars: NO colon+space inside; ": " → "—"/"≡". Caught by bb test, not by eye.
+  · NEXT ACTION: build step 2+3 — action registry entry (schema ⊕ filled exemplar) → arena runner
+    (decide/loop/forfeit, stubbed decide-fn tests) → then :player kind + genomes + bb poker.
+    Also still open from the gemma4 arc: 6 suite verdicts "gemma4 pending"→EARNED · gene-pool
+    re-score on [:local :gemma4].
 
 λ prev (2026-07-17, GEMMA4 LANDS — the second family, the cross-family arc, and a compaction
   redesign. ALL COMMITTED: rename b16a1ed · experiment knob 83a0020 · compaction redesign 4155d8f ·
