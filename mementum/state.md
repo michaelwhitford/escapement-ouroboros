@@ -238,7 +238,29 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   ONLY — ornith/vibethinker/qwythos RETIRED (see λ latest below). Smoke a new model's thinking convention
   BEFORE wiring (λ prove): the compaction lens NEEDS thinking-ON.
 
-λ latest (2026-07-17 — MODEL ROSTER SHRUNK, GEMMA4 ON HOLD, human-directed):
+λ latest (2026-07-17, later — ARC (b) LANDS: CHAMPION/CHALLENGER CONVERGENCE, the terminating
+  hill-climb). Commit 6be7f26:
+  · vsm §adaptive loop's mechanism is now CODE: kernel PURE in generator/core (duel-winner ≡ strict
+    majority over both-seatings comparator results, tie → INCUMBENT holds · converge-step ≡
+    streak/rounds fold, challenger win RESETS · converged? ≡ streak≥patience ∨ rounds≥max) + the
+    loop in workflow.clj (the composition home its own docstring reserved): converge! — champion ≡
+    agents/<slug>.md TEXT · v1 challenger ≡ generator fanout (compiler-validated inside generate!;
+    a DROP ≡ a challenger LOSS — regression-guard v1 IS the compiler gate) · duels on TEXTS (never
+    the worktree) · promotion ≡ spit to the genome path UNCOMMITTED (human gate ≡ diff-report, the
+    builder/editor lifecycle) · dirty-champion-path REFUSED (the editor-incident law) · editor-as-
+    challenger plugs into the same injectable seam later. bb converge <slug> "<use-case>".
+    Defaults patience 2 · max-rounds 3.
+  · ✅ LIVE-PROVEN end-to-end: scored the pool for the analyst use-case (26/26, rubric discriminates:
+    select/style/judge/plan 10 · scope/terminate/identity 1) → bb converge analyst → round 1
+    challenger (recombined evidence/report/verdict genes) DUELED and LOST both seatings → round 2
+    challenger DROPPED at the compiler gate (≡ loss) → :plateau after 2 rounds, exit 0, tree
+    UNTOUCHED. The designer-authored champion held — an honest no-op is the correct first result.
+  · STILL OPEN (with the decidability rollout): human-decision calibration + the full regression-set;
+    duels stay directional (single-model) until gemma4.
+  · bb test 196/855 GREEN (+5 tests/+24 assertions, all stubbed). Knowledge: agent-model editor row +
+    §GA STATUS · vsm adaptive-loop header (NOT finalized → v1 BUILT) — human-approved.
+
+λ prev (2026-07-17 — MODEL ROSTER SHRUNK, GEMMA4 ON HOLD, human-directed):
   · Servers now: 5100 (qwen36-35b-a3b) + 5103 (qwen3-embedding-8b) ONLY. 5102 ornith · 5104
     vibethinker · 5105 qwythos all RETIRED.
   · 🎯 GEMMA4 HOLD (human): gemma 4 announced a BIG UPDATE landing in ~1-2 weeks — do NOT bring
@@ -512,8 +534,9 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
   bb sessions.
   ONE ACTION: ✅ ALL 10 KINDS BUILT (agent-model build COMPLETE). Next arcs are DEEPENING, not
   new kinds: (a) gemma4 swap → RE-SCORE the pool + re-run suites (earns decorrelation, the fitness
-  signal becomes statistical not just directional) → (b) generator/editor CONVERGENCE — champion/
-  challenger + patience (vsm §adaptive loop, still deferred) now that the pool + comparator exist →
+  signal becomes statistical not just directional) → (b) ✅ BUILT v1 (2026-07-17): generator/editor
+  CONVERGENCE — bb converge, champion/challenger + patience (see λ latest; calibration + editor-as-
+  challenger + regression-set still open) →
   (c) close the FULL genetic cycle: land a generated candidate → bb genes it → its genes re-enter the
   pool. Also standing: cron/launchd (your machine).
   also  : gene-db-as-CHART deferred until the SECOND WRITER — signals + the sweep BOTH write now;
