@@ -19,10 +19,11 @@
 (def table
   "alias → live endpoint. Extend when a genome routes to a new server."
   {:local  {:base-url "http://localhost:5100/v1" :model "qwen36-35b-a3b"}
-   ;; SERVER RETIRED (2026-07-17, human): only 5100 (qwen36) + 5103 (qwen3-embed)
-   ;; run today. Entry kept as the rename target — :ornith → :gemma4 once the
-   ;; announced gemma4 update lands (~1-2 weeks) and its server comes up.
-   :ornith {:base-url "http://localhost:5102/v1" :model "ornith-35b-a3b"}})
+   ;; THE SECOND FAMILY (2026-07-17, human): gemma-4-31b-it landed on 5102
+   ;; (ornith's old port; ornith RETIRED). First GENUINE cross-family endpoint —
+   ;; smoke-proven: reasoning rides reasoning_content, enable_thinking toggles,
+   ;; cached_tokens in usage (same conventions as qwen; thinking ON by default).
+   :gemma4 {:base-url "http://localhost:5102/v1" :model "gemma-4-31b-it"}})
 
 (defn llm-config
   "The `:credentials` + `:config` pair a `lib/run` needs to route `alias`

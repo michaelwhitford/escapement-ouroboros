@@ -45,7 +45,7 @@
   :progressive-load {:answer :stop}
   :rollback-chain   {:answer :v2.1}}
 
- :matrix {:models [:local :ornith]
+ :matrix {:models [:local :gemma4]
           :thinking [true false]
           :repeats 1}
 

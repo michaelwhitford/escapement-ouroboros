@@ -10,7 +10,7 @@
   "redis-8080"
   "eviction policy"],
  :prompt-template "compile:\n\n%s",
- :matrix {:models [:local :ornith], :thinking [true], :repeats 1},
+ :matrix {:models [:local :gemma4], :thinking [true], :repeats 1},
  :experiment/verdict
  "CONFIRMED — :values wins (2026-07-15, :local qwen36-35b-a3b + :ornith ornith-35b-a3b, thinking-ON).
   24 cells (3 lenses × 4 REAL stress-session turns × 2 Qwen-35B-A3B fine-tunes [:local + :ornith, SAME

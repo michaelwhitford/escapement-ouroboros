@@ -17,7 +17,7 @@
   [:signal/lambda :string]]
  :measure/echo-substrings ["engage(nucleus)" "docker-compose"]
 
- :matrix {:models [:local :ornith]
+ :matrix {:models [:local :gemma4]
           :thinking [false]
           :repeats 1}
 

@@ -12,7 +12,7 @@
    :experiment/hypothesis "h"
    :experiment/measure :edn-malli
    :measure/schema [:map {:closed true} [:a :int]]
-   :matrix {:models [:local :ornith] :thinking [false true] :repeats 2}
+   :matrix {:models [:local :gemma4] :thinking [false true] :repeats 2}
    :conditions {:c1 {:system "s1"} :c2 {:system "s2"}}
    :subjects {:s1 "one" :s2 "two" :s3 "three"}
    :prompt-template "⟨SOURCE⟩%s⟨/SOURCE⟩"})

@@ -34,7 +34,7 @@
          sessions {:doc      "The session picker — conversation sessions newest-first: id · date · msgs(λ) · lineage (⤴ bootstrapped-from) · first human line. The CLI projection of the future web-UI resume button."
                    :requires ([ouroboros.compact :as compact])
                    :task     (compact/sessions-main)}
-         judge {:doc      "The JUDGE kind (verdict topology) — bb judge \"<subject>\": forced submit_verdict {:status pass|fail :notes} per the llm-judge genome (ornith @ localhost:5102)."
+         judge {:doc      "The JUDGE kind (verdict topology) — bb judge \"<subject>\": forced submit_verdict {:status pass|fail :notes} per the llm-judge genome (gemma4 @ localhost:5102)."
                 :requires ([ouroboros.verdict :as verdict])
                 :task     (apply verdict/-main "llm-judge" *command-line-args*)}
          roster {:doc     "The compiled agent roster report — provenance, grants, escalations for every genome in the roster."

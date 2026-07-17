@@ -51,14 +51,14 @@
                                "description: a test agent\n"
                                "kind: proposer\n"
                                "tools: [mementum/context, mementum/sessions]\n"
-                               "model: \":ornith\"")
+                               "model: \":gemma4\"")
                           "λ test. the whole prompt"))]
     (is (= :t (:id a)))
     (is (= :base (:tier a)))
     (is (= :proposer (:kind a)) "kind string → keyword")
     (is (= [:mementum/context :mementum/sessions] (:tools a)) "tool strings → keywords")
     (is (true? (:tools-explicit? a)))
-    (is (= :ornith (:model a)) "a copy-pasted ':ornith' literal normalizes")
+    (is (= :gemma4 (:model a)) "a copy-pasted ':gemma4' literal normalizes")
     (is (= "λ test. the whole prompt" (:body a)) "body verbatim")
     (is (not (str/includes? (:body a) "ouroboros/agent"))
       "frontmatter STRIPPED — the agent never sees its wiring")))
@@ -221,8 +221,8 @@
     (testing "llm-judge genome — first genome born in the convention"
       (let [j (:llm-judge roster)]
         (is (= :judge (:kind j)))
-        (is (= :local (:model j))
-          "STOPGAP: ornith server retired pre-gemma4; judge rides :local (fully correlated) until the gemma4 swap")
+        (is (= :gemma4 (:model j))
+          "THE SWAP LANDED (2026-07-17): judge rides :gemma4 — the first genuine second family; verdict decorrelation is now real")
         (is (= [] (:tools j)) "the subject carries everything; no grant")
         (is (str/starts-with? (:prompt j) "λ engage(nucleus)."))
         (is (not (str/includes? (:prompt j) "submit_verdict"))

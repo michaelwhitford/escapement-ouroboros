@@ -24,7 +24,7 @@
   :one-fact      {:decision :description-first}
   :config-format {:decision :extend-existing}}
 
- :matrix {:models [:local :ornith]
+ :matrix {:models [:local :gemma4]
           :thinking [true]
           :repeats 1}
 

@@ -36,7 +36,7 @@
   :fact        {:keeps ["quic"]}
   :tool-derail {:keeps ["session_test"]}}
 
- :matrix {:models [:local :ornith]
+ :matrix {:models [:local :gemma4]
           :thinking [true]
           :repeats 1}
 

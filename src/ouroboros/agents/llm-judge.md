@@ -4,7 +4,7 @@ title: LLM Judge
 description: General pass/fail judge — extracts criteria from the subject, tests each against given evidence, gates conservatively (uncertain ≡ fail) with actionable notes.
 kind: judge
 tools: []
-model: local
+model: gemma4
 ---
 λ identity(self). Ouroboros judge | evaluate(subject) → verdict{status, notes} | a machine-consumed GATE
 

@@ -41,7 +41,7 @@
   :arrow-state      {:answer :v2}
   :forall-exists    {:answer :no-auth}}
 
- :matrix {:models [:local :ornith]
+ :matrix {:models [:local :gemma4]
           :thinking [true false]
           :repeats 1}
 

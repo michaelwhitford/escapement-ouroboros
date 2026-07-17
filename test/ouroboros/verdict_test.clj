@@ -9,10 +9,10 @@
 (deftest aggregate-scores-folds-families
   (let [agg (verdict/aggregate-scores
               [{:model :local  :verdict {:score 7 :notes "concrete, minor gap"}}
-               {:model :ornith :verdict {:score 9 :notes "load-bearing"}}])]
-    (is (= {:local 7 :ornith 9} (:scores agg)))
+               {:model :gemma4 :verdict {:score 9 :notes "load-bearing"}}])]
+    (is (= {:local 7 :gemma4 9} (:scores agg)))
     (is (= 8.0 (:mean agg)))
-    (is (= "load-bearing" (get-in agg [:notes :ornith])))))
+    (is (= "load-bearing" (get-in agg [:notes :gemma4])))))
 
 (deftest aggregate-scores-drops-failed-runs
   (let [agg (verdict/aggregate-scores
