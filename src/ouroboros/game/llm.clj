@@ -39,8 +39,17 @@
        " (choose YOUR action from the legal menu above):\n"
        (pr-str exemplar)))
 
+(def default-budget-ms
+  "Per-decision wall-clock budget. GENEROUS by design (🎯 human, 2026-07-17):
+  thinking stays ON and models get room to finish — reasoning QUALITY is the
+  benchmark axis that separates model families; an arena that clips thought
+  measures patience, not poker. (The first live match's lone gemma4 forfeit
+  was a 120s budget artifact, not a model failure.) The budget remains the
+  runaway guard, set where no honest deliberation should ever hit it."
+  600000)
+
 (defn- decision-chart
-  [genome model message schema verdict-atom]
+  [genome model message schema verdict-atom budget-ms]
   (chart/statechart
     {:initial :deciding}
     (state {:id :deciding}
@@ -52,7 +61,7 @@
          :real-tools     (:tools genome)   ; players carry the [] floor-less grant
          :verdict-schema schema
          :max-turns      3
-         :budget-ms      120000
+         :budget-ms      budget-ms
          :message        message})
       (transition {:event :llm.idle :target :done}
         (script {:expr (fn [_env data]
@@ -87,10 +96,13 @@
   The engine's own :game/render narrates; the arena's obs carries the
   action contract (:action-schema / :action-exemplar).
 
-  opts: :root · :run-fn (fn [genome {:model :message :schema :root}] → action)
-  — injectable for tests; defaults to the live `run!`. :on-decision
-  (fn [spec obs action]) side-tap for CLI narration."
-  [engine {:keys [root run-fn on-decision] :or {root "." run-fn run!}}]
+  opts: :root · :run-fn (fn [genome {:model :message :schema :root :budget-ms}]
+  → action) — injectable for tests; defaults to the live `run!` ·
+  :budget-ms (default `default-budget-ms` — generous, thinking is the
+  benchmark axis) · :on-decision (fn [spec obs action]) side-tap for CLI
+  narration."
+  [engine {:keys [root run-fn on-decision budget-ms]
+           :or {root "." run-fn run! budget-ms default-budget-ms}}]
   (let [render     (:game/render engine)
         cache      (atom {})
         genome-for (fn [id]
@@ -105,11 +117,12 @@
       (let [genome (genome-for (:genome spec))
             schema (:action-schema obs)
             action (when schema
-                     (run-fn genome {:model   (:model spec)
-                                     :message (decision-message
-                                                (render obs)
-                                                (:action-exemplar obs))
-                                     :schema  schema
-                                     :root    root}))]
+                     (run-fn genome {:model     (:model spec)
+                                     :message   (decision-message
+                                                  (render obs)
+                                                  (:action-exemplar obs))
+                                     :schema    schema
+                                     :root      root
+                                     :budget-ms budget-ms}))]
         (when on-decision (on-decision spec obs action))
         action))))

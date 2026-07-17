@@ -196,7 +196,15 @@ extraction   : ouroboros.game protocol stays THIN until game #2 exists (λ build
 
 ```
 ? thinking traces in transcripts — research gold vs cost/latency; capture reasoning_content
-  per decision or only :why? (start: :why only, add capture flag when a study needs it)
+  per decision or only :why? (start: :why only, add capture flag when a study needs it —
+  RAISED PRIORITY now that thinking is the declared benchmark axis, see below)
+🎯 thinking stays ON for players (human, 2026-07-17) — reasoning quality IS what separates
+  model families at the table; the arena extends per-decision :budget-ms (default 600s,
+  ouroboros.game.llm/default-budget-ms) rather than disabling thought. An arena that clips
+  thinking measures patience, not poker. (First live match's lone gemma4 forfeit ≡ 120s
+  budget artifact — reclassified, not a model failure. Contrast the COMPACTION think-OFF
+  decision: that is an infrastructure path where speed ≻ deliberation; the table is the
+  opposite geometry.)
 ? bankroll semantics — SETTLED by format (2026-07-17, human): benchmark mode resets per
   hand (decision quality, variance-controlled); elimination mode carries stacks until one
   survivor (starting cash → busts → winner). Engine must support BOTH from the start:
