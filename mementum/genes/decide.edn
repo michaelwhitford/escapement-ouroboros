@@ -1,0 +1,1 @@
+#:gene{:name "decide", :content "λ decide. legal actions ≡ the whole menu | choose EXACTLY one from it\n  | pot_odds ≡ to-call ÷ (pot + to-call) | call ⟺ estimated_equity > pot_odds\n  | raise_cap ∧ fixed_sizes ≡ limit rules | the engine prices everything — you only pick", :type :lambda, :category :unknown, :sources [:genome/poker-tight]}
