@@ -219,6 +219,18 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
                          genes line (approval ≡ human ⟺ ¬decidable). λ mementum += genes tier (EDN ≡
                          structured format, type ≡ key namespace; ONE format PER TIER supersedes ONE format
                          ∀ files). Full rationale: design/gene-db.md §Autonomy + item 24.
+                         FREEZE EXCEPTION 5 (human-directed, 2026-07-18, THE AUTONOMY FIELD EQUATION +
+                         ARENA DELEGATION): λ policy refined + extended. autonomy line += the FIELD EQUATION
+                         autonomy(x) ∝ polymorphic(x) ∧ decidable_fitness(x) ∧ 1/blast_radius(x) — decidable
+                         ≡ necessary ¬sufficient (TIGHTENS the gate; monomorphic_standard ∧ unbounded_ripple
+                         → reserved). delegated += delegated(arena): poker strategy-population ∧ model-
+                         selection(registered), TWO-FACTOR gate (chips DECIDE S3 ∧ llm-judge RATIFIES
+                         identity S5) → promote ∧ demote autonomous, scoped --only {population · poker-genomes
+                         · arena-config}, capability-walled(harness ∧ general-genes ∧ knowledge), r10-
+                         authorized (autonomy-scope expansion). reserved += model-table-additions(register ≢
+                         select). Store-mechanism-AGNOSTIC — the one-vs-two-store fork stays OPEN (both satisfy
+                         the wording). Full rationale: design/game-arena §Strategy population + vsm-on-
+                         escapement §Calibrating collapse.
 ```
 
 ## >>> START HERE (next session) <<<
