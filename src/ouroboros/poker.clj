@@ -57,3 +57,32 @@
     (println "record   :" (:file m))
     (shutdown-agents)
     (System/exit 0)))
+
+(defn bench-main
+  "bb poker-bench [a b hands] — DUPLICATE-SEATED benchmark (step 5): the same
+  deals played twice with seats swapped so card luck cancels, then a
+  per-genome report. Any nonzero net is decidable skill, not variance."
+  [& [a b hands-s]]
+  (let [a     (keyword (or a "poker-tight"))
+        b     (keyword (or b "poker-aggro"))
+        hands (parse-long (or hands-s "6"))
+        _     (println (str "⚖ duplicate benchmark — " (name a) " vs " (name b)
+                            ", " hands " hands × 2 seatings (luck-cancelled)"))
+        d     (arena/run-duplicate!
+                poker/engine
+                {:seat-a    {:genome a}
+                 :seat-b    {:genome b}
+                 :decide-fn (game.llm/decide-fn poker/engine {:on-decision narrate})
+                 :seed      (rand-int 1000000)
+                 :hands     hands})
+        r     (arena/benchmark-report d {:label-a a :label-b b})]
+    (println)
+    (println "hands played :" (:hands-played r))
+    (doseq [g [a b]]
+      (let [s (get r g)]
+        (println (format "%-14s net %+d  (%.2f/hand)  forfeits %d"
+                         (name g) (:net s) (:chips-per-hand s) (:forfeits s)))))
+    (println "verdict      :" (if (= :tie (:verdict r)) "TIE"
+                                  (str (name (:verdict r)) " — decidably better")))
+    (shutdown-agents)
+    (System/exit 0)))

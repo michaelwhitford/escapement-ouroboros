@@ -153,3 +153,61 @@
             (recur (inc hand-idx)
                    (reduce (fn [b [i p]] (update b i + p)) bankrolls payoffs)
                    (conj acc record))))))))
+
+(defn run-duplicate!
+  "Heads-up DUPLICATE-SEATED match (design/game-arena.md λ duplicate, step 5):
+  two seat-specs play the SAME seed/deals TWICE with the seats SWAPPED, so
+  card luck cancels the way the comparator's both-seatings cancels position
+  bias. Each spec plays both sides of every deal; the aggregate is pure skill.
+
+  INVARIANT: seat-a ≡ seat-b (identical play) ⇒ :a = :b = 0 — any nonzero
+  aggregate is a decidable skill difference, not variance. This is the fitness
+  primitive the benchmark report and the GA duel both stand on.
+
+  opts: :seat-a · :seat-b (REQUIRED specs) · :decide-fn (REQUIRED) · :seed ·
+        :hands · :mode · :starting-bankroll · :config · :level-fn · :root ·
+        :persist? (default false — duplicates are ephemeral fitness probes).
+  Returns {:a <spec-a net chips over both seatings> :b <spec-b net>
+           :hands-played (* 2 hands) :seatings [m1 m2]}."
+  [engine {:keys [seat-a seat-b decide-fn seed hands mode starting-bankroll
+                  config level-fn root persist?]
+           :or   {seed 0 hands 10 mode :reset starting-bankroll 1000
+                  root "." persist? false}}]
+  (let [run  (fn [seats]
+               (run-match! engine {:seats             seats
+                                   :decide-fn         decide-fn
+                                   :seed              seed
+                                   :hands             hands
+                                   :mode              mode
+                                   :starting-bankroll starting-bankroll
+                                   :config            config
+                                   :level-fn          level-fn
+                                   :root              root
+                                   :persist?          persist?}))
+        m1   (run [seat-a seat-b])          ; a≡idx0, b≡idx1
+        m2   (run [seat-b seat-a])          ; b≡idx0, a≡idx1 — swapped, same deals
+        t1   (:totals m1)
+        t2   (:totals m2)
+        a    (+ (get t1 0 0) (get t2 1 0))  ; a's chips as idx0 then as idx1
+        b    (+ (get t1 1 0) (get t2 0 0))]
+    {:a a :b b :hands-played (* 2 hands) :seatings [m1 m2]}))
+
+(defn benchmark-report
+  "A duplicate result → a per-genome summary (design/game-arena.md λ benchmark:
+  payoff alone lies at small n, so we surface the decidable spread AND the
+  failure signal). Forfeits translate the same seat-swap way as chips.
+
+  opts: :label-a · :label-b (display keys, default :a/:b).
+  Returns {:hands-played n :label-a {…} :label-b {…} :verdict :a|:b|:tie}
+  where each side is {:net :chips-per-hand :forfeits}."
+  [{:keys [a b hands-played seatings]} & [{:keys [label-a label-b]
+                                           :or {label-a :a label-b :b}}]]
+  (let [[m1 m2] seatings
+        f1 (:forfeits m1) f2 (:forfeits m2)
+        fa (+ (get f1 0 0) (get f2 1 0))          ; a's forfeits (idx0 then idx1)
+        fb (+ (get f1 1 0) (get f2 0 0))
+        per (fn [net] (double (/ net (max 1 hands-played))))]
+    {:hands-played hands-played
+     label-a       {:net a :chips-per-hand (per a) :forfeits fa}
+     label-b       {:net b :chips-per-hand (per b) :forfeits fb}
+     :verdict      (cond (> a b) label-a (< a b) label-b :else :tie)}))

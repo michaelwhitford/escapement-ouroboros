@@ -102,6 +102,54 @@
     (is (= 5 (count (:hands m))))
     (is (zero? (reduce + (vals (:totals m)))))))
 
+;; ── duplicate seating (step 5) ────────────────────────────────────────────
+
+(defn- dup [opts]
+  (arena/run-duplicate! poker/engine (merge {:decide-fn bot-decide} opts)))
+
+(deftest duplicate-aggregate-is-zero-sum
+  (let [d (dup {:seat-a {:bot :raiser} :seat-b {:bot :passive}
+                :seed 7 :hands 10})]
+    (is (= 20 (:hands-played d)) "both seatings played")
+    (is (zero? (+ (:a d) (:b d))) "duplicate aggregate is zero-sum")
+    (is (= 2 (count (:seatings d))))))
+
+(deftest duplicate-cancels-luck-for-identical-play
+  (testing "identical genomes ⇒ each nets EXACTLY 0 — card luck cancels, only
+            skill remains (the fitness invariant the GA duel stands on)"
+    (doseq [[bot seed] [[:passive 3] [:passive 42] [:raiser 11] [:raiser 99]]]
+      (let [d (dup {:seat-a {:bot bot} :seat-b {:bot bot}
+                    :seed seed :hands 12})]
+        (is (zero? (:a d)) (str bot "/" seed " — a nets zero"))
+        (is (zero? (:b d)) (str bot "/" seed " — b nets zero"))))))
+
+(deftest duplicate-is-deterministic
+  (let [opts {:seat-a {:bot :raiser} :seat-b {:bot :passive} :seed 5 :hands 8}]
+    (is (= (select-keys (dup opts) [:a :b])
+           (select-keys (dup opts) [:a :b]))
+        "same seed ⇒ same duplicate result")))
+
+(deftest benchmark-report-summarizes-the-duplicate
+  (let [d (dup {:seat-a {:bot :raiser} :seat-b {:bot :passive}
+                :seed 7 :hands 10})
+        r (arena/benchmark-report d {:label-a :aggro :label-b :nit})]
+    (is (= 20 (:hands-played r)))
+    (is (= (:a d) (get-in r [:aggro :net])))
+    (is (= (:b d) (get-in r [:nit :net])))
+    (is (= (double (/ (:a d) 20)) (get-in r [:aggro :chips-per-hand])))
+    (is (contains? #{:aggro :nit :tie} (:verdict r)))
+    (is (= (:verdict r) (cond (> (:a d) (:b d)) :aggro
+                              (< (:a d) (:b d)) :nit
+                              :else :tie))
+        "verdict tracks the chip winner")))
+
+(deftest benchmark-report-translates-forfeits
+  (let [d (dup {:seat-a {:bot :thrower} :seat-b {:bot :passive}
+                :seed 2 :hands 6})
+        r (arena/benchmark-report d)]
+    (is (pos? (get-in r [:a :forfeits])) "the thrower's forfeits attribute to :a")
+    (is (zero? (get-in r [:b :forfeits])) "the passive bot never forfeits")))
+
 ;; ── persistence ───────────────────────────────────────────────────────────
 
 (deftest transcript-persists-and-parses

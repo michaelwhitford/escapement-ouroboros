@@ -43,6 +43,9 @@
          poker {:doc      "LLM agents at the limit hold'em table — bb poker [genome-a genome-b hands ('elim' for elimination)]. Default: poker-tight (:local) vs poker-aggro (:gemma4) — cross-family, chips as the scoreboard. Match record → games/."
                 :requires ([ouroboros.poker :as poker-cli])
                 :task     (apply poker-cli/-main *command-line-args*)}
+         poker-bench {:doc      "DUPLICATE-SEATED benchmark (step 5) — bb poker-bench [a b hands]: same deals played twice with seats swapped so luck cancels, then a per-genome chips/forfeits report. Any nonzero net is decidable skill."
+                      :requires ([ouroboros.poker :as poker-cli])
+                      :task     (apply poker-cli/bench-main *command-line-args*)}
          score {:doc      "The SCORER kind (verdict topology) — bb score \"<subject>\": forced submit_verdict {:score 1-10 :notes} per the gene-scorer genome (rubric-anchored)."
                 :requires ([ouroboros.verdict :as verdict])
                 :task     (apply verdict/-main "gene-scorer" *command-line-args*)}
