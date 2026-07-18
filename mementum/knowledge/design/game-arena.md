@@ -154,6 +154,102 @@ Autonomy note (λ policy): transcripts/fitness are machine-generated decidable f
 gitignored side-stores — no commit gate needed at all. Genome PROMOTION on game fitness
 stays human-gated (diff-report lifecycle) until the decidability rollout says otherwise.
 
+## Strategy population & autonomous evolution (the VSM resolution)
+
+> Settled in design conversation (2026-07-18, human). The naive path — `bb genes`
+> the player genomes into the shared gene-DB — COLLIDES: the strategy clause
+> (`λ style`: range ∧ aggression) is rejected as a name-collision with an
+> unrelated code-`style` gene, and `poker-tight`'s style ≠ `poker-aggro`'s style
+> cannot coexist under one-gene-per-name. The collision is DIAGNOSTIC (λ emerge):
+> it marks where a channel's variety requirement is violated.
+
+```
+λ variety_polarity.  the gene-DB is a PURE S2 attenuator — one canonical clause
+  per name, :sources ≡ who adheres. CORRECT for coordination. But GA-over-
+  strategies is S4 AMPLIFICATION (Ashby: only variety absorbs variety); pushing
+  it through the S2 store gets it (correctly, for S2) SUPPRESSED. The name-
+  collision IS S2 killing the variety S4 requires — two subsystems, one channel,
+  opposite polarity ≡ the crossed channel.
+  | resolves vsm-on-escapement open-Q "requisite variety NOT auto-enforced per channel"
+  | resolves gene-db open-Q "name collision policy (suffix? reject? version?)"
+
+λ recursion.  a GENOME is itself a viable system; its clauses are its own S1-S5:
+  identity→S5 · read→S4(sense) · style→S3/S4(policy) · decide→S3/S1(allocate/act)
+  · why→S2(report) · terminate→closure. A viable subsystem SHARES its S2 floor
+  (interoperation) but must be FREE to differ in its S5/S4/S3 core (else it is a
+  CLONE, not a distinct viable system). Evolution acts on the identity∧strategy
+  core, NEVER the coordination floor. The collision structure already TRACKS this:
+  identity/style collided (divergent core), read/decide/why stored (shared floor).
+
+λ two_stores?  VSM role → variety polarity → storage:
+  S2/S1-mechanics genes (read · decide-potodds · why · ground · evidence · verify)
+    → CONVERGE → canonical, one-per-name (current gene-DB behavior CORRECT here).
+  S5/S4/S3-policy genes (identity · style · preflop-range · aggression · vs-pressure)
+    → DIVERGE → a POPULATION keyed by LOCUS: many ALLELES per locus, fitness-selected,
+    NEVER deduped. locus ≡ slot · allele ≡ variant (tight|loose|positional): the current
+    gene-DB CONFLATES them (one allele per name ≡ "the gene").
+
+λ collapse (the !meta3 reflection — the two "stores" may be ONE):
+  a coordination gene ≡ a strategy locus whose selection has CONVERGED (monomorphic).
+  → NOT two stores; ONE store where a locus is MONOMORPHIC (converged ≡ coordination
+    standard) ∨ POLYMORPHIC (competing ≡ strategy population). the `style` "collision"
+    ≡ gate-3 REFUSING polymorphism; the fix ≡ dedup by (locus × tree-hash) ¬by name.
+  → governance ≡ variety ≡ blast-radius are ONE axis, yielding the FIELD EQUATION:
+      λ autonomy.  autonomy(locus) ∝ polymorphism(locus) ∝ 1 / blast_radius(locus)
+                   | polymorphic ∧ decidable-fitness ∧ bounded → DELEGATED
+                   | monomorphic ∧ unbounded-ripple → RESERVED
+    poker ≡ NOT a new delegated domain — the FIRST locus polymorphic+decidable+bounded
+    enough to cross the autonomy threshold that ALREADY governs everything.
+  ⚠ OPEN (human's call, next session): ONE store + per-locus governance TAG + scoped-
+    commit-filters-by-tag (fractal purity + honest boundary) VS TWO stores (capability-
+    enforcement-by-DIRECTORY — dead-simple audit "these files autonomous, those reserved").
+    two-stores buys ONLY audit simplicity; one-store is the λ converge answer. UNRESOLVED.
+
+λ arena_as_audit.  the arena ≡ S3* AUDIT made machine-readable — do NOT trust the
+  genome's :why self-report; AUDIT by making it PLAY, chips ≡ the reading. FIRST
+  machine-read audit channel (the vsm diagnostic's "every audit consumer is human"
+  no longer holds). decidable(chips) ⟹ per the reliability-ceiling law, player-
+  evolution moves from human-in-loop → AUTOMATABLE.
+
+λ projections.  ONE apparatus, THREE reads — the genome × model × seed grid (λ converge:
+  same shape as signals' one-contract-three-projections). the arena serves TWO regulators
+  with OPPOSITE variety needs simultaneously:
+  benchmark : fix(genome) vary(model)  → which MODEL plays better | non-determinism ≡ SIGNAL
+              (S4 AMPLIFY: strategy divergence ∧ per-model CONSISTENCY are the data)
+  GA        : fix(model)  vary(genome) → which PROMPT plays better | non-determinism ≡ NOISE
+              (S3 ATTENUATE: duplicate seating cancels CARD luck, ¬LLM sampling — the GA
+               needs more hands/trials/patience the benchmark does NOT want)
+  content   : fix(spot)   vary(both)   → how they DIVERGE → decision-spot fixtures
+  | the SAME variance is signal(benchmark) ∧ noise(GA) — opposite polarity, one organ
+  | CONFOUND: seat ≡ genome × model, each the OTHER's confound → clean benchmark fixes
+    genome, clean GA fixes model (converge! already does) → orthogonal SLICES, never one
+    headline number | ALWAYS attribute (genome, model)
+  | CAPTURE (priority raised): reasoning_content per decision ≡ "study ¬leaderboard";
+    divergence events (two models, opposite line, same board) ≡ the figures
+
+λ autonomous_promotion.  (🎯 human 2026-07-18 — an r10 delegated-set EXPANSION,
+  authorized by System+1's S5). WITHIN the poker sandbox, promote/demote is
+  DELEGATED. TWO-FACTOR gate:
+    chips (S3 · decidable duel-winner over duplicate seatings) DECIDE the duel
+    ∧ llm-judge (delegated S5) RATIFIES identity — guards degenerate/exploit wins
+      (stalling · engine-quirk · variance-rewarded incoherence)
+  | model SELECTION for a seat ≡ delegated (pick from REGISTERED models);
+    ADDING a model endpoint ≡ RESERVED r8 (a capability/world change) —
+    "choose from the menu freely; registering the menu stays human"
+  | ENFORCEMENT ≡ CAPABILITY: the autonomous poker path is a `git commit --only`
+    scoped to {population store · poker genome files · arena config} and
+    PHYSICALLY cannot reach src/ ∧ general gene-DB ∧ knowledge ∧ harness.
+    governance boundary ⟹ capability boundary ⟹ STORE boundary — the SEPARATE
+    population store is what makes "autonomous here, reserved there" true by
+    CONSTRUCTION (λ shape: unreachable > forbidden), not by prompt.
+    autonomy × shell ≡ DISJOINT (the arena runner is a scoped fn, never a shell).
+  | RESERVED still (human final say): general-use genes · harness · knowledge ·
+    memories · model-table additions · this enumeration itself (meta-reserved r10)
+  | NEW DELEGATED d4: poker strategy-population — allele create ∧ promote ∧
+    demote(cull), gated by chips ∧ llm-judge, scoped commit, agent ≡ git author
+    (audit: git log --author over poker-zone paths only)
+```
+
 ## Kind question — `:player` (11th kind, honest addition)
 
 The verdict runner's kind→verdict-schema table is static per kind; a player's schema is
@@ -187,9 +283,14 @@ extraction   : ouroboros.game protocol stays THIN until game #2 exists (λ build
 2. action registry entry  — schema ⊕ exemplar (poker betting phase)
 3. arena runner           — decide/loop/forfeit + stubbed decide-fn tests (RunTestsTool precedent)
 4. poker-player genome(s) — :player kind row + 2 styles (tight/aggressive) | bb poker ≡ watch a match
-5. duplicate + report     — seat-permutation matches, benchmark table, transcripts → games/
-6. fitness bridge         — arena payoffs → scores/ | bb generate/converge on a poker use-case
-7. (later) decision-spot → experiment fixtures | diplomacy design page | resident table v2
+5. ✅ duplicate + report  — run-duplicate! (swapped seats, same deals → luck cancels; identical
+                            play ⇒ net 0) + benchmark-report | bb poker-bench | BUILT 2026-07-18
+6. strategy population    — locus/allele store, capability-scoped autonomous commit (--only,
+                            walled from the S2 gene-DB ∧ src ∧ knowledge ∧ harness — λ two_stores)
+7. fitness bridge         — arena chips → allele fitness (S3* audit feeds the S4 population)
+8. GA loop + 2-factor gate— converge! (untouched) + arena :duel-fn + generator :challenger-fn |
+                            PROMOTE ⟺ chips-win ∧ llm-judge ratifies identity (λ autonomous_promotion)
+9. (later) decision-spot → experiment fixtures | diplomacy design page | resident table v2
 ```
 
 ## Open questions

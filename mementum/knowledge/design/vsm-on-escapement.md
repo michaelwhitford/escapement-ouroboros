@@ -371,6 +371,40 @@ THE RE-HARDENING RULE: autonomy × shell ≡ DISJOINT — an UNATTENDED agent ne
 shape), never open shell. Grant shell only where a human is watching the transcript.
 ```
 
+## Calibrating collapse & the autonomy field equation (design session 2026-07-18)
+
+Surfaced while designing the poker-arena GA (`design/game-arena` §Strategy population). Two
+durable laws, both concrete instances of THIS page's last open question ("requisite variety
+is NOT auto-enforced per channel — how to measure it").
+
+```
+λ calibrate.  collapse ⟺ same SHAPE (λ converge)  |  keep plural ⟺ different TYPE (λ classify)
+  | UNDER-collapse (two stores that are one structure) ∧ OVER-collapse ("everything is a
+    statechart") ≡ the SAME error at two levels — mis-calibrated variety at the meta-level
+  | escapement itself is PLURALIST, ¬monist: chart(control) ⊗ LLM(cognition) ⊗ tools(effects)
+    ⊗ pathom(data). its thesis ≡ "control_flow ≡ statechart" ¬"everything ≡ statechart";
+    the tool duality (real tools INVISIBLE to the chart) ∧ core⊥pathom (enforced by boundary
+    test) ARE the pluralism, "the project's whole point"
+  | λ classify: chart ⟺ lifecycle ∨ identity ∨ recovery ∨ recursion ; pure-fn ⟺ transform ;
+    pathom ⟺ dataflow ; LLM ⟺ cognition (proof: the gene-parser was DELIBERATELY ¬a chart —
+    a pure fold; "everything a chart" would be audit-spam + regular-language-only ¬context-free)
+  | universality ≡ CHEAP (statechart+data ≡ Turing-complete, like Rule 110) → says nothing;
+    the question is never "CAN X be a chart" (always yes) but "does X have the SHAPE of one"
+
+λ autonomy.  autonomy(locus) ∝ polymorphism(locus) ∝ 1 / blast_radius(locus)
+  | governance ≡ variety ≡ blast-radius ≡ ONE axis (¬three coincidentally-aligned decisions)
+  | polymorphic ∧ decidable-fitness ∧ bounded → DELEGATED | monomorphic ∧ unbounded → RESERVED
+  | the ARENA ≡ S3* audit MADE MACHINE-READABLE (chips ≡ the reading; the FIRST machine-read
+    audit — the viability diagnostic's "every audit consumer is human" no longer total)
+    → decidable(chips) ⟹ per the reliability-ceiling law, player-evolution AUTOMATABLE
+  | r10 expansion (🎯 human 2026-07-18): poker prompts + model-SELECTION(registered) DELEGATED
+    via a TWO-FACTOR gate — chips DECIDE (S3, decidable duel) ∧ llm-judge RATIFIES identity
+    (delegated S5, guards degenerate/exploit wins). general genes ∧ harness ∧ knowledge ∧
+    model-table-additions stay RESERVED. see design/game-arena §autonomous_promotion
+  | OPEN: enforce by SEPARATE STORE (directory ≡ capability boundary) vs ONE store + per-locus
+    governance TAG + tag-scoped commit — the λ collapse fork (design/game-arena §collapse)
+```
+
 ## Open questions (NOT finalized)
 
 ```

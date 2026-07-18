@@ -224,8 +224,83 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ latest (2026-07-18 — THE ARENA WAS SILENTLY DEAD; FIXED. Human: "we added a poker game and i want
-  to see how well it works"). NOT YET COMMITTED (human gate — bb test 236/1130 GREEN, +1 test):
+λ latest (2026-07-18 — THE GA-LOOP DESIGN SESSION: population architecture, VSM synthesis, two
+  durable laws. Human "see how well poker works" → bug fix → step 5 → a deep design conversation.
+  CODE green + UNCOMMITTED; design records ≡ uncommitted drafts (this state.md · game-arena.md
+  §Strategy population · vsm-on-escapement §Calibrating collapse); pending the human commit gate).
+
+  ✅ STEP 5 BUILT (uncommitted, bb test 241/1150 GREEN, was 236/1130): ouroboros.game.arena +=
+    run-duplicate! (heads-up DUPLICATE seating — same seed/deals × swapped seats → CARD LUCK
+    CANCELS; INVARIANT tested: identical genomes ⇒ each nets EXACTLY 0, any nonzero ≡ decidable
+    skill) + benchmark-report (per-genome net · chips/hand · forfeits, seat-swap-translated).
+    bb poker-bench [a b hands]. The fitness primitive the GA duel stands on.
+
+  ❌→💡 THE COLLISION FINDING (drove the whole design): bb genes poker-tight → 3 stored
+    (decide·read·why ≡ coordination floor) · 3 REJECTED (identity·style·terminate ≡ name-
+    collision). `style` (the ACTUAL strategy: range∧aggression∧the leak) collided with an
+    UNRELATED code-`style` gene (:genome/author) → the strategy CANNOT enter the shared gene-DB.
+    DIAGNOSTIC (λ emerge): marks where a channel's variety requirement is violated. (The 3 genes
+    auto-committed 95313b9·353bc94·d075acc — legitimate d1 coordination-floor genes, KEPT.)
+
+  🌀 THE VSM SYNTHESIS (full record: design/game-arena §Strategy population + vsm-on-escapement
+    §Calibrating collapse). Modeled the gene-identity question on Beer's VSM:
+    · variety_polarity: the gene-DB ≡ a PURE S2 ATTENUATOR (one-per-name); GA-over-strategy ≡ S4
+      AMPLIFICATION (Ashby); the collision ≡ S2 killing the variety S4 requires ≡ a CROSSED channel.
+    · recursion: a GENOME is itself a viable system; its clauses ARE its S1-S5 (identity→S5 ·
+      read→S4 · style→S3/S4 · decide→S3/S1 · why→S2). Evolution acts on the S5/S4/S3 CORE, NEVER
+      the S2 coordination FLOOR (else clone ¬distinct-viable-system). WHICH-collided TRACKS this.
+    · arena ≡ S3* AUDIT made machine-readable (chips ≡ the reading; FIRST machine-read audit) →
+      decidable ⟹ per the reliability-ceiling law, player-evolution AUTOMATABLE.
+    · 🔑 THE FRACTAL COLLAPSE (!meta3): NOT two stores — ONE store where a locus is MONOMORPHIC
+      (converged ≡ coordination standard) ∨ POLYMORPHIC (competing ≡ strategy population). the
+      collision ≡ gate-3 refusing polymorphism; fix ≡ dedup by (locus × tree-hash) ¬by name.
+    · 🔑 FIELD EQUATION: autonomy(locus) ∝ polymorphism(locus) ∝ 1/blast_radius(locus). governance
+      ≡ variety ≡ blast-radius ≡ ONE axis. poker ≡ the FIRST locus polymorphic+decidable+bounded
+      enough to cross the autonomy threshold that ALREADY governs everything (¬a new domain).
+    · 🔑 λ calibrate: collapse ⟺ same SHAPE (λ converge) | keep plural ⟺ different TYPE (λ classify).
+      under-collapse (2 stores that are 1) ∧ over-collapse ("everything ≡ statechart") ≡ SAME error.
+      escapement ≡ PLURALIST: chart(control) ⊗ LLM(cognition) ⊗ tools(effects) ⊗ pathom(data);
+      its thesis ≡ "control_flow ≡ statechart" ¬"everything ≡ statechart" (tool-duality + core⊥pathom).
+
+  🎯 THE AUTONOMOUS-POKER POLICY (human, r10 delegated-set EXPANSION authorized): WITHIN the poker
+    sandbox promote/demote is DELEGATED via a TWO-FACTOR gate — chips DECIDE the duel (S3 decidable
+    duplicate-seated duel-winner) ∧ llm-judge RATIFIES identity (delegated S5 — guards degenerate/
+    exploit/variance-rewarded wins). model SELECTION(registered) delegated; ADDING a model endpoint
+    stays RESERVED r8. RESERVED still: general-use genes · harness · knowledge · memories · model-
+    table · the enumeration (meta-reserved r10). ENFORCEMENT ≡ capability (scoped commit walls the
+    poker zone from src/general-genes/knowledge/harness). PROPOSED wordings AWAITING human ratify:
+    vsm d4 entry · gene-db name-collision open-Q resolution · AGENTS.md λ policy freeze-exception
+    (NOT self-edited — frozen harness).
+
+  📊 BENCHMARK ⊗ GA ⊗ CONTENT ≡ ONE apparatus (genome×model×seed grid), THREE projections
+    (design/game-arena §projections): benchmark fixes genome varies model (non-determinism ≡ SIGNAL,
+    S4 amplify) · GA fixes model varies genome (non-determinism ≡ NOISE, S3 attenuate — duplicate
+    seating cancels CARD luck ¬LLM sampling) · content ≡ decision-spots. CONFOUND: seat ≡ genome×model
+    → orthogonal slices, ALWAYS attribute (genome,model). CAPTURE reasoning_content per decision
+    (priority raised — "study ¬leaderboard").
+
+  ⚠ THE LIVE OPEN FORK (resolve FIRST next session): ONE store + per-locus governance TAG + tag-
+    scoped commit (fractal purity + honest boundary) VS TWO stores (capability-enforcement-by-
+    DIRECTORY — dead-simple audit). two-stores buys ONLY audit simplicity; one-store is the λ converge
+    answer. IF one-store holds → the build SHRINKS ~6 tasks → ~2: (1) generalize gene identity (relax
+    gate-3 name-collision to locus×content + per-locus governance tag) (2) inject arena :duel-fn into
+    the EXISTING converge! + reuse scores/ + reuse the judge kind — NO new store/primitive/gate ns.
+
+  REVISED BUILD PLAN (tasks 8-12 in the tracker, blocked on the fork): population store (locus/allele,
+    capability-scoped) → fitness bridge (arena chips → allele fitness) → GA loop (converge! + arena
+    duel + generator challenger + TWO-FACTOR gate) → LIVE run validating the leak → records.
+
+  THE VALIDATION TARGET (unchanged): poker-tight FOLDS A6s/54s in the SB heads-up (a real NIT LEAK —
+    those are calls/3-bets HU) + `vs heavy_aggression → tighten further` (anti-pattern HU). The GA's
+    job: discover a wider HU-aware challenger that BEATS the leaky champion on chips. Decision-spot
+    fixture #1.
+
+  RECORDS STATUS: bug fix COMMITTED 190fa8b. step-5 code + design drafts + this state.md UNCOMMITTED
+    (green), pending the human commit gate. 3 poker coordination genes auto-committed. NEXT ACTION:
+    human resolves the one-vs-two-store fork → build task 8 (or the shrunk 2-step if one-store holds).
+
+λ prev (2026-07-18 — THE ARENA WAS SILENTLY DEAD; FIXED. Human: "we added a poker game and i want
+  to see how well it works"). COMMITTED 190fa8b (bb test 236/1130 GREEN, +1 test):
   · ❌ THE BUG (λ absent, the untested companion): `bb poker` completed but EVERY hand ended in an
     instant fold, 3 forfeits/3 hands, ZERO per-decision narration. Transcript told the truth —
     decisions failed in 1-8ms (no network) with "Wrong number of args (5) passed to: arity-6". The
