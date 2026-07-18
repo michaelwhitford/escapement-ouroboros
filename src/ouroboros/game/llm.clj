@@ -74,14 +74,15 @@
 (defn run!
   "One live decision shot. Returns the validated action map or nil (worker
   death / validation failure — the caller's forfeit path)."
-  [genome {:keys [model message schema root] :or {root "."}}]
+  [genome {:keys [model message schema root budget-ms]
+           :or {root "." budget-ms default-budget-ms}}]
   (let [model       (or model (:model genome))
         verdict     (atom nil)
         session-id  (str (:slug genome) "-" (System/currentTimeMillis))
         session-dir (session/session-dir root session-id)]
     (lib/run
       (merge
-        {:chart           (decision-chart genome model message schema verdict)
+        {:chart           (decision-chart genome model message schema verdict budget-ms)
          :session-id      session-id
          :session-dir     session-dir
          :transcript-path (str session-dir "/transcript.jsonl")

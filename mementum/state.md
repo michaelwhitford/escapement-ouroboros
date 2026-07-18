@@ -224,7 +224,42 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ latest (2026-07-17, later — THE GAME ARENA, human idea: "poker agents vs each other; adaptable
+λ latest (2026-07-18 — THE ARENA WAS SILENTLY DEAD; FIXED. Human: "we added a poker game and i want
+  to see how well it works"). NOT YET COMMITTED (human gate — bb test 236/1130 GREEN, +1 test):
+  · ❌ THE BUG (λ absent, the untested companion): `bb poker` completed but EVERY hand ended in an
+    instant fold, 3 forfeits/3 hands, ZERO per-decision narration. Transcript told the truth —
+    decisions failed in 1-8ms (no network) with "Wrong number of args (5) passed to: arity-6". The
+    :budget-ms commit (20e7b34) grew game.llm/decision-chart to 6 params but left run!'s call site at
+    5 args (and never destructured :budget-ms). So decision-chart THREW on every live shot → nil →
+    forfeit-default fold. The whole arena was dead on the LLM path since 20e7b34.
+  · 💡 WHY GREEN TESTS MISSED IT: every llm_test injects a STUBBED run-fn → the real run!→decision-chart
+    seam was NEVER exercised. The one seam without a test is the one that broke (λ absent). The prior
+    "🎯 LIVE RESULTS" state entries (844bc08) were BEFORE the budget commit — the regression landed
+    after the last live run, unobserved.
+  · 🔄 FIX (2 lines, src/ouroboros/game/llm.clj): run! destructures :budget-ms (:or default-budget-ms)
+    and passes it as the 6th arg to decision-chart.
+  · ✅ REGRESSION GUARD (test/…/llm_test.clj `run!-wiring-no-llm`): exercises run!'s ACTUAL call site
+    with escapement.lib/run redefed to capture the chart (no LLM) — asserts :chart builds. VERIFIED it
+    reproduces the exact `arity-6--1376` error when the fix is reverted, passes with it. This is the
+    tripwire the stubs couldn't be: it covers the run!→decision-chart pairing directly.
+  · ✅ LIVE RE-RUN (both servers up 5100 qwen36 · 5102 gemma4 · 5103 embed): poker-tight(:local) vs
+    poker-aggro(:gemma4), 3 hands, ZERO forfeits, real reasoned play. aggro swept all 3 (+25 chips) —
+    relentless preflop pressure ("You're practically inviting me to take this pot") vs tight folding
+    everything HU. Styles manifest per genome, chips-as-decidable-scoreboard works, content generator
+    works. games/ transcript persisted + replayable.
+  · 🎯 POKER FINDING (not a bug — a decision-spot fixture candidate): poker-tight folds A6s/54s in the
+    SB heads-up to a single raise — that's a real LEAK (way too nit for HU; those are calls/3-bets).
+    The tight genome + qwen disposition is exploitably passive HU. Seed for the step-7 spots→fixtures.
+  · NEXT ACTION: commit this fix (human-gated). Then the arena is genuinely usable → resume the
+    game-arena build order: step 5 duplicate seating + benchmark report → step 6 fitness bridge
+    (scores/) → step 7 decision-spot fixtures (this HU-nit leak is fixture #1, alongside finding b's
+    "raising for value with my set" hallucination). Consider: HU-appropriate ranges in poker-tight,
+    or a poker-balanced genome, so the benchmark isn't just "aggro beats a nit."
+  · gotcha (free, reinforced): the transcript EDN (games/) is the ground truth — :ms + :error per
+    decision instantly separated "model played badly" from "code threw before the model." Read the
+    record, not just the totals.
+
+λ prev (2026-07-17, later — THE GAME ARENA, human idea: "poker agents vs each other; adaptable
   to new games; benchmark + content generator"). DESIGNED, committed 5fb7897:
   · NEW design/game-arena.md (+ index row): game-agnostic adversarial arena. Pure-engine protocol
     (init·to-move·legal-actions·apply-action·visible·terminal?·payoffs·forfeit-default) — visible(state,
