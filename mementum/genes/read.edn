@@ -1,0 +1,1 @@
+#:gene{:name "read", :content "λ read. the observation ≡ everything you may know | hole ∧ board ∧ pot ∧ to-call ∧ stacks ∧ action_history\n  | opponents' holes ≡ UNKNOWN | infer range from their actions only | ¬imagine cards not shown", :type :lambda, :category :unknown, :sources [:genome/poker-tight]}
