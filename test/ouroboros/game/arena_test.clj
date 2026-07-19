@@ -167,5 +167,44 @@
         (is (= (:totals m) (:totals r)) "the transcript IS the match record")
         (is (= 9 (:seed r)) "seed rides the transcript — replay ≡ re-run")
         (is (not (re-find #":deck" (slurp f)))
-            "full states (decks) never persist — only what a table shows"))
+            "the DECK alone never persists — replay rides :seed"))
       (finally (fs/delete-tree root)))))
+
+(deftest transcript-records-the-full-deal
+  ;; The study record (design/game-arena §content): every hand carries :cards
+  ;; with the community board + ALL seats' hole cards — even mucked folds — so a
+  ;; human can judge a fold as a leak. Agents never read the transcript.
+  (let [m    (run {:seats [{:bot :raiser} {:bot :passive}] :seed 7 :hands 4})
+        hand (first (:hands m))
+        {:keys [board holes]} (:cards hand)]
+    (is (vector? board) "board is a (possibly empty) vector of community cards")
+    (is (= #{0 1} (set (keys holes))) "every seat's hole cards are recorded")
+    (doseq [[seat h] holes]
+      (is (= 2 (count h)) (str "seat " seat " holds exactly 2 hole cards"))
+      (is (every? (every-pred :rank :suit) h) "cards are {:rank :suit} maps"))
+    (testing "board deals as streets are reached (non-preflop endings show ≥3)"
+      (let [flops (keep #(let [b (get-in % [:cards :board])]
+                           (when (seq b) (count b)))
+                        (:hands m))]
+        (is (every? #(>= % 3) flops) "any dealt board is at least a flop")))))
+
+(deftest decisions-record-chip-context
+  ;; The transcript carries the chips at stake per decision: pot/to-call/stack
+  ;; context + the engine-decided :committed amount for calls/raises (limit play
+  ;; sizes bets for the agent). Folds/checks commit nothing.
+  (let [m    (run {:seats [{:bot :raiser} {:bot :passive}] :seed 3 :hands 3})
+        decs (mapcat :decisions (:hands m))]
+    (is (seq decs))
+    (doseq [d decs]
+      (when-let [c (:chips d)]
+        (is (contains? c :pot) "pot at decision time is recorded")
+        (is (contains? c :to-call) "the call price is recorded")
+        (is (contains? c :stack) "the acting seat's stack is recorded")))
+    (testing "every call/raise records a positive :committed; folds/checks do not"
+      (let [betting (filter #(#{:call :raise} (get-in % [:action :action])) decs)]
+        (is (seq betting) "the raiser/passive bots produce calls/raises")
+        (is (every? #(pos? (get-in % [:chips :committed])) betting)
+            "each call/raise put a positive amount in the pot"))
+      (let [passive (filter #(#{:fold :check} (get-in % [:action :action])) decs)]
+        (is (every? #(nil? (get-in % [:chips :committed])) passive)
+            "fold/check commit nothing")))))

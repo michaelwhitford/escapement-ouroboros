@@ -69,11 +69,25 @@
               t0    (System/currentTimeMillis)
               [action err] (try [(decide-fn spec obs) nil]
                                 (catch Exception e [nil (ex-message e)]))
-              act   (if (map? action) action {:action ::invalid})]
+              act   (if (map? action) action {:action ::invalid})
+              ;; chip context for the transcript — betting games expose
+              ;; :pot/:to-call/:stack via visible, and the legal menu carries
+              ;; the ENGINE-decided amount for the chosen action (agents don't
+              ;; size bets in limit play; fold/check commit nothing). Captured
+              ;; opportunistically: absent for games that don't surface :pot.
+              committed (some (fn [la] (when (= (:action la) (:action action))
+                                         (:amount la)))
+                              (:legal obs))
+              decision  (cond-> {:seat eidx :action action
+                                 :error err
+                                 :ms (- (System/currentTimeMillis) t0)}
+                          (contains? obs :pot)
+                          (assoc :chips (cond-> {:pot     (:pot obs)
+                                                 :to-call (:to-call obs)
+                                                 :stack   (:stack obs)}
+                                          committed (assoc :committed committed))))]
           (recur (apply-action st eidx act)
-                 (conj decisions {:seat eidx :action action
-                                  :error err
-                                  :ms (- (System/currentTimeMillis) t0)})))))))
+                 (conj decisions decision)))))))
 
 (defn- persist!
   [root id match]
@@ -148,6 +162,18 @@
                             :payoffs   payoffs
                             :ending    (get-in state [:result :ending])
                             :result    (:result state)
+                            ;; FULL-TRUTH study record (design/game-arena §content —
+                            ;; "study ¬leaderboard"): the transcript is a post-hoc
+                            ;; human/analysis artifact AGENTS never read, so it captures
+                            ;; the WHOLE deal — every seat's hole cards (even mucked
+                            ;; folds ≡ the nit-leak evidence) + the community board.
+                            ;; visible/:result STILL enforce table-view for agents; the
+                            ;; :deck alone stays unpersisted (replay rides :seed).
+                            :cards     {:board (:board state)
+                                        :holes (into (sorted-map)
+                                                     (map-indexed
+                                                       (fn [ei s] [ei (:hole s)])
+                                                       (:seats state)))}
                             :forfeits  (->arena (forfeit-counts state))
                             :decisions decisions}]
             (recur (inc hand-idx)
