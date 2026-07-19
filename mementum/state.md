@@ -236,7 +236,74 @@ certainly drive escapement via the hermetic `escapement.lib/run` facade, injecti
 ## >>> START HERE (next session) <<<
 
 ```
-λ latest (2026-07-18 — THE GA-LOOP DESIGN SESSION: population architecture, VSM synthesis, two
+λ latest (2026-07-19 — THE ARENA REPLAY EXPLORER: a browser window on games/, converged onto
+  escapement's OWN web layer. Human "use escapement to create a poker arena dashboard to explore
+  the games?" CODE GREEN + UNCOMMITTED (bb test 244/1165, was 241/1150), pending the human gate.
+
+  ✅ BUILT: ouroboros.game.dashboard — read-only replay explorer over the games/ side-store.
+    · data layer (pure, tested): list-games(root) → newest-first summaries (seats→genomes · hand
+      COUNT · totals · winner · ts from the id's epoch-ms suffix; corrupt files skipped, missing
+      dir ⇒ []) · load-game(root id) → full transcript ∨ nil.
+    · src/ouroboros/game/dashboard.html — vanilla-JS single page (zero build step): left game
+      list, click → per-hand cards (result/winners/pot · each decision seat→genome · action chip ·
+      the :why table-talk · ms · forfeit/error). io/resource-served, dev-editable.
+    · bb dashboard [port root] (default 5080 .). +3 tests/+15 assertions, all green, no diagnostics.
+
+  🔄 THE COURSE-CORRECTION (human "Wait you just bypassed our future" — a LOAD-BEARING λ converge
+    lesson): I first drew the LAZY conclusion from a real finding. Finding: escapement.ui.server's
+    POST /api is NOT resolver-extensible (hardwired escapement.ui.resolvers over a session store),
+    so it can't serve the arena's game grain. WRONG response I started: spin up a SECOND, bespoke
+    org.httpkit.server. That forks the web stack — replay on a bespoke server, the future LIVE layer
+    on escapement's ws-push → two servers, two pages, split observation. A dead-end appendage the
+    self-hosting future (Ouroboros-on-escapement) never owns. RIGHT response (the finding's real
+    meaning): escapement.ui.server/make-handler is PUBLIC — compose. Our handler takes the arena
+    routes (/ · /api/games · /api/games/{id}) FIRST, then DELEGATES the tail to (ui/make-handler
+    ctx), so ONE server also carries GET /ws (the ws-push hub, wired NOW), POST /api (the session
+    inspector, free), and public/ statics. start! mirrors escapement's own contract (returns
+    {:stop :port :ws-push}); a :ws-push param is first-class from day one.
+
+  🌀 THE DURABLE LAW (feed_forward): a finding that "the reusable thing doesn't fit as-is" means
+    FIND THE COMPOSITION SEAM (make-handler was public all along), not "build a parallel path."
+    λ converge: ∃infrastructure → use; second_path → divergence(invisible). The LIVE table now rides
+    the SAME server + SAME page — pass a hub + a lib/run :transcript-tap → ws-push/publish! at the
+    match seam and replay+live are ONE surface. Nothing forks. (VSM: the dashboard makes the arena's
+    S3* audit — chips ≡ the machine-read — HUMAN-readable; a window on the content projection, not a
+    new capability.)
+
+  ✅ CARDS (same session, human "It doesn't show the cards"): the transcripts recorded NO cards —
+    by design the arena stored only :decisions/:payoffs/:result, so folds mucked and even showdowns
+    lacked the board. FIX (arena.clj): each hand record now carries :cards {:board :holes} pulled
+    from terminal state — a FULL-TRUTH STUDY record (ALL seats' holes incl. mucked folds ≡ the
+    nit-leak evidence + the community board). Legit because the transcript is a post-hoc artifact
+    AGENTS NEVER READ (visible/:result still enforce table-view at decision time); only :deck stays
+    unpersisted (replay rides :seed). dashboard.html renders holes+board per hand (♠♥♦♣, red suits),
+    with a fallback to the old :result :revealed for pre-:cards showdown transcripts (no board there).
+    +1 arena test (transcript-records-the-full-deal). bb test 245/1172 GREEN. Generated an instant
+    no-LLM bot demo game (games/demo-showdowns-777-*, 5 showdowns, full boards) so cards render NOW.
+    NOTE: the 4 pre-existing LLM games predate :cards — only 556158 (a showdown) shows holes via the
+    fallback; regenerate via bb poker for full card-bearing narrated games (servers 5100/5102 up).
+
+  ✅ CHIPS (same session, human "we need to see the chip amounts for the bets too"): decisions
+    recorded only :action/:why/:ms — no stakes. FIX (arena run-hand!): each decision now carries
+    :chips {:pot :to-call :stack :committed} from the pre-action visible obs; :committed ≡ the
+    ENGINE-decided amount of the chosen action, looked up in obs :legal (limit play sizes the bet —
+    call=owe, raise=owe+bet; fold/check commit nothing). Opportunistic: only when obs exposes :pot,
+    so non-betting games are unaffected. dashboard.html shows the committed chips beside each action
+    (raise +N / call N / 0) + a pot/to-call/stack context line. +1 arena test
+    (decisions-record-chip-context). bb test 246/1269 GREEN.
+
+  ⟳ REGEN LOOP (gotcha, reusable): each transcript-enrichment (:cards, then :chips) is CAPTURED AT
+    PLAY TIME — old transcripts predate the field, so after every arena record change the games must
+    be REGENERATED to show it. Fold-heavy poker-tight vs poker-aggro matches finish fast (mostly
+    preflop folds, empty boards). Instant no-LLM bot demo (games/demo-showdowns-*, raiser vs caller)
+    is the go-to for FULL boards + showdowns + chips without waiting on gemma4.
+
+  NEXT ACTION: human commit gate on the dashboard + cards + chips (code green). THEN the natural next
+    slice is the LIVE layer (layer 2): a hub into start! + a bb poker match whose :transcript-tap
+    publishes to it, the browser streaming decisions (+ llm/delta reasoning tokens) as they land —
+    same server, same page. STILL the prior open fork below (one-vs-two gene store) is independent.
+
+λ prev (2026-07-18 — THE GA-LOOP DESIGN SESSION: population architecture, VSM synthesis, two
   durable laws. Human "see how well poker works" → bug fix → step 5 → a deep design conversation.
   CODE green + UNCOMMITTED; design records ≡ uncommitted drafts (this state.md · game-arena.md
   §Strategy population · vsm-on-escapement §Calibrating collapse); pending the human commit gate).
