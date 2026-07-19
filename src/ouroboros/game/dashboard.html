@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arena Replay Explorer</title>
+<style>
+  :root {
+    --bg:#0e1116; --panel:#161b22; --edge:#2a313c; --ink:#d7dde5; --dim:#8b96a5;
+    --acc:#4ea1ff; --win:#3fb950; --loss:#f0685f; --fold:#8b96a5; --chip:#e3b341;
+    --mono:"SF Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; font-size:14px; }
+  #app { display:grid; grid-template-columns:340px 1fr; height:100vh; }
+  #list { border-right:1px solid var(--edge); overflow-y:auto; background:var(--panel); }
+  #detail { overflow-y:auto; padding:20px 26px; }
+  h1 { font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim);
+    margin:0; padding:16px 16px 10px; font-weight:600; }
+  .sub { color:var(--dim); font-size:12px; padding:0 16px 12px; }
+  .g { padding:11px 16px; border-bottom:1px solid var(--edge); cursor:pointer; }
+  .g:hover { background:#1c232d; }
+  .g.sel { background:#1f2937; border-left:3px solid var(--acc); padding-left:13px; }
+  .g .vs { font-weight:600; }
+  .g .vs .a { color:var(--acc); } .g .vs .b { color:var(--chip); }
+  .g .meta { color:var(--dim); font-size:12px; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap; }
+  .net { font-family:var(--mono); }
+  .net.pos { color:var(--win); } .net.neg { color:var(--loss); }
+  .empty { color:var(--dim); padding:40px 26px; line-height:1.6; }
+  .mhead { display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:6px; }
+  .mhead h2 { margin:0; font-size:20px; }
+  .mhead .tag { font-family:var(--mono); font-size:12px; color:var(--dim);
+    border:1px solid var(--edge); border-radius:4px; padding:2px 7px; }
+  .seatline { display:flex; gap:22px; margin:10px 0 22px; flex-wrap:wrap; }
+  .seat { border:1px solid var(--edge); border-radius:8px; padding:10px 14px; min-width:150px; }
+  .seat .nm { font-weight:600; }
+  .seat.s0 .nm { color:var(--acc); } .seat.s1 .nm { color:var(--chip); }
+  .seat .tot { font-family:var(--mono); font-size:22px; margin-top:2px; }
+  .hand { border:1px solid var(--edge); border-radius:8px; margin:0 0 14px; overflow:hidden; }
+  .hand > .hh { display:flex; align-items:center; gap:12px; padding:9px 14px;
+    background:#12171f; border-bottom:1px solid var(--edge); flex-wrap:wrap; }
+  .hh .n { font-weight:600; }
+  .hh .res { color:var(--dim); font-size:12px; }
+  .hh .pot { margin-left:auto; font-family:var(--mono); color:var(--chip); }
+  .dec { display:grid; grid-template-columns:70px 104px 1fr 132px; gap:12px;
+    padding:9px 14px; border-top:1px solid #1d232c; align-items:start; }
+  .dec:first-child { border-top:none; }
+  .actcell { display:flex; flex-direction:column; gap:3px; align-items:flex-start; }
+  .amt { font-family:var(--mono); font-size:11px; color:var(--chip); white-space:nowrap; }
+  .amt.zero { color:var(--dim); }
+  .meta2 { display:flex; flex-direction:column; gap:2px; align-items:flex-end; text-align:right; }
+  .potline { font-family:var(--mono); font-size:11px; color:var(--dim); white-space:nowrap; }
+  .dec .who { font-weight:600; font-size:12px; }
+  .dec.s0 .who { color:var(--acc); } .dec.s1 .who { color:var(--chip); }
+  .act { font-family:var(--mono); font-size:12px; padding:1px 8px; border-radius:4px;
+    align-self:start; text-transform:uppercase; letter-spacing:.05em; }
+  .act.raise,.act.bet { background:#3a2a12; color:var(--chip); }
+  .act.call,.act.check { background:#12303a; color:var(--acc); }
+  .act.fold { background:#2a2f36; color:var(--fold); }
+  .why { color:var(--ink); line-height:1.5; }
+  .why.err { color:var(--loss); }
+  .ms { font-family:var(--mono); font-size:11px; color:var(--dim); white-space:nowrap; }
+  .ff { color:var(--loss); font-size:11px; font-family:var(--mono); }
+  .win-badge { color:var(--win); font-weight:600; }
+  .deal { display:flex; gap:20px; flex-wrap:wrap; align-items:center;
+    padding:9px 14px; background:#0f141b; border-top:1px solid #1d232c; }
+  .hand-of, .board { display:inline-flex; align-items:center; gap:8px; }
+  .who2 { font-size:12px; font-weight:600; }
+  .hand-of.s0 .who2 { color:var(--acc); } .hand-of.s1 .who2 { color:var(--chip); }
+  .board .lbl { font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.1em; }
+  .cards { display:inline-flex; gap:4px; }
+  .card { font-family:var(--mono); font-weight:600; font-size:14px; line-height:1;
+    background:#f5f2ea; color:#0e1116; border-radius:4px; padding:5px 7px;
+    box-shadow:0 1px 0 rgba(0,0,0,.4); min-width:14px; text-align:center; }
+  .card.red { color:#c0362c; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="list">
+    <h1>Arena — Games</h1>
+    <div class="sub" id="count">loading…</div>
+    <div id="games"></div>
+  </div>
+  <div id="detail"><div class="empty">← pick a game to replay the hands, the decisions, and the table talk.</div></div>
+</div>
+<script>
+const $ = (s, r=document) => r.querySelector(s);
+const el = (t, c, txt) => { const e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; };
+const fmtNet = n => (n>0?"+":"") + n;
+const fmtDate = ts => ts ? new Date(ts).toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}) : "—";
+const seatName = (seats, i) => (seats && seats[i] != null) ? String(seats[i]).replace(/^:/, "") : ("seat " + i);
+
+const RANKS = {11:"J", 12:"Q", 13:"K", 14:"A"};
+const SUITS = {clubs:"♣", diamonds:"♦", hearts:"♥", spades:"♠"};
+function cardEl(c) {
+  const suit = String(c.suit).replace(/^:/, "");
+  const red = (suit === "hearts" || suit === "diamonds");
+  const e = el("span", "card" + (red ? " red" : ""));
+  e.textContent = (RANKS[c.rank] || String(c.rank)) + (SUITS[suit] || "?");
+  return e;
+}
+function cardsRow(cards) { const w = el("span", "cards"); (cards || []).forEach(c => w.append(cardEl(c))); return w; }
+
+let GAMES = [];
+let selected = null;
+
+async function load() {
+  const r = await fetch("/api/games");
+  GAMES = await r.json();
+  $("#count").textContent = GAMES.length + (GAMES.length === 1 ? " game" : " games");
+  const box = $("#games"); box.innerHTML = "";
+  for (const g of GAMES) {
+    const totals = g.totals || {};
+    const net0 = totals["0"] ?? 0;
+    const div = el("div", "g");
+    div.dataset.id = g.id;
+    const vs = el("div", "vs");
+    vs.append(el("span", "a", seatName(g.seats, 0)), document.createTextNode(" vs "), el("span", "b", seatName(g.seats, 1)));
+    const meta = el("div", "meta");
+    meta.append(
+      el("span", null, (g.game ? String(g.game).replace(/^:/, "") : "?")),
+      el("span", null, g.hands + "h · " + String(g.mode || "").replace(/^:/, "")),
+      el("span", "net " + (net0 >= 0 ? "pos" : "neg"), seatName(g.seats,0) + " " + fmtNet(net0)),
+      el("span", null, fmtDate(g.ts)),
+    );
+    div.append(vs, meta);
+    div.onclick = () => select(g.id);
+    box.append(div);
+  }
+  if (GAMES.length) select(GAMES[0].id);
+}
+
+async function select(id) {
+  selected = id;
+  for (const n of document.querySelectorAll(".g")) n.classList.toggle("sel", n.dataset.id === id);
+  const r = await fetch("/api/games/" + encodeURIComponent(id));
+  if (!r.ok) { $("#detail").innerHTML = '<div class="empty">could not load ' + id + '</div>'; return; }
+  render(await r.json());
+}
+
+function render(m) {
+  const seats = (m.seats || []).map(s => s && s.genome != null ? String(s.genome).replace(/^:/, "") : null);
+  const totals = m.totals || {};
+  const d = $("#detail"); d.innerHTML = "";
+
+  const head = el("div", "mhead");
+  head.append(el("h2", null, seatName(seats,0) + "  vs  " + seatName(seats,1)));
+  head.append(el("span", "tag", String(m.game || "").replace(/^:/, "")));
+  head.append(el("span", "tag", "seed " + m.seed));
+  head.append(el("span", "tag", String(m.mode || "").replace(/^:/, "")));
+  if (m.winner != null) head.append(el("span", "tag win-badge", "winner: " + seatName(seats, m.winner)));
+  d.append(head);
+
+  const sl = el("div", "seatline");
+  (seats.length ? seats : [0,1]).forEach((nm, i) => {
+    const s = el("div", "seat s" + i);
+    s.append(el("div", "nm", seatName(seats, i)));
+    const t = totals[String(i)] ?? 0;
+    const tot = el("div", "tot " + (t >= 0 ? "" : "")); tot.textContent = fmtNet(t) + " chips";
+    tot.style.color = t > 0 ? "var(--win)" : (t < 0 ? "var(--loss)" : "var(--dim)");
+    s.append(tot);
+    sl.append(s);
+  });
+  d.append(sl);
+
+  for (const h of (m.hands || [])) d.append(handCard(h, seats));
+}
+
+function handCard(h, seats) {
+  const card = el("div", "hand");
+  const hh = el("div", "hh");
+  hh.append(el("span", "n", "Hand " + ((h.hand ?? 0) + 1)));
+  const res = h.result || {};
+  const winners = (res.winners || []).map(w => seatName(seats, w)).join(", ");
+  hh.append(el("span", "res", String(res.ending || h.ending || "").replace(/^:/, "") +
+    (winners ? " → " + winners : "")));
+  if (res.pot != null) hh.append(el("span", "pot", "pot " + res.pot));
+  card.append(hh);
+
+  // the deal — every seat's hole cards + the community board (full-truth study
+  // record). Fallback for pre-:cards transcripts: the showdown :result :revealed
+  // still carries the shown holes (no board was recorded back then).
+  const cards = h.cards || {};
+  const holes = cards.holes || (h.result && h.result.revealed) || null;
+  if (holes || (cards.board && cards.board.length)) {
+    const deal = el("div", "deal");
+    (seats.length ? seats : [0, 1]).forEach((_nm, i) => {
+      const hh2 = holes && holes[String(i)];
+      if (hh2 && hh2.length) {
+        const grp = el("span", "hand-of s" + i);
+        grp.append(el("span", "who2", seatName(seats, i)));
+        grp.append(cardsRow(hh2));
+        deal.append(grp);
+      }
+    });
+    if (cards.board && cards.board.length) {
+      const b = el("span", "board");
+      b.append(el("span", "lbl", "board"));
+      b.append(cardsRow(cards.board));
+      deal.append(b);
+    }
+    card.append(deal);
+  }
+
+  for (const dec of (h.decisions || [])) {
+    const row = el("div", "dec s" + dec.seat);
+    row.append(el("div", "who", seatName(seats, dec.seat)));
+    const a = dec.action || {};
+    const actName = String(a.action != null ? a.action : "—").replace(/^:/, "");
+    const chips = dec.chips || {};
+
+    // action + the chips it put in (limit hold'em sizes the bet)
+    const acell = el("div", "actcell");
+    acell.append(el("span", "act " + actName, actName));
+    if (chips.committed) {
+      const verb = (actName === "raise" || actName === "bet") ? "+" : "";
+      acell.append(el("span", "amt", verb + chips.committed + " chips"));
+    } else if (actName === "fold" || actName === "check") {
+      acell.append(el("span", "amt zero", "0"));
+    }
+    row.append(acell);
+
+    // why
+    const why = el("div", "why" + (dec.error ? " err" : ""));
+    why.textContent = dec.error ? ("⚠ " + dec.error) : (a.why || "");
+    if (dec.forfeit) { const f = el("span", "ff", " (forfeit)"); why.append(f); }
+    row.append(why);
+
+    // chip context (pot to call · pot · stack) + latency
+    const meta = el("div", "meta2");
+    const toCall = chips["to-call"];
+    const bits = [];
+    if (toCall != null && toCall > 0) bits.push("to call " + toCall);
+    if (chips.pot != null) bits.push("pot " + chips.pot);
+    if (chips.stack != null) bits.push("stack " + chips.stack);
+    if (bits.length) meta.append(el("div", "potline", bits.join(" · ")));
+    if (dec.ms != null) meta.append(el("div", "ms", (dec.ms / 1000).toFixed(1) + "s"));
+    row.append(meta);
+    card.append(row);
+  }
+  return card;
+}
+
+load();
+</script>
+</body>
+</html>

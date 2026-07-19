@@ -33,7 +33,8 @@
     [ouroboros.game.poker.eval-test]
     [ouroboros.game.poker-test]
     [ouroboros.game.arena-test]
-    [ouroboros.game.llm-test]))
+    [ouroboros.game.llm-test]
+    [ouroboros.game.dashboard-test]))
 
 (defn run! [& _]
   (let [{:keys [fail error]}
@@ -67,5 +68,6 @@
           'ouroboros.game.poker.eval-test
           'ouroboros.game.poker-test
           'ouroboros.game.arena-test
-          'ouroboros.game.llm-test)]
+          'ouroboros.game.llm-test
+          'ouroboros.game.dashboard-test)]
     (System/exit (if (pos? (+ fail error)) 1 0))))
